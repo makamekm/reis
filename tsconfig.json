@@ -16,7 +16,9 @@
     "stripInternal": true,
     "skipLibCheck": true,
     "noLib": false,
-    "baseUrl": "./",
+    "declaration": true,
+    "baseUrl": "./src",
+    "outDir": "./build",
     "allowSyntheticDefaultImports": true,
     "paths": {
       "~/*": ["./*"]
@@ -24,11 +26,13 @@
     "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "allowJs": true
+    "allowJs": false
   },
   "compileOnSave": false,
   "suppressImplicitAnyIndexErrors": true,
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "build",
+    "composer.js"
   ]
 }

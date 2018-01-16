@@ -1,8 +1,8 @@
 {
-  "name": "reiso-src",
+  "name": "reiso",
   "version": "0.1.4",
-  "description": "reiso sources",
-  "private": true,
+  "description": "reiso",
+  "private": false,
   "keywords": [
     "reiso",
     "react",
