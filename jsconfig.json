@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "./",
+    "paths": {
+      "~/*": ["./*"],
+      "reis/*": ["./Core/Modules/*"]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "public",
+    "build",
+    "dist",
+    "dev",
+    "server.js",
+    "tool.js",
+    "worker.js",
+    "applicationBack.js",
+    "applicationFront.js"
+  ]
+}
