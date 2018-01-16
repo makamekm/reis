@@ -16,7 +16,7 @@ function reduce(language, row): any {
   else return res;
 }
 
-export const reifConfig = JSON.parse(fs.readFileSync(path.resolve('./reis.json'), "utf8"));
+export const reifConfig = JSON.parse(fs.readFileSync(path.resolve('./reiso.json'), "utf8"));
 export function getReifConfig() {
   return reifConfig;
 }
