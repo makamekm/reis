@@ -16,11 +16,10 @@
     "stripInternal": true,
     "skipLibCheck": true,
     "noLib": false,
-    "baseUrl": "./src",
+    "baseUrl": "./",
     "allowSyntheticDefaultImports": true,
     "paths": {
-      "~/*": ["./*"],
-      "reis/*": ["./Core/Modules/*"]
+      "~/*": ["./*"]
     },
     "sourceMap": true,
     "emitDecoratorMetadata": true,
@@ -30,15 +29,6 @@
   "compileOnSave": false,
   "suppressImplicitAnyIndexErrors": true,
   "exclude": [
-    "node_modules",
-    "public",
-    "build",
-    "dist",
-    "dev",
-    "server.js",
-    "tool.js",
-    "worker.js",
-    "applicationBack.js",
-    "applicationFront.js"
+    "node_modules"
   ]
 }
