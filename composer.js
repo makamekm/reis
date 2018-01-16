@@ -1,8 +1,6 @@
 var path = require('path');
 var fs = require('fs');
 
-const reifConfig = JSON.parse(fs.readFileSync(path.resolve('./reis.json'), "utf8"));
-
 let indexOfType;
 
 indexOfType = process.argv.indexOf('dir');
