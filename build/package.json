@@ -1,6 +1,6 @@
 {
   "name": "reiso",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "reiso",
   "private": false,
   "keywords": [
@@ -46,8 +46,6 @@
     "@types/request": "2.0.8",
     "gql": "1.1.2",
     "gql-tools": "0.0.15",
-    "node-noop": "1.0.0",
-    "node-redis-pubsub": "1.0.3",
     "typescript": "2.6.2"
   },
   "dependencies": {
@@ -108,6 +106,7 @@
     "tslib": "1.8.1",
     "typeorm": "0.1.9",
     "zen-observable-ts": "0.5.0",
-    "compression": "1.7.1"
+    "compression": "1.7.1",
+    "node-redis-pubsub": "1.0.3"
   }
 }
