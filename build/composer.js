@@ -94,6 +94,26 @@ if (type == 'ts') {
     if ((content.trim()).length == 0) content = 'body {}';
 
     fs.writeFile(path.resolve(outDir, outName + '.less'), content, function (err) { if (err) throw err; });
+} else if (type == 'pcss') {
+    var content = '';
+
+    for (var i = 0; i < names.length; i++) {
+        var name = names[i];
+
+        data[name] = [];
+
+        fromDir(path.resolve(dir), new RegExp("^\/" + name + "\/.+\.(pcss|css)$"), function (filename) {
+            data[name].push(filename);
+        });
+
+        for (var k = 0; k < data[name].length; k++) {
+            content = content + '@import "' + incDir + data[name][k] + '";\r';
+        }
+    }
+
+    if ((content.trim()).length == 0) content = 'body {}';
+
+    fs.writeFile(path.resolve(outDir, outName + '.pcss'), content, function (err) { if (err) throw err; });
 } else if (type == 'gql') {
     for (var i = 0; i < names.length; i++) {
         var name = names[i];
