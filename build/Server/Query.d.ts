@@ -9,7 +9,7 @@ export declare class SubscriptionManager {
     init(): void;
 }
 export declare function Publish(name: string, data: any, scope?: string): Promise<void>;
-export declare function Subscribe(name: string, basic?: Function, filter?: (payload, variables) => boolean): ((rootValue?: any, args?: any, context?: any, info?: any) => AsyncIterator<any>) | AsyncIterator<{}>;
+export declare function Subscribe(name: string, basic?: Function, filter?: (payload, variables) => boolean): Subscriptions.ResolverFn | AsyncIterator<{}>;
 export declare type FieldType = Function | 'string' | 'integer' | 'boolean' | 'float' | 'id';
 export declare function getInputModelType(model: ModelInput): any;
 export declare function getInputTypeSimple(t: any, arg: ModelArg | ModelInputField): any;

@@ -6,11 +6,7 @@ import * as ReactRedux from 'react-redux';
 import { responsiveStateReducer, responsiveStoreEnhancer, createResponsiveStoreEnhancer } from 'redux-responsive';
 import * as ApolloClient from "apollo-client";
 
-export function Connect<TStateProps = any, TDispatchProps = any, TModel = any, TOwnProps = any>(mapStateToProps: (initialState: TModel, ownProps: TOwnProps) => TStateProps, mapDispatchToProps: (dispatch: ReactRedux.Dispatch<any>, ownProps: TOwnProps) => TDispatchProps = (props): any => ({}), options: ReactRedux.Options<TStateProps, TOwnProps> = {}) {
-  return function (target): any {
-    return ReactRedux.connect<TStateProps, TDispatchProps, TOwnProps>(mapStateToProps, mapDispatchToProps, null, options)(target);
-  }
-}
+export const Connect = ReactRedux.connect;
 
 let initialState: any = {};
 

@@ -3,12 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Redux = require("redux");
 const ReactRedux = require("react-redux");
 const redux_responsive_1 = require("redux-responsive");
-function Connect(mapStateToProps, mapDispatchToProps = (props) => ({}), options = {}) {
-    return function (target) {
-        return ReactRedux.connect(mapStateToProps, mapDispatchToProps, null, options)(target);
-    };
-}
-exports.Connect = Connect;
+exports.Connect = ReactRedux.connect;
 let initialState = {};
 if (process.env.MODE == "client" && window.__INITIAL_STATE__) {
     initialState = window.__INITIAL_STATE__;

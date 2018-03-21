@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.stringValidator = (value, opts = {
-        min: 3,
-        max: 20
-    }) => {
+    min: 3,
+    max: 20
+}) => {
     let errors = [];
     if (!opts.nullable && !value) {
         errors.push("Shouldn't be null");
@@ -25,9 +25,9 @@ exports.stringValidator = (value, opts = {
     return errors;
 };
 exports.arrayValidator = (value, opts = {
-        min: 3,
-        max: 20
-    }) => {
+    min: 3,
+    max: 20
+}) => {
     let errors = [];
     if (!opts.nullable && !value) {
         errors.push("Shouldn't be null");
@@ -125,8 +125,8 @@ exports.dateValidator = (value, opts = {}) => {
     return errors;
 };
 exports.configValidator = (value, opts = {
-        languages: []
-    }) => {
+    languages: []
+}) => {
     let errors = [];
     if (!value) {
         errors.push("Config shouldn't be null (object)");
@@ -190,5 +190,5 @@ exports.configValidator = (value, opts = {
 //   else {
 //     throw new GraphQL.GraphQLError(`${value} is not a valid date`);
 //   }
-// } 
+// }
 //# sourceMappingURL=Validator.js.map

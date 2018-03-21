@@ -3,6 +3,7 @@
 Reiso - React Isomorfic Framework
 
 ### It will allow you to create a fast mvc project with 5 main pillars:
+
 1) Server
 2) Client
 3) Handler
@@ -40,3 +41,4 @@ The structure of your project should be modular (especialy if your using compose
 4) Worker
 ...
 5) Cmd Tool
+...
