@@ -1,6 +1,19 @@
 # Reiso
 
-Reiso - React Isomorfic Framework
+Reiso - React Isomorphic Framework.
+It allows you to make an scalable (horizontaly & verticaly) systems.
+
+Features:
+- Workers via __cron__
+- Handlers (Jobs' queue) via __Bull__ & __Redis__
+- Isomorphic React rendering
+- Redux & React Redux
+- ORM via __TypeORM__
+- Web Server via __ExpressJS__
+- GraphQL Server via __Apollo__
+- WebSocket GraphQL via __Subscriptions Transport WS__ & __Apollo__
+- Upload Server via __Apollo__
+- Composer allows you to automate collect all modules without manual importing
 
 ### It will allow you to create a fast mvc project with 5 main pillars:
 
@@ -12,7 +25,7 @@ Reiso - React Isomorfic Framework
 
 ## The main gist
 
-The structure of your project should be modular (especialy if your using composer):
+The structure of your project should be modular (especialy if you are using composer):
 
 - src
   - Entries
