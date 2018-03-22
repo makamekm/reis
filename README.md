@@ -13,7 +13,7 @@ Features:
 - GraphQL Server via __Apollo__
 - WebSocket GraphQL via __Subscriptions Transport WS__ & __Apollo__
 - Upload Server via __Apollo__
-- Composer allows you to automate collect all modules without manual importing
+- Composer allows you to automaticaly collect all modules without manual importing
 
 ### It will allow you to create a fast mvc project with 5 main pillars:
 
