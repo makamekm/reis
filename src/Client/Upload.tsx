@@ -1,5 +1,7 @@
 import * as ApolloClient from 'apollo-client';
 import { BatchHttpLink } from 'apollo-link-batch-http';
+import { ApolloLink, Operation, FetchResult, Observable, NextLink } from 'apollo-link';
+
 import {
   constructDefaultOptions,
   createApolloFetch,
@@ -8,18 +10,58 @@ import {
   GraphQLRequest,
 } from 'apollo-fetch';
 
-export function createLinkNetwork(opts: FetchOptions = {}) {
-  return new BatchHttpLink({
-    fetch: createApolloFetchUpload(opts)
-  });
-};
+export class UploadLink extends ApolloLink {
+  constructor(options: any) {
+    super();
+  }
 
-function createApolloFetchUpload(params: FetchOptions = {}): ApolloFetch {
-  return createApolloFetch({
-    ...params,
-    constructOptions: constructUploadOptions,
-  });
+  request(operation: Operation, forward?: NextLink): Observable<FetchResult> | null {
+    const formData = new FormData();
+    let hasFiles = false;
+
+    if (collectFiles(formData, operation.variables)) {
+      hasFiles = true;
+    }
+
+    if (hasFiles) {
+      if (typeof FormData === 'undefined') {
+        throw new Error('Environment must support FormData to upload files.');
+      }
+
+      let body = formData;
+      body.append('operations', JSON.stringify(operation));
+
+      // files.forEach(({ path, file }) => options.body.append(path, file));
+
+      // return options;
+
+      operation.setContext(({ headers }) => ({
+        method: 'POST',
+        body
+      }));
+    }
+
+    // operation.setContext(({ headers }) => ({
+    //   headers: {
+    //   }
+    // }));
+
+    return forward(operation);
+  }
 }
+
+// export function createLinkNetwork(opts: FetchOptions = {}) {
+//   return new BatchHttpLink({
+//     fetch: createApolloFetchUpload(opts)
+//   });
+// };
+
+// function createApolloFetchUpload(params: FetchOptions = {}): ApolloFetch {
+//   return createApolloFetch({
+//     ...params,
+//     constructOptions: constructUploadOptions,
+//   });
+// }
 
 function constructUploadOptions(
   requestOrRequests: GraphQLRequest | GraphQLRequest[],

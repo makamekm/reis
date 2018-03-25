@@ -10,6 +10,7 @@ const ReactRedux = require("react-redux");
 const ApolloCache = require("apollo-cache-inmemory");
 const ApolloLinkWS = require("apollo-link-ws");
 const ApolloLink = require("apollo-link");
+const apollo_link_batch_http_1 = require("apollo-link-batch-http");
 const graphql = require("graphql");
 const Responsive = require("redux-responsive");
 const Upload = require("../Client/Upload");
@@ -37,14 +38,16 @@ class Main {
                 connectionParams
             }
         });
-        const linkNetwork = Upload.createLinkNetwork({
-            uri: '/graphql',
+        const linkNetwork = new apollo_link_batch_http_1.BatchHttpLink({
+            uri: `/graphql`,
         });
+        const linkUpload = new Upload.UploadLink({});
         const linkSplitted = ApolloLink.ApolloLink.split(operation => {
             const operationAST = graphql.getOperationAST(operation.query, operation.operationName);
             return !!operationAST && operationAST.operation === 'subscription';
         }, linkWS, linkNetwork);
         let links = [];
+        links = links.concat(linkUpload);
         hooksRes.forEach(hook => {
             if (hook.linksBefore)
                 links = links.concat(hook.linksBefore);

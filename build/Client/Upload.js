@@ -1,17 +1,49 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const apollo_link_batch_http_1 = require("apollo-link-batch-http");
+const apollo_link_1 = require("apollo-link");
 const apollo_fetch_1 = require("apollo-fetch");
-function createLinkNetwork(opts = {}) {
-    return new apollo_link_batch_http_1.BatchHttpLink({
-        fetch: createApolloFetchUpload(opts)
-    });
+class UploadLink extends apollo_link_1.ApolloLink {
+    constructor(options) {
+        super();
+    }
+    request(operation, forward) {
+        const formData = new FormData();
+        let hasFiles = false;
+        if (collectFiles(formData, operation.variables)) {
+            hasFiles = true;
+        }
+        if (hasFiles) {
+            if (typeof FormData === 'undefined') {
+                throw new Error('Environment must support FormData to upload files.');
+            }
+            let body = formData;
+            body.append('operations', JSON.stringify(operation));
+            // files.forEach(({ path, file }) => options.body.append(path, file));
+            // return options;
+            operation.setContext(({ headers }) => ({
+                method: 'POST',
+                body
+            }));
+        }
+        // operation.setContext(({ headers }) => ({
+        //   headers: {
+        //   }
+        // }));
+        return forward(operation);
+    }
 }
-exports.createLinkNetwork = createLinkNetwork;
-;
-function createApolloFetchUpload(params = {}) {
-    return apollo_fetch_1.createApolloFetch(Object.assign({}, params, { constructOptions: constructUploadOptions }));
-}
+exports.UploadLink = UploadLink;
+// export function createLinkNetwork(opts: FetchOptions = {}) {
+//   return new BatchHttpLink({
+//     fetch: createApolloFetchUpload(opts)
+//   });
+// };
+// function createApolloFetchUpload(params: FetchOptions = {}): ApolloFetch {
+//   return createApolloFetch({
+//     ...params,
+//     constructOptions: constructUploadOptions,
+//   });
+// }
 function constructUploadOptions(requestOrRequests, options) {
     const formData = new FormData();
     let hasFiles = false;

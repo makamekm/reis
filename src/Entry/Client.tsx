@@ -1,13 +1,13 @@
 import * as React from 'react';
 import * as ReactDOM from "react-dom";
 import { BrowserRouter } from 'react-router-dom';
-import 'velocity-animate';
 import * as ApolloReact from 'react-apollo';
 import * as ApolloClient from 'apollo-client';
 import * as ReactRedux from 'react-redux';
 import * as ApolloCache from 'apollo-cache-inmemory';
 import * as ApolloLinkWS from "apollo-link-ws";
 import * as ApolloLink from "apollo-link";
+import { BatchHttpLink } from 'apollo-link-batch-http';
 import { onError } from "apollo-link-error";
 import * as graphql from 'graphql';
 import * as Responsive from 'redux-responsive';
@@ -45,9 +45,11 @@ class Main {
       }
     });
 
-    const linkNetwork = Upload.createLinkNetwork({
-      uri: '/graphql',
+    const linkNetwork = new BatchHttpLink({
+      uri: `/graphql`,
     });
+
+    const linkUpload = new Upload.UploadLink({});
 
     const linkSplitted = ApolloLink.ApolloLink.split(
       operation => {
@@ -59,6 +61,8 @@ class Main {
     );
 
     let links: ApolloLink.ApolloLink[] = [];
+
+    links = links.concat(linkUpload);
 
     hooksRes.forEach(hook => {
       if (hook.linksBefore) links = links.concat(hook.linksBefore);
