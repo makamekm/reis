@@ -28,7 +28,7 @@ async function publish() {
       reject(err);
       return;
     }
-    fs.writeFileSync('.npmrc', `//<npm-registry>:8080/:_authToken=\n//${uri}\/:_authToken=${data.token}`);
+    fs.writeFileSync(path.resolve('./build/.npmrc'), `//<npm-registry>:8080/:_authToken=\n//${uri}\/:_authToken=${data.token}`);
     resolve();
   }));
 
