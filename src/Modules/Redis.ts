@@ -1,12 +1,12 @@
-import * as redis from "redis";
+import redis = require("redis");
 import { promisify } from 'util';
 
 import { getConfig } from '../Modules/Config';
 
 export class RedisClient {
-    
-    getAsync: (key: string) => Promise<void>
-    setAsync: (key: string, value: any) => Promise<void>
+
+    getAsync: <T = any>(key: string) => Promise<T>
+    setAsync: <T = any>(key: string, value: T) => Promise<void>
 
     constructor(client) {
         this.getAsync = promisify(client.get).bind(client);
@@ -16,15 +16,15 @@ export class RedisClient {
 
 export const scopes: { [name: string]: RedisClient } = {};
 
-export async function getClient(scope: string = 'Main', init?: boolean): Promise<RedisClient> {
-    if (init || !this.scopes[scope]) {
+export function getClient(scope: string = 'Main', init?: boolean): RedisClient {
+    if (init || !scopes[scope]) {
         let client = redis.createClient({
             port: getConfig().redis[scope].port,
             host: getConfig().redis[scope].host,
             password: getConfig().redis[scope].password
         });
-        this.scopes[scope] = new RedisClient(client);
+        scopes[scope] = new RedisClient(client);
     }
-    
-    return this.scopes[scope];
+
+    return scopes[scope];
 }
