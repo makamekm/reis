@@ -90,7 +90,7 @@ export class CronManager {
           }).catch(e => {
             job.current = null;
             job.currentTick = null;
-            Log.fixError(e, 'worker', {
+            Log.logError(e, 'worker', {
               name: name
             });
 

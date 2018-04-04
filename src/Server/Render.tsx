@@ -123,7 +123,7 @@ export const Render = async (req, res, next, _language?) => {
     let data = await ApolloReact.getDataFromTree(component);
   }
   catch (e) {
-    Log.fixError(e, 'serverRender');
+    Log.logError(e, 'serverRender');
   }
 
   let html = ReactDOMServer.renderToString(component);

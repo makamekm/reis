@@ -107,7 +107,7 @@ export class JobManager {
           return result;
         }
         catch (e) {
-          Log.fixError(e, 'handler', {
+          Log.logError(e, 'handler', {
             name: name,
             scope: scope,
             id: job.id,

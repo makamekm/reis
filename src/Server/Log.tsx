@@ -1,37 +1,36 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as lockFile from 'lockfile';
 import * as prependFile from 'prepend-file';
 import * as StackTraceParser from 'stacktrace-parser';
+import _winston = require('winston');
+export const winston = _winston;
 
-let logDir = './';
+import { getConfig } from '../Modules/Config';
 
-export function setLogDir(p) {
-  logDir = p;
-}
+let logInfoPath = getConfig().logInfoPath && path.resolve(getConfig().logInfoPath);
+let logErrorPath = getConfig().logErrorPath && path.resolve(getConfig().logErrorPath);
+let logVerbosePath = getConfig().logVerbosePath && path.resolve(getConfig().logVerbosePath);
+let logClientErrorPath = getConfig().logClientErrorPath && path.resolve(getConfig().logClientErrorPath);
+let logInfoToConsole = getConfig().logInfoToConsole;
+let logVerboseToConsole = getConfig().logVerboseToConsole;
+let logErrorToConsole = getConfig().logErrorToConsole;
+let logClientToConsole = getConfig().logClientToConsole;
 
-export async function waitFile(p) {
-  await new Promise((r, e) => {
-    let tryes = 0;
+winston.configure({
+  transports: []
+});
 
-    let f = () => {
-      if (lockFile.checkSync(p)) {
-        if (tryes < 10) {
-          setTimeout(f, 50);
-          tryes++;
-        } else {
-          e(new Error('File lock timeout'));
-        }
-      } else {
-        r();
-      }
-    };
+if (logInfoPath) winston.add(winston.transports.File, { filename: logInfoPath, level: 'info' });
+if (logErrorPath) winston.add(winston.transports.File, { filename: logErrorPath, level: 'error' });
+if (logVerbosePath) winston.add(winston.transports.File, { filename: logVerbosePath, level: 'verbose' });
+if (logClientErrorPath) winston.add(winston.transports.File, { filename: logClientErrorPath, level: 'error' });
 
-    f();
-  });
-}
+if (logInfoToConsole) winston.add(winston.transports.Console, { level: 'info' });
+if (logErrorToConsole) winston.add(winston.transports.Console, { level: 'error' });
+if (logVerboseToConsole) winston.add(winston.transports.Console, { level: 'verbose' });
+if (logClientToConsole) winston.add(winston.transports.Console, { level: 'error' });
 
-export const fixError = async (error: Error, type: string, additional?: any) => {
+export const logError = async (error: Error, type: string, additional?: any) => {
   let stack = StackTraceParser.parse(error.stack);
   let line = {
     date: new Date(),
@@ -41,36 +40,52 @@ export const fixError = async (error: Error, type: string, additional?: any) => 
     type,
     additional
   };
+
   let parsedMessage = '\r\n' + JSON.stringify(line);
+  winston.log('error', parsedMessage);
 
-  // await waitFile(path.resolve(logDir, 'log.lock'));
-  // lockFile.lockSync(path.resolve(logDir, 'log.lock'));
+  // if (logErrorToConsole) console.error(line);
 
-  await new Promise(r => prependFile(path.resolve(logDir, 'log.txt'), parsedMessage, (err) => {
-    if (err) console.error(err);
-    r();
-  }));
-
-  // lockFile.unlockSync(path.resolve(logDir, 'log.lock'));
-  // if(fs.existsSync(path.resolve(logDir, 'log.lock'))) fs.unlinkSync(path.resolve(logDir, 'log.lock'));
+  // if (logErrorPath) {
+  //   let parsedMessage = '\r\n' + JSON.stringify(line);
+  //   await new Promise(r => prependFile(logErrorPath, parsedMessage, (err) => {
+  //     if (err) console.error(err);
+  //     r();
+  //   }));
+  // }
 }
 
-export const logConsole = async (message: string) => {
+export const logInfo = async (message: string) => {
+  if (logInfoToConsole) console.error(message);
+
   let parsedMessage = '\r\n' + message;
+  winston.log('info', parsedMessage);
 
-  // await waitFile(path.resolve(logDir, 'logConsole.lock'));
-  // lockFile.lockSync(path.resolve(logDir, 'logConsole.lock'));
-
-  await new Promise(r => prependFile(path.resolve(logDir, 'logConsole.txt'), parsedMessage, (err) => {
-    if (err) console.error(err);
-    r();
-  }));
-
-  // lockFile.unlockSync(path.resolve(logDir, 'logConsole.lock'));
-  // if(fs.existsSync(path.resolve(logDir, 'logConsole.lock'))) fs.unlinkSync(path.resolve(logDir, 'logConsole.lock'));
+  // if (logInfoPath) {
+  //   let parsedMessage = '\r\n' + message;
+  //   await new Promise(r => prependFile(logInfoPath, parsedMessage, (err) => {
+  //     if (err) console.error(err);
+  //     r();
+  //   }));
+  // }
 }
 
-export const fixClientError = async (message: string, stack: string) => {
+export const logVerbose = async (message: string) => {
+  if (logVerboseToConsole) console.error(message);
+
+  let parsedMessage = '\r\n' + message;
+  winston.log('verbose', parsedMessage);
+
+  // if (logVerbosePath) {
+  //   let parsedMessage = '\r\n' + message;
+  //   await new Promise(r => prependFile(logVerbosePath, parsedMessage, (err) => {
+  //     if (err) console.error(err);
+  //     r();
+  //   }));
+  // }
+}
+
+export const logClientError = async (message: string, stack: string) => {
   let line = {
     date: new Date(),
     version: process.env.VERSION,
@@ -78,16 +93,17 @@ export const fixClientError = async (message: string, stack: string) => {
     stack: JSON.parse(stack),
     type: 'client'
   };
+
   let parsedMessage = '\r\n' + JSON.stringify(line);
+  winston.log('info', parsedMessage);
 
-  // await waitFile(path.resolve(logDir, 'log.lock'));
-  // lockFile.lockSync(path.resolve(logDir, 'log.lock'));
+  // if (logClientToConsole) console.error(line);
 
-  await new Promise(r => prependFile(path.resolve(logDir, 'log.txt'), parsedMessage, (err) => {
-    if (err) console.error(err);
-    r();
-  }));
-
-  // lockFile.unlockSync(path.resolve(logDir, 'log.lock'));
-  // if(fs.existsSync(path.resolve(logDir, 'log.lock'))) fs.unlinkSync(path.resolve(logDir, 'log.lock'));
+  // if (logClientErrorPath) {
+  //   let parsedMessage = '\r\n' + JSON.stringify(line);
+  //   await new Promise(r => prependFile(logClientErrorPath, parsedMessage, (err) => {
+  //     if (err) console.error(err);
+  //     r();
+  //   }));
+  // }
 }

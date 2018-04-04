@@ -1,20 +1,10 @@
 import * as cron from 'cron';
 
-function trim(s, c) {
-  if (c === "]") c = "\\]";
-  if (c === "\\") c = "\\\\";
-  return s.replace(new RegExp(
-    "^[" + c + "]+|[" + c + "]+$", "g"
-  ), "");
-}
-
 import { getConfig, readConfig } from '../Modules/Config';
 readConfig();
 
-let scope: any = process.argv.find(s => s.indexOf('scope=') == 0);
-if (scope) scope = trim(scope.substring(6), '"');
-
-let silent = !!process.argv.find(s => s.indexOf('silent') == 0);
+let scope: any = process.env.SCOPE_GROUP;
+let isCommander: any = process.env.COMMANDER;
 
 import * as Log from '../Server/Log';
 
@@ -40,37 +30,37 @@ export const run = () => {
   const cronManager = new Worker.CronManager(scope || 'Main');
   cronManager.init();
 
-  if (!silent) {
+  if (isCommander) {
     let commands = {
       status: {
-        description: Translation.transDefault('Cron.GetStatusDescription'),
-        action: (read, callback) => read.question(Translation.transDefault('Cron.EnterJobName'), function (answer) {
+        description: Translation.transDefault('Cron.GetStatusDescription') || "Get a status of a job",
+        action: (read, callback) => read.question(Translation.transDefault('Cron.EnterJobName') || "Enter the job's name: ", function (answer) {
           if (cronManager.isJob(answer)) {
-            console.log(Translation.transDefault('Cron.JobStatus', cronManager.status(answer) ? '1' : '0', cronManager.isRunning(answer) ? '1' : '0'));
+            console.log(Translation.transDefault('Cron.JobStatus', cronManager.status(answer) ? '1' : '0', cronManager.isRunning(answer) ? '1' : '0')) || `Status: ${cronManager.status(answer) ? '1' : '0'}; Is running: ${cronManager.isRunning(answer) ? '1' : '0'}`;
           }
           else {
-            console.log(Translation.transDefault('Cron.JobDeesntExist'));
+            console.log(Translation.transDefault('Cron.JobDeesntExist') || "The job doesn't exist");
           }
           callback();
         })
       },
       stop: {
-        description: Translation.transDefault('Cron.StopDescription'),
-        action: (read, callback) => read.question(Translation.transDefault('Cron.EnterJobName'), function (answer) {
+        description: Translation.transDefault('Cron.StopDescription') || "Stop a job by name",
+        action: (read, callback) => read.question(Translation.transDefault('Cron.EnterJobName') || "Enter the job's name: ", function (answer) {
           if (cronManager.isJob(answer)) {
-            console.log(Translation.transDefault('Cron.JobStatus', cronManager.status(answer) ? '1' : '0', cronManager.isRunning(answer) ? '1' : '0'));
-            console.log(Translation.transDefault('Cron.Stopping'));
+            console.log(Translation.transDefault('Cron.JobStatus', cronManager.status(answer) ? '1' : '0', cronManager.isRunning(answer) ? '1' : '0') || `Status: ${cronManager.status(answer) ? '1' : '0'}; Is running: ${cronManager.isRunning(answer) ? '1' : '0'}`);
+            console.log(Translation.transDefault('Cron.Stopping') || "Stopping...");
             cronManager.stop(answer).then(() => {
-              console.log(Translation.transDefault('Cron.Stoped'));
+              console.log(Translation.transDefault('Cron.Stoped') || "Stoped!");
               callback();
             }).catch(e => {
-              console.log(Translation.transDefault("StopFailed"));
+              console.log(Translation.transDefault("StopFailed") || "Failed, but the jos has stopped!");
               console.error(e);
               callback();
             });
           }
           else {
-            console.log(Translation.transDefault('Cron.JobDeesntExist'));
+            console.log(Translation.transDefault('Cron.JobDeesntExist') || "The job doesn't exist");
             callback();
           }
         })
@@ -79,18 +69,18 @@ export const run = () => {
         description: Translation.transDefault('Cron.StartDescription'),
         action: (read, callback) => read.question(Translation.transDefault('Cron.EnterJobName'), function (answer) {
           if (cronManager.isJob(answer)) {
-            console.log(Translation.transDefault('Cron.JobStatus', cronManager.status(answer) ? '1' : '0', cronManager.isRunning(answer) ? '1' : '0'));
+            console.log(Translation.transDefault('Cron.JobStatus', cronManager.status(answer) ? '1' : '0', cronManager.isRunning(answer) ? '1' : '0') || `Status: ${cronManager.status(answer) ? '1' : '0'}; Is running: ${cronManager.isRunning(answer) ? '1' : '0'}`);
             cronManager.start(answer);
-            console.log(Translation.transDefault('Cron.Started'));
+            console.log(Translation.transDefault('Cron.Started') || "Stoped!");
           }
           else {
-            console.log(Translation.transDefault('Cron.JobDeesntExist'));
+            console.log(Translation.transDefault('Cron.JobDeesntExist') || "The job doesn't exist");
           }
           callback();
         })
       },
       names: {
-        description: Translation.transDefault('Cron.GetNamesDescription'),
+        description: Translation.transDefault('Cron.GetNamesDescription') || "Show all names of jobs",
         action: (read, callback) => {
           cronManager.getNames().forEach(name => console.log(name));
           callback();

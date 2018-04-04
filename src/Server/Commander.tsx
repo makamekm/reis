@@ -17,7 +17,7 @@ export class Commander {
     this.commands = commands;
 
     this.commands.q = {
-      description: Translation.transDefault('Commander.q.Description'),
+      description: Translation.transDefault('Commander.q.Description') || "Exit from the tools",
       action: (read, callback) => {
         read.close();
         process.exit();
@@ -25,14 +25,14 @@ export class Commander {
     };
 
     this.commands.help = {
-      description: Translation.transDefault('Commander.help.Description'),
+      description: Translation.transDefault('Commander.help.Description') || "Show all awalable commands",
       action: (read, callback) => {
-        console.log(Translation.transDefault('Commander.help.Inline.Commands'));
+        console.log(Translation.transDefault('Commander.help.Inline.Commands') || "Commands:");
         console.log('');
 
         for (var name in commands) {
-          console.log(Translation.transDefault('Commander.help.Inline.Name', name));
-          console.log(Translation.transDefault('Commander.help.Inline.Description', commands[name].description));
+          console.log(Translation.transDefault('Commander.help.Inline.Name' || "    Name: $0$", name));
+          console.log(Translation.transDefault('Commander.help.Inline.Description' || "    Description: $0$", commands[name].description));
           console.log('');
         }
 
@@ -47,7 +47,7 @@ export class Commander {
   }
 
   public cycle() {
-    this.read.question(Translation.transDefault('Commander.EnterCommand'), (answer) => {
+    this.read.question(Translation.transDefault('Commander.EnterCommand') || "Enter the command: ", (answer) => {
       for (var name in this.commands) {
         if (name == answer) {
           this.commands[name].action(this.read, this.cycle.bind(this));

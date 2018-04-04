@@ -1,6 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+let configPath = path.resolve(process.env.CONFIG_PATH || './reiso.json');
+let scope = process.env.SCOPE || 'default';
+
 function reduce(language, row): any {
   let finish = true;
   let res = Object.assign({}, row);
@@ -12,47 +15,75 @@ function reduce(language, row): any {
     }
   }
 
-  if (finish) return res[language]
+  if (finish) return res[language];
   else return res;
 }
 
-export const reifConfig = JSON.parse(fs.readFileSync(path.resolve('./reiso.json'), "utf8"));
-export function getReifConfig() {
-  return reifConfig;
-}
-
-let configPath = path.resolve(reifConfig.config);
-
 export let translation: any = {};
-let config: any = {};
-export const awalableLanguages = reifConfig.languages;
-
-// let data = require('~/translation.json');
-let data = JSON.parse(fs.readFileSync(path.resolve(reifConfig.translation), "utf8"));
-data = JSON.parse(JSON.stringify(data));
-
-function trim(s, c) {
-  if (c === "]") c = "\\]";
-  if (c === "\\") c = "\\\\";
-  return s.replace(new RegExp("^[" + c + "]+|[" + c + "]+$", "g"), "");
-}
+export let awalableLanguages = [];
+let config: any = {
+  default: {
+    "translation": "./translation.json",
+    "languages": ["en", "ru"],
+    "defaultLanguage": "en",
+    "maxFileSize": 50,
+    "publicDir": "./public",
+    "uploadDir": "./uploads",
+    "port": 3000,
+    "portWS": 5000,
+    "host": "127.0.0.1",
+    "globalPort": 3000,
+    "globalPortWS": 5000,
+    "secretKey": "secretps4",
+    "fileTypes": [],
+    "db": {
+      "Main": {
+        "database": "test",
+        "extra": {
+          "charset": "utf8_general_ci"
+        },
+        "host": "localhost",
+        "password": "",
+        "port": 3306,
+        "type": "mysql",
+        "username": "root"
+      }
+    },
+    "redis": {
+      "Main": {
+        "port": 6379,
+        "host": "127.0.0.1",
+        "password": ""
+      }
+    }
+  }
+};
 
 export function getConfig() {
-  return config;
+  return config[scope];
 }
 
 export function readConfig() {
-
   try {
-    config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    if (fs.existsSync(configPath)) config = Object.assign(config, JSON.parse(fs.readFileSync(configPath, "utf8")));
   }
   catch (e) {}
 
-  config = Object.assign(reifConfig.default, config);
+  try {
+    if (process.env.CONFIG) config = Object.assign(config, JSON.parse(process.env.CONFIG));
+  }
+  catch (e) {}
 
-  config['languages'].forEach(language => {
-    translation[language] = reduce(language, data);
-  });
+  awalableLanguages = config[scope].languages;
+
+  try {
+    let data = JSON.parse(fs.readFileSync(path.resolve(config[scope].translation), "utf8"));
+
+    config[scope]['languages'].forEach(language => {
+      translation[language] = reduce(language, data);
+    });
+  }
+  catch (e) {}
 }
 
 export const SaveConfig = (config) => {

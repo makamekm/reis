@@ -3,19 +3,10 @@ import * as path from 'path';
 import * as cluster from 'cluster';
 import * as os from 'os';
 
-function trim(s, c) {
-  if (c === "]") c = "\\]";
-  if (c === "\\") c = "\\\\";
-  return s.replace(new RegExp(
-    "^[" + c + "]+|[" + c + "]+$", "g"
-  ), "");
-}
-
-let dirPath = process.argv.find(s => s.indexOf('dir=') == 0);
-if (dirPath) dirPath = trim(dirPath.substring(4), '"');
-
-import { getConfig, readConfig, existConfig, SaveConfig } from '../Modules/Config';
+import { getConfig, readConfig } from '../Modules/Config';
 readConfig();
+
+let isMulticore: any = process.env.MULTI;
 
 import * as Log from '../Server/Log';
 
@@ -36,9 +27,9 @@ Translation.setState(getConfig().defaultLanguage, getConfig().languages, transla
 import * as Server from '../Server/Server';
 import * as ORM from '../Modules/ORM';
 
-function start() {
-  if (process.env.NODE_ENV == 'development') {
-    const app = new Server.Server(dirPath);
+export function run() {
+  if (!isMulticore) {
+    const app = new Server.Server();
     app.start();
   } else {
     if (cluster.isMaster) {
@@ -62,7 +53,7 @@ function start() {
       });
 
     } else {
-      const app = new Server.Server(dirPath);
+      const app = new Server.Server();
 
       app.config();
       app.setGraphQL();
@@ -100,25 +91,5 @@ function start() {
         console.log('Listening on ' + bind);
       }
     }
-  }
-}
-
-export const run = () => {
-  if (!existConfig()) {
-    SaveConfig(getConfig());
-
-    if (getConfig().db.Main.type == 'sqlite' && !fs.existsSync(path.resolve('./', getConfig().db.Main.database))) {
-      ORM.Manager.Sync('force').then(() => {
-        start();
-      }).catch(e => {
-        console.error(e);
-      });
-    }
-    else {
-      start();
-    }
-  }
-  else {
-    start();
   }
 }

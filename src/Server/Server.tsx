@@ -26,7 +26,7 @@ import { Render } from '../Server/Render';
 
 // Catch errors
 export function parseError(error, type = 'graphql') {
-  Log.fixError(error, type);
+  Log.logError(error, type);
 
   let result = {
     status: error.originalError && error.originalError.status,
@@ -51,13 +51,8 @@ export class Server {
 
   private api: express.Express;
   private webpackHotMiddleware: any;
-  private dirPath: string = null;
 
   private subscriptionManager: Query.SubscriptionManager
-
-  constructor(dirPath?: string) {
-    this.dirPath = dirPath;
-  }
 
   public async test() {
     await ORM.Manager.Test();
@@ -96,7 +91,7 @@ export class Server {
     //   }).express);
     // }
     this.app.get('*.js', (req, res, next) => {
-      if (fs.existsSync(path.resolve(this.dirPath || __dirname, 'public', req.url.replace(/^((http|https):\/\/[\w\.:]+\/)|^(\/)/, '')) + '.gz')) {
+      if (fs.existsSync(path.resolve(getConfig().publicDir, req.url.replace(/^((http|https):\/\/[\w\.:]+\/)|^(\/)/, '')) + '.gz')) {
         req.url = req.url + '.gz';
         res.set('Content-Type', 'text/javascript');
         res.set('Content-Encoding', 'gzip');
@@ -104,7 +99,7 @@ export class Server {
       next();
     });
     this.app.get('*.css', (req, res, next) => {
-      if (fs.existsSync(path.resolve(this.dirPath || __dirname, 'public', req.url.replace(/^((http|https):\/\/[\w\.:]+\/)|^(\/)/, '')) + '.gz')) {
+      if (fs.existsSync(path.resolve(getConfig().publicDir, req.url.replace(/^((http|https):\/\/[\w\.:]+\/)|^(\/)/, '')) + '.gz')) {
         req.url = req.url + '.gz';
         res.set('Content-Type', 'text/css');
         res.set('Content-Encoding', 'gzip');
@@ -113,7 +108,7 @@ export class Server {
     });
     this.app.use(this.logErrors);
 
-    this.app.use(express.static(path.resolve(this.dirPath || __dirname, 'public')));
+    this.app.use(express.static(getConfig().publicDir));
     this.app.use('/uploads', express.static(getConfig().uploadDir));
   }
 
