@@ -70,7 +70,7 @@ export function readConfig() {
   catch (e) {}
 
   try {
-    if (process.env.CONFIG) config = Object.assign(config, JSON.parse(process.env.CONFIG));
+    if (process.env.CONFIG) config = Object.assign(config[scope], JSON.parse(process.env.CONFIG));
   }
   catch (e) {}
 

@@ -38,9 +38,9 @@ class Logger implements TypeORM.Logger {
     }
 }
 
-export let Manager: ORM.Manager;
+const Managers: { [name: string]: ORM.Manager } = {};
 
-export const initialize = (scope: string = 'Main') => {
+function initialize(scope: string = 'Main') {
     const config = JSON.parse(JSON.stringify(getConfig().db[scope]));
     config.autoSchemaSync = false;
     config.entities = ORM.Manager.getEntity();
@@ -51,5 +51,13 @@ export const initialize = (scope: string = 'Main') => {
         config.logging = ["error"];
         config.logger = new Logger();
     }
-    Manager = new ORM.Manager(config);
+    return new ORM.Manager(config);
 }
+
+export function Manager(scope: string = 'Main'): ORM.Manager {
+    if (!Managers[scope]) {
+        Managers[scope] = initialize(scope);
+    } else {
+        return Managers[scope];
+    }
+};

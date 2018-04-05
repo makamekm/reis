@@ -54,12 +54,7 @@ export class Server {
 
   private subscriptionManager: Query.SubscriptionManager
 
-  public async test() {
-    await ORM.Manager.Test();
-  }
-
   public async start() {
-    await this.test();
     this.config();
     this.setFileUpload();
     this.setGraphQL();
@@ -206,7 +201,7 @@ export class Server {
     if (getConfig().seaportHost && getConfig().seaportPort) {
       var ports = (seaport as any).connect(getConfig().seaportHost, getConfig().seaportPort);
       websocketServer.listen(ports.register("ServerWS"), () => {
-        console.log(`Websocket Server is connected to seaport as "ServerWS" on ${getConfig().seaportHost}:${getConfig().seaportPort}`);
+        Log.logInfo(`Websocket Server is connected to seaport as "ServerWS" on ${getConfig().seaportHost}:${getConfig().seaportPort}`);
 
         const subscriptionsServer = new subscriptionServer.SubscriptionServer({
             schema: Query.getSchema(),
@@ -247,7 +242,7 @@ export class Server {
       });
     } else {
       websocketServer.listen(WS_PORT, () => {
-        console.log(`Websocket Server is now running on http://localhost:${WS_PORT}`);
+        Log.logInfo(`Websocket Server is now running on http://localhost:${WS_PORT}`);
 
         const subscriptionsServer = new subscriptionServer.SubscriptionServer({
             schema: Query.getSchema(),
@@ -293,12 +288,12 @@ export class Server {
     this.server = http.createServer(this.app);
 
     if (getConfig().seaportHost && getConfig().seaportPort) {
-      console.log(`Express server connected to seaport as "Server" on ${getConfig().seaportHost}:${getConfig().seaportPort}`);
+      Log.logInfo(`Express server connected to seaport as "Server" on ${getConfig().seaportHost}:${getConfig().seaportPort}`);
       var ports = (seaport as any).connect(getConfig().seaportHost, getConfig().seaportPort);
       this.server.listen(ports.register("Server"));
     } else {
       this.server.listen(this.app.get('port'), () => {
-        console.log('Express server listening on port ' + this.app.get('port'));
+        Log.logInfo('Express server listening on port ' + this.app.get('port'));
         if (process.env.NODE_ENV == 'development') fetch('http://localhost:3001/__browser_sync__?method=reload&args=index.js');
       });
     }

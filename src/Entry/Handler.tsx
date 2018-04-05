@@ -43,13 +43,13 @@ export const run = () => {
 
       // If a worker dies, log it to the console and start another worker.
       cluster.on('exit', function(worker, code, signal) {
-        console.log('Worker ' + worker.process.pid + ' died.');
+        Log.logInfo('Worker ' + worker.process.pid + ' died.');
         cluster.fork();
       });
 
       // Log when a worker starts listening
       cluster.on('listening', function(worker, address) {
-        console.log('Worker started with PID ' + worker.process.pid + '.');
+        Log.logInfo('Worker started with PID ' + worker.process.pid + '.');
       });
 
     } else {
