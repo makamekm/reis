@@ -10,9 +10,7 @@ gw.watch({
   strict: true,
   sync: {
     remote: 'upstream',
-    branch: 'master',
-    rebase: true,
-    push: true
+    branch: 'master'
   }
 });
 
@@ -26,6 +24,7 @@ gw.result$.subscribe( (result) => {
     console.error(result.error);
   } else {
     if (result.checked === true) {
+      execSync("npm i", { stdio: [0, 1, 2] });
       execSync("npm run build", { stdio: [0, 1, 2] });
       execSync(`node publish ${username} ${password} ${email}`, { stdio: [0, 1, 2] });
     }
