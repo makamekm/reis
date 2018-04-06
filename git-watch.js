@@ -6,7 +6,8 @@ const gw = new GitWatcher();
 // Use Sync Fork to check for changes in the upstream an update.
 gw.watch({
   remote: 'origin',
-  branch: 'master'
+  branch: 'master',
+  poll: 10
 });
 
 const username = process.env.USERNAME;
@@ -18,7 +19,7 @@ gw.result$.subscribe( (result) => {
     gw.unwatch(result.config);
     console.error(result.error);
   } else {
-    if (result.checked === true) {
+    if (result.changed) {
       execSync("npm i", { stdio: [0, 1, 2] });
       execSync("npm run build", { stdio: [0, 1, 2] });
       execSync(`node publish ${username} ${password} ${email}`, { stdio: [0, 1, 2] });
