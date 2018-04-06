@@ -24,7 +24,7 @@ export let awalableLanguages = [];
 let config: any = {
   default: {
     "translation": "./translation.json",
-    "languages": ["en", "ru"],
+    "languages": ["en"],
     "defaultLanguage": "en",
     "maxFileSize": 50,
     "publicDir": "./public",
@@ -34,6 +34,17 @@ let config: any = {
     "host": "127.0.0.1",
     "globalPort": 3000,
     "globalPortWS": 5000,
+    "seaportHost": null,
+    "seaportPort": null,
+    "logInfoPath": null,
+    "logErrorPath": null,
+    "logVerbosePath": null,
+    "logClientErrorPath": null,
+    "logInfoToConsole": null,
+    "logErrorToConsole": null,
+    "logVerboseToConsole": null,
+    "logClientToConsole": null,
+    "logLogstash": null,
     "db": {
       "Main": {
         "database": "test",
