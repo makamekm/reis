@@ -6,12 +6,7 @@ const gw = new GitWatcher();
 // Use Sync Fork to check for changes in the upstream an update.
 gw.watch({
   remote: 'origin',
-  branch: 'master',
-  strict: true,
-  sync: {
-    remote: 'upstream',
-    branch: 'master'
-  }
+  branch: 'master'
 });
 
 const username = process.env.USERNAME;

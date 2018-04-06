@@ -6,6 +6,7 @@ RUN apt-get -y autoclean
 
 RUN mkdir reiso
 WORKDIR reiso
+ARG CACHEBUST=1
 RUN git clone https://github.com/makamekm/reiso.git .
 RUN git pull
 RUN npm i
