@@ -10,3 +10,5 @@ WORKDIR reiso
 RUN git clone https://github.com/makamekm/reiso.git .
 RUN git pull
 RUN npm i
+
+# RUN npm i
