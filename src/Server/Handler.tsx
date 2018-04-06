@@ -111,7 +111,7 @@ export class JobManager {
             name: name,
             scope: this.name,
             id: job.id,
-            data: job.data
+            data: JSON.stringify(job.data)
           });
           done(e, null);
         }
