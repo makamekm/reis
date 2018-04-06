@@ -1,6 +1,6 @@
 {
   "name": "reiso-src",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "reiso",
   "private": true,
   "keywords": [
@@ -46,7 +46,6 @@
     "@types/redux-thunk": "2.1.0",
     "@types/request": "2.47.0",
     "@types/redis": "2.8.6",
-    "@types/winston": "2.3.9",
     "gql": "1.1.2",
     "gql-tools": "0.0.15",
     "typescript": "2.7.2",
@@ -113,6 +112,6 @@
     "typeorm": "0.1.16",
     "winston": "2.4.1",
     "zen-observable-ts": "0.8.8",
-    "winston-logstash": "0.4.0" 
+    "winston-logstash": "0.4.0"
   }
 }
