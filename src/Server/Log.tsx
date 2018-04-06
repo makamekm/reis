@@ -4,6 +4,7 @@ import * as prependFile from 'prepend-file';
 import * as StackTraceParser from 'stacktrace-parser';
 import _winston = require('winston');
 export const winston = _winston;
+require('winston-logstash');
 
 import { getConfig } from '../Modules/Config';
 
@@ -15,6 +16,7 @@ let logInfoToConsole = getConfig().logInfoToConsole;
 let logVerboseToConsole = getConfig().logVerboseToConsole;
 let logErrorToConsole = getConfig().logErrorToConsole;
 let logClientToConsole = getConfig().logClientToConsole;
+let logLogstash = getConfig().logLogstash;
 
 winston.configure({
   transports: []
@@ -30,44 +32,45 @@ if (logErrorToConsole) winston.add(winston.transports.Console, { level: 'error' 
 if (logVerboseToConsole) winston.add(winston.transports.Console, { level: 'verbose' });
 if (logClientToConsole) winston.add(winston.transports.Console, { level: 'error' });
 
-export const logError = (error: Error, type: string, additional?: any) => {
+if (logLogstash) winston.add(winston.transports.Logstash, {
+  ...logLogstash,
+  node_name: process.env.NODE_NAME || logLogstash.node_name
+});
+
+export type LogType = { [name: string]: string };
+
+export const logError = (error: Error, error_type: string, additional: LogType = {}) => {
   let stack = StackTraceParser.parse(error.stack);
   let line = {
-    date: new Date(),
+    ...additional,
     version: process.env.VERSION,
     message: error.message,
     stack,
-    type,
-    additional
+    error_type
   };
 
-  let parsedMessage = '\r\n' + JSON.stringify(line);
-  winston.log('error', parsedMessage);
+  winston.log('error', line);
 }
 
-export const logInfo = (message: string) => {
-  if (logInfoToConsole) console.error(message);
-
-  let parsedMessage = '\r\n' + message;
-  winston.log('info', parsedMessage);
+export const log = (type: string, line: string | LogType) => {
+  winston.log(type, line);
 }
 
-export const logVerbose = (message: string) => {
-  if (logVerboseToConsole) console.error(message);
-
-  let parsedMessage = '\r\n' + message;
-  winston.log('verbose', parsedMessage);
+export const logInfo = (line: string | LogType) => {
+  winston.log('info', line);
 }
 
-export const logClientError = (message: string, stack: string) => {
+export const logVerbose = (line: string | LogType) => {
+  winston.log('verbose', line);
+}
+
+export const logClientError = (message: string, stack: string, data: LogType = {}) => {
   let line = {
-    date: new Date(),
-    version: process.env.VERSION,
+    ...data,
     message: message,
-    stack: JSON.parse(stack),
-    type: 'client'
+    stack,
+    error_type: 'client'
   };
 
-  let parsedMessage = '\r\n' + JSON.stringify(line);
-  winston.log('info', parsedMessage);
+  winston.log('info', line);
 }
