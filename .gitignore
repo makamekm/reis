@@ -56,3 +56,4 @@ typings/
 
 build/
 .npmrc
+docker-compose.yml

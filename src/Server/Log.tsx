@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as prependFile from 'prepend-file';
 import * as StackTraceParser from 'stacktrace-parser';
-import _winston = require('winston');
+const _winston = require('winston');
 export const winston = _winston;
 require('winston-logstash');
 

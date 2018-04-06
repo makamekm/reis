@@ -109,7 +109,7 @@ export class JobManager {
         catch (e) {
           Log.logError(e, 'handler', {
             name: name,
-            scope: scope,
+            scope: this.name,
             id: job.id,
             data: job.data
           });
