@@ -1,4 +1,4 @@
-# Reiso
+# Reiso (ALPHA)
 
 Reiso - React Isomorphic Framework.
 It allows you to make an scalable (horizontaly & verticaly) systems.
