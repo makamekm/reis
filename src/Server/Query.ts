@@ -5,14 +5,9 @@ import * as RedisNRP from 'node-redis-pubsub';
 
 import { getConfig } from '../Modules/Config';
 
-export const pubsub: Subscriptions.PubSub = new Subscriptions.PubSub();
 const publishes: { [name: string]: string[] } = {}
-const nrp: RedisNRP = new RedisNRP({
-    port: getConfig().redis['Main'].port,
-    host: getConfig().redis['Main'].host,
-    auth: getConfig().redis['Main'].password,
-    scope: 'cb_subscription'
-});
+let nrp: RedisNRP;
+export const pubsub: Subscriptions.PubSub = new Subscriptions.PubSub();
 
 export class SubscriptionManager {
     private publishes: string[]
@@ -24,6 +19,7 @@ export class SubscriptionManager {
     }
 
     public init() {
+        if (nrp) nrp = new RedisNRP(getConfig().redisPubSub[this.name]);
         if (this.publishes) for (let name of this.publishes) {
             nrp.on(name, function(data) {
                 pubsub.publish(name, data);
@@ -33,6 +29,7 @@ export class SubscriptionManager {
 }
 
 export async function Publish(name: string, data: any, scope: string = 'Main') {
+    if (nrp) nrp = new RedisNRP(getConfig().redisPubSub[scope]);
     nrp.emit(name, data);
 }
 

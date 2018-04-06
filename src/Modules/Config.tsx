@@ -34,8 +34,6 @@ let config: any = {
     "host": "127.0.0.1",
     "globalPort": 3000,
     "globalPortWS": 5000,
-    "secretKey": "secretps4",
-    "fileTypes": [],
     "db": {
       "Main": {
         "database": "test",
@@ -47,6 +45,21 @@ let config: any = {
         "port": 3306,
         "type": "mysql",
         "username": "root"
+      }
+    },
+    "redisPubSub": {
+      "Main": {
+        "port": 6379,
+        "host": "127.0.0.1",
+        "password": ""
+      }
+    },
+    "redisJob": {
+      "Main": {
+        "port": 6379,
+        "host": "127.0.0.1",
+        "password": "",
+        "scope": 'cb_subscription'
       }
     },
     "redis": {

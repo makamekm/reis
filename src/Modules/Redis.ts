@@ -18,11 +18,7 @@ export const scopes: { [name: string]: RedisClient } = {};
 
 export function getClient(scope: string = 'Main', init?: boolean): RedisClient {
     if (init || !scopes[scope]) {
-        let client = redis.createClient({
-            port: getConfig().redis[scope].port,
-            host: getConfig().redis[scope].host,
-            password: getConfig().redis[scope].password
-        });
+        let client = redis.createClient(getConfig().redis[scope]);
         scopes[scope] = new RedisClient(client);
     }
 

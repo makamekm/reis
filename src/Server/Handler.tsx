@@ -8,11 +8,7 @@ export let scope: { [name: string]: { [name: string]: Job } } = {}
 
 export function Queue(name: string, scope: string = 'Main') {
   return new QueueRaw(name, {
-    redis: {
-      port: getConfig().redis[scope].port,
-      host: getConfig().redis[scope].host,
-      password: getConfig().redis[scope].password
-    }
+    redis: getConfig().redisJob[scope]
   });
 }
 
@@ -22,11 +18,7 @@ export function getQueues() {
   for (let sc in scope) {
     for (let name in scope[sc]) {
       arr.push(new QueueRaw(name, {
-        redis: {
-          port: getConfig().redis[sc].port,
-          host: getConfig().redis[sc].host,
-          password: getConfig().redis[sc].password
-        }
+        redis: getConfig().redisJob[sc]
       }));
     }
   }
@@ -42,9 +34,7 @@ export function getQueuesArena() {
       arr.push({
         name,
         hostId: sc,
-        port: getConfig().redis[sc].port,
-        host: getConfig().redis[sc].host,
-        password: getConfig().redis[sc].password,
+        ...getConfig().redisJob[sc]
       });
     }
   }
@@ -80,16 +70,10 @@ export function RegisterJob(opt: JobOption) {
 export class JobManager {
   private jobs: { [name: string]: Job } = {}
   private name: string
-  private config
 
   constructor(name: string = 'Main') {
     this.name = name;
     this.jobs = scope[name];
-    this.config = {
-      port: getConfig().redis[this.name].port,
-      host: getConfig().redis[this.name].host,
-      password: getConfig().redis[this.name].password
-    };
   }
 
   public init() {
@@ -97,7 +81,7 @@ export class JobManager {
       const j = this.jobs[name];
 
       const processQueue = new QueueRaw(name, {
-        redis: this.config
+        redis: getConfig().redisJob[this.name]
       });
 
       processQueue.process(j.count, async (job, done) => {
