@@ -16,6 +16,10 @@ gw.watch({
   }
 });
 
+const username = process.env.USERNAME;
+const password = process.env.PASSWORD;
+const email = process.env.EMAIL;
+
 gw.result$.subscribe( (result) => {
   if (result.error) {
    gw.unwatch(result.config);
@@ -23,7 +27,7 @@ gw.result$.subscribe( (result) => {
   } else {
     if (result.checked === true) {
       execSync("npm run build", { stdio: [0, 1, 2] });
-      execSync("npm run publish", { stdio: [0, 1, 2] });
+      execSync(`node publish ${username} ${password} ${email}`, { stdio: [0, 1, 2] });
     }
   }   
 });
