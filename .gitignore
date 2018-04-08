@@ -57,3 +57,4 @@ typings/
 build/
 .npmrc
 docker-compose.yml
+package-lock.json
