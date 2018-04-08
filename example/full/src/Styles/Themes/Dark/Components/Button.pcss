@@ -1,0 +1,19 @@
+.btn {
+  @apply --element;
+
+  &:before, &:after {
+    opacity: 0;
+  }
+
+  @apply --element-error;
+  @apply --element-hover;
+  @apply --element-active;
+  @apply --element-loading;
+  @apply --element-disabled;
+
+  &.btn-border {
+    &:before, &:after {
+      opacity: 1;
+    }
+  }
+}

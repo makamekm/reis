@@ -1,0 +1,622 @@
+{
+  "Authentication": {
+    "SignIn": {
+      "en": "Sign in",
+      "ru": "Регистрация"
+    },
+    "Error": {
+      "MissMatchLogin": {
+        "en": "The password or username doesn't match",
+        "ru": "Пароль или имя не подходят"
+      }
+    }
+  },
+  "Error": {
+    "NotLogged": {
+      "en": "You are not logged in",
+      "ru": "Вы не вошли"
+    },
+    "HaventRule": {
+      "en": "You haven't the necessary rule",
+      "ru": "У вас нет необходимых прав"
+    }
+  },
+  "NotFound": {
+    "title": {
+      "en": "Page is not found",
+      "ru": "Страница не найдена"
+    },
+    "description": {
+      "en": "Maybe you haven't necessary rights or try another route",
+      "ru": "Возможно, у вас нет необходимых прав или попробуйте другой маршрут"
+    }
+  },
+  "Secured": {
+    "title": {
+      "en": "You need to be logged",
+      "ru": "Вы должны войти"
+    },
+    "description": {
+      "en": "This route needs you to be a user, please sign in or sign up",
+      "ru": "Этот маршрут только для пользователей, пожалуйста войдите или зарегистрируйтесь"
+    }
+  },
+  "Loading": {
+    "title": {
+      "en": "Please wait...",
+      "ru": "Пожалуйста, подождите..."
+    },
+    "description": {
+      "en": "It will take some time",
+      "ru": "Это займет некоторое время"
+    }
+  },
+  "Footer": {
+    "SupportUs": {
+      "en": "Support us:",
+      "ru": "Поддержать нас:"
+    }
+  },
+  "Main": {
+    "Theme": {
+      "Light": {
+        "en": "Light",
+        "ru": "Светлый"
+      },
+      "Dark": {
+        "en": "Dark",
+        "ru": "Темный"
+      }
+    },
+    "Menu": {
+      "Screener": {
+        "en": "Screener",
+        "ru": "Скринер"
+      },
+      "Table": {
+        "en": "Table",
+        "ru": "Таблица"
+      },
+      "Desks": {
+        "en": "Desks",
+        "ru": "Доски"
+      },
+      "SignIn": {
+        "en": "Sign in",
+        "ru": "Вход"
+      },
+      "SignUp": {
+        "en": "Sign up",
+        "ru": "Регистрация"
+      }
+    }
+  },
+  "Cron": {
+    "GetStatusDescription": {
+      "en": "Get a status of a job",
+      "ru": "Get a status of a job"
+    },
+    "EnterJobName": {
+      "en": "Enter the job's name: ",
+      "ru": "Enter the job's name: "
+    },
+    "JobStatus": {
+      "en": "Status: $0$; Is running: $1$",
+      "ru": "Status: $0$; Is running: $1$"
+    },
+    "JobDeesntExist": {
+      "en": "The job doesn't exist",
+      "ru": "The job doesn't exist"
+    },
+    "Stopping": {
+      "en": "Stopping...",
+      "ru": "Stopping..."
+    },
+    "Stoped": {
+      "en": "Stoped!",
+      "ru": "Stoped!"
+    },
+    "StopFailed": {
+      "en": "Failed, but the jos has stopped!",
+      "ru": "Failed, but the jos has stopped!"
+    },
+    "Started": {
+      "en": "Started!",
+      "ru": "Started!"
+    },
+    "StopDescription": {
+      "en": "Stop a job by name",
+      "ru": "Stop a job by name"
+    },
+    "StartDescription": {
+      "en": "Start a job by name",
+      "ru": "Start a job by name"
+    },
+    "GetNamesDescription": {
+      "en": "Show all names of jobs",
+      "ru": "Show all names of jobs"
+    }
+  },
+  "Commander": {
+    "EnterCommand": {
+      "en": "Enter the command: ",
+      "ru": "Enter the command: "
+    },
+    "q": {
+      "Description": {
+        "en": "Exit from the tools",
+        "ru": "Exit from the tools"
+      }
+    },
+    "help": {
+      "Description": {
+        "en": "Show all awalable commands",
+        "ru": "Exit from the tools"
+      },
+      "Inline": {
+        "Commands": {
+          "en": "Commands:",
+          "ru": "Commands:"
+        },
+        "Name": {
+          "en": "    Name: $0$",
+          "ru": "    Name: $0$"
+        },
+        "Description": {
+          "en": "    Description: $0$",
+          "ru": "    Description: $0$"
+        }
+      }
+    }
+  },
+  "Component": {
+    "Pane": {
+      "Chart": {
+        "NoData": {
+          "en": "No data",
+          "ru": "Нет данных"
+        },
+        "NoDataDescription": {
+          "en": "You can try with another parameters",
+          "ru": "Вы можете попробовать другие параметры"
+        },
+        "Loading": {
+          "en": "Loading...",
+          "ru": "Загрузка..."
+        },
+        "LoadingDescription": {
+          "en": "Please wait, it will take some time",
+          "ru": "Подождите, это займет некоторое время"
+        }
+      }
+    },
+    "ProveModal": {
+      "Cancel": {
+        "en": "Cancel",
+        "ru": "Отмена"
+      },
+      "DoIt": {
+        "en": "Do it",
+        "ru": "Подтвердить"
+      }
+    },
+    "Popup": {
+      "NoData": {
+        "en": "Nothing to show",
+        "ru": "Нет данных"
+      },
+      "Loading": {
+        "en": "Loading...",
+        "ru": "Загрузка..."
+      }
+    },
+    "Pagination": {
+      "Go": {
+        "en": "Show",
+        "ru": "Показать"
+      },
+      "PageDoesnExist": {
+        "en": "This page doesn't exist",
+        "ru": "Эта страница не существует"
+      },
+      "EnterThePageNumber": {
+        "en": "Enter the page number",
+        "ru": "Введите номер страницы"
+      },
+      "Number": {
+        "en": "Number",
+        "ru": "Число"
+      },
+      "FromTo": {
+        "en": "$0$ - $1$",
+        "ru": "$0$ - $1$"
+      },
+      "Of": {
+        "en": "$0$ of $1$",
+        "ru": "$0$ из $1$"
+      }
+    },
+    "Table": {
+      "BackspaceToClear": {
+        "en": "Backspace to clear",
+        "ru": "Backspace чтобы удалить"
+      },
+      "EnterToSend": {
+        "en": "Enter to send",
+        "ru": "Enter для отправки"
+      },
+      "Search": {
+        "en": "Search",
+        "ru": "Поиск"
+      },
+      "From": {
+        "en": "From",
+        "ru": "С"
+      },
+      "To": {
+        "en": "To",
+        "ru": "По"
+      },
+      "Asc": {
+        "en": "Ascending",
+        "ru": "По возрастанию"
+      },
+      "Desc": {
+        "en": "Descending",
+        "ru": "По убыванию"
+      }
+    }
+  },
+  "Screener": {
+    "Column": {
+      "Index": {
+        "en": "Index",
+        "ru": "Index"
+      },
+      "Ticker": {
+        "en": "Ticker",
+        "ru": "Ticker"
+      },
+      "Name": {
+        "en": "Name",
+        "ru": "Имя"
+      },
+      "Price": {
+        "en": "Price",
+        "ru": "Цена"
+      },
+      "MarketCap": {
+        "en": "Market Cap.",
+        "ru": "Рыночная Капит."
+      },
+      "Volume24": {
+        "en": "Volume 24h",
+        "ru": "Обьем 24h"
+      },
+      "ChangeToday": {
+        "en": "Change today",
+        "ru": "Изм-ие сегодня"
+      },
+      "ChangeYesterday": {
+        "en": "Change yesterday",
+        "ru": "Изм-ие вчера"
+      },
+      "Change7Days": {
+        "en": "Change 7 days",
+        "ru": "Изм-ие за 7 дней"
+      },
+      "Change30Days": {
+        "en": "Change 30 days",
+        "ru": "Изм-ие за 30 дней"
+      },
+      "ChangeYear": {
+        "en": "Change from year start",
+        "ru": "Изм-ие с начала года"
+      },
+      "Volatility": {
+        "en": "Volatility",
+        "ru": "Волатильность"
+      }
+    },
+    "Filter": {
+      "Actions": {
+        "en": "Actions",
+        "ru": "Действия"
+      },
+      "Filters": {
+        "en": "Filters",
+        "ru": "Фильтры"
+      },
+      "Favorites": {
+        "en": "Favorites",
+        "ru": "Избранное"
+      },
+      "FavoritesMenu": {
+        "Use": {
+          "en": "Use",
+          "ru": "Использовать"
+        },
+        "SaveTitle": {
+          "en": "Creating a favorite",
+          "ru": "Создание избранного"
+        },
+        "SaveDescription": {
+          "en": "Type new name",
+          "ru": "Введите новое имя"
+        },
+        "SavePlaceholder": {
+          "en": "Should be more than 3 chars",
+          "ru": "Должно быть больше 3 символов"
+        },
+        "Rename": {
+          "en": "Rename",
+          "ru": "Переименовывать"
+        },
+        "RenameTitle": {
+          "en": "Renaming the favorite",
+          "ru": "Переименование избранного"
+        },
+        "RenameDescription": {
+          "en": "Type new name",
+          "ru": "Введите новое имя"
+        },
+        "RenamePlaceholder": {
+          "en": "Should be more than 3 chars",
+          "ru": "Должно быть больше 3 символов"
+        },
+        "Remove": {
+          "en": "Remove",
+          "ru": "Удалить"
+        },
+        "RemoveTitle": {
+          "en": "Prove removing the favorite",
+          "ru": "Подтвердите удаление избранного"
+        },
+        "RemoveDescription": {
+          "en": "You will completely remove the favorite",
+          "ru": "Вы полностью удалите избранного"
+        }
+      },
+      "Apply": {
+        "en": "Apply",
+        "ru": "Применить"
+      },
+      "Save": {
+        "en": "Save",
+        "ru": "Сохранить"
+      },
+      "Reset": {
+        "en": "Reset",
+        "ru": "Сброс"
+      },
+      "ResetTitle": {
+        "en": "Prove resetting",
+        "ru": "Подтвердите сброс"
+      },
+      "ResetMessage": {
+        "en": "All your fiilters will be turned into defaults",
+        "ru": "Все ваши фильтры будут сброшены до настроек по умолчанию"
+      },
+      "Timeframe": {
+        "en": "Timeframe:",
+        "ru": "Таймфрейм:"
+      },
+      "ChartsPerPage": {
+        "en": "Charts per page:",
+        "ru": "Кол-во графиков:"
+      },
+      "RowsPerPage": {
+        "en": "Rows per page:",
+        "ru": "Кол-строк:"
+      },
+      "Chart": {
+        "Label": {
+          "en": "Chart settings:",
+          "ru": "Настроки графика:"
+        },
+        "Title": {
+          "en": "Settings",
+          "ru": "Настройки"
+        },
+        "Clear": {
+          "en": "Clear",
+          "ru": "Очистить"
+        },
+        "UseGlobal": {
+          "en": "Use global",
+          "ru": "Использовать глобальные"
+        },
+        "Type": {
+          "en": "Type",
+          "ru": "Тип"
+        },
+        "Modules": {
+          "en": "Modules",
+          "ru": "Модули"
+        },
+        "BarsNumber": {
+          "en": "Bars on chart:",
+          "ru": "Баров на диаграмме:"
+        },
+        "Fixed": {
+          "en": "Fixed",
+          "ru": "Фиксирован"
+        },
+        "Volume": {
+          "en": "Volume",
+          "ru": "Обьем"
+        },
+        "HighResolution": {
+          "en": "High resolution",
+          "ru": "Высокое разрешение"
+        }
+      },
+      "Ticker": {
+        "en": "Ticker:",
+        "ru": "Тикер:"
+      },
+      "EnterSymbols": {
+        "en": "Symbols",
+        "ru": "Символы"
+      },
+      "Price": {
+        "en": "Price:",
+        "ru": "Цена:"
+      },
+      "AverageVolume": {
+        "en": "Average volume:",
+        "ru": "Средний обьем:"
+      },
+      "Volume24H": {
+        "en": "Volume 24h:",
+        "ru": "Обьем 24h:"
+      },
+      "RelativeVolume": {
+        "en": "Relative volume:",
+        "ru": "Относительный обьем:"
+      },
+      "MarketCap": {
+        "en": "Market cap.:",
+        "ru": "Рыночная капит-ия:"
+      },
+      "Volatility": {
+        "en": "Volatility:",
+        "ru": "Летучесть:"
+      },
+      "Coin": {
+        "en": "Coin:",
+        "ru": "Монета:"
+      },
+      "Inverted": {
+        "en": "Inverted",
+        "ru": "Инверсия"
+      },
+      "SortBy": {
+        "en": "Sort by:",
+        "ru": "Сортировка:"
+      },
+      "SortDir": {
+        "en": "Sort direction:",
+        "ru": "Направление:"
+      },
+      "Min": {
+        "en": "Min",
+        "ru": "Мин"
+      },
+      "Max": {
+        "en": "Max",
+        "ru": "Макс"
+      }
+    }
+  },
+  "List": {
+    "ChartType": {
+      "CandleChart": {
+        "en": "Candle Chart",
+        "ru": "Свечка"
+      },
+      "BarChart": {
+        "en": "Bar Chart",
+        "ru": "Бары"
+      },
+      "LineChart": {
+        "en": "Line Chart",
+        "ru": "Линейный график"
+      }
+    },
+    "SortByType": {
+      "Change30Days": {
+        "en": "Change 30 days",
+        "ru": "Изм-ие за 30 дней"
+      },
+      "Change7Days": {
+        "en": "Change 7 days",
+        "ru": "Изм-ие за 7 дней"
+      },
+      "ChangeFormNewYearStart": {
+        "en": "Change form new year start",
+        "ru": "Изм-ие с начала года"
+      },
+      "ChangeToday": {
+        "en": "Change today",
+        "ru": "Изм-ие сегодня"
+      },
+      "ChangeYesterday": {
+        "en": "Change yesterday",
+        "ru": "Изм-ие вчера"
+      },
+      "Volume24": {
+        "en": "Volume 24h",
+        "ru": "Обьем за 24ч"
+      },
+      "MarketCap": {
+        "en": "Market Cap.",
+        "ru": "Рыночная капит-ия"
+      },
+      "Name": {
+        "en": "Name",
+        "ru": "Имя"
+      },
+      "Price": {
+        "en": "Price",
+        "ru": "Цена"
+      },
+      "Ticker": {
+        "en": "Ticker",
+        "ru": "Тикер"
+      },
+      "Volatility": {
+        "en": "Volatility",
+        "ru": "Летучесть"
+      }
+    },
+    "SortDirType": {
+      "Desc": {
+        "en": "Descending",
+        "ru": "Нисходящий"
+      },
+      "Asc": {
+        "en": "Ascending",
+        "ru": "Восходящий"
+      }
+    },
+    "TimeframeType": {
+      "1Min": {
+        "en": "1 minute",
+        "ru": "1 минута"
+      },
+      "5Min": {
+        "en": "5 minutes",
+        "ru": "5 минут"
+      },
+      "15Min": {
+        "en": "15 minutes",
+        "ru": "15 минут"
+      },
+      "30Min": {
+        "en": "30 minutes",
+        "ru": "30 минут"
+      },
+      "1Hour": {
+        "en": "1 hour",
+        "ru": "1 часа"
+      },
+      "4Hours": {
+        "en": "4 hours",
+        "ru": "4 часа"
+      },
+      "1Day": {
+        "en": "1 day",
+        "ru": "1 день"
+      },
+      "1Week": {
+        "en": "1 week",
+        "ru": "1 неделя"
+      },
+      "1Month": {
+        "en": "1 month",
+        "ru": "1 месяц"
+      }
+    }
+  }
+}

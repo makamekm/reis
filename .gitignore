@@ -55,6 +55,9 @@ typings/
 .env
 
 build/
+dev/
+dist/
+uploads/
 .npmrc
 docker-compose.yml
 package-lock.json

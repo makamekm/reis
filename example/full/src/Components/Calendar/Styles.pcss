@@ -1,0 +1,68 @@
+.calendar {
+  .box {
+    @apply --box-xs;
+  }
+
+  .item {
+    position: relative;
+    border-radius: 100rem;
+    font-weight: 500;
+    text-align: center;
+    vertical-align: middle;
+    outline: none !important;
+
+    transition: color 0.2s ease-in-out, opacity 0.2s ease-in-out;
+    will-change: color, opacity;
+
+    &::before, &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      transform: scale(0.4);
+      border-top-left-radius: 100rem;
+      border-bottom-left-radius: 100rem;
+      border-top-right-radius: 100rem;
+      border-bottom-right-radius: 100rem;
+      pointer-events: none;
+      background-color: transparent;
+      transition: transform 0.1s ease-in-out, background-color 0.1s ease-in-out;
+      will-change: transform, background-color;
+    }
+
+    &:hover, &:hover, &:focus {
+      &::before {
+        transform: scale(1);
+        background-color: var(--calendar-hover);
+      }
+    }
+
+    &:not(.unactive) {
+      cursor: pointer;
+      pointer-events: all;
+      touch-action: manipulation;
+
+      &.inactive {
+        pointer-events: none;
+      }
+
+      &:active, &.active  {
+        &::before {
+          transform: scale(1);
+        }
+
+        &::after {
+          transform: scale(1);
+          background-color: var(--calendar-active);
+        }
+      }
+    }
+
+    &[disabled], &.disabled {
+      pointer-events: none;
+      opacity: 30%;
+    }
+  }
+}

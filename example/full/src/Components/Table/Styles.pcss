@@ -1,0 +1,237 @@
+.table {
+    display: table;
+    table-layout: auto;
+    width: 100%;
+
+    & > .table-row {
+        display: table-row-group;
+
+        & > .table-col {
+            display: table-cell;
+            position: relative;
+
+            &.middle {
+                vertical-align: middle;
+            }
+
+            &.center {
+                text-align: center;
+            }
+        }
+    }
+
+    .table-row-table {
+        display: table-row-group;
+        border-spacing: 0;
+        vertical-align: middle;
+
+        & > .table-row {
+            display: table-row;
+
+            & > .table-col {
+                display: table-cell;
+                position: relative;
+                white-space: normal;
+                word-break: break-all;
+                word-break: break-word;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+
+                &.middle {
+                    vertical-align: middle;
+                }
+
+                &.center {
+                    text-align: center;
+                }
+            }
+        }
+    }
+}
+
+.ellipsis {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.table {
+    --var: calc(var(--padding-prefix) * 5);
+    --varp: calc(var(--padding-prefix) * 5);
+    --varcv: calc(var(--padding-prefix) * 7);
+    --varpv: calc(var(--padding-prefix) * 2);
+    --varw: calc(var(--padding-prefix) * 25);
+
+    width: 100%;
+    max-width: 100%;
+
+    & > .table-row.header {
+        color: var(--table-header-color);
+        font-size: 1.0rem;
+        font-weight: 400;
+
+        & > .table-col {
+            padding: var(--varpv) var(--varp);
+            white-space: nowrap;
+
+            border-top: solid 1px var(--table-table-border);
+            border-right: solid 1px var(--table-table-border);
+
+            &:first-child {
+                border-left: solid 1px var(--table-table-border);
+            }
+        }
+    }
+
+    & > .table-row:not(.header) {
+        font-weight: 400;
+        font-size: var(--table-font-size);
+        box-shadow: 0px 0px 1rem 0px rgba(0, 0, 0, 0.05);
+        color: var(--table-color);
+        border-radius: var(--table-border-radius);
+    }
+
+    .table-row-table {
+        & > .table-row {
+            &:first-child {
+                & > .table-col {
+                    &:first-child {
+                        border-top-left-radius: var(--table-border-radius);
+                    }
+
+                    &:last-child {
+                        border-top-right-radius: var(--table-border-radius);
+                    }
+                }
+            }
+
+            &:last-child {
+                & > .table-col {
+                    &:first-child {
+                        border-bottom-left-radius: var(--table-border-radius);
+                    }
+
+                    &:last-child {
+                        border-bottom-right-radius: var(--table-border-radius);
+                    }
+                }
+            }
+
+            &:first-child {
+                & > .table-col {
+                    border-top: solid 1px var(--table-table-border);
+                }
+            }
+
+            &:last-child {
+                & > .table-col {
+                    border-bottom: solid 1px var(--table-table-border);
+                }
+            }
+
+            & > .table-col:first-child {
+                border-left: solid 1px var(--table-table-border);
+            }
+
+            & > .table-col:last-child {
+                border-right: solid 1px var(--table-table-border);
+            }
+        }
+    }
+
+    & > .table-row:not(.header), .table-row-table {
+        &:not(:last-child) {
+            margin-bottom: var(--var);
+        }
+
+        & > .table-row.border:not(:first-child) {
+            & > .table-col {
+                border-top: solid 1px var(--table-table-border);
+            }
+        }
+
+        & > .table-col, & > .table-row > .table-col {
+            padding: var(--varp) var(--varcv);
+            font-weight: 400;
+            font-size: 1.15rem;
+            vertical-align: middle;
+            min-width: var(--varw);
+
+            &.square {
+                padding: var(--varp);
+            }
+
+            &.border-right {
+                border-right: solid 1px var(--table-table-border);
+            }
+
+            &.border-left {
+                border-left: solid 1px var(--table-table-border);
+            }
+
+            &.border-top {
+                border-top: solid 1px var(--table-table-border);
+            }
+
+            &.border-bottom {
+                border-bottom: solid 1px var(--table-table-border);
+            }
+
+            transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+            will-change: transform, background-color, color;
+        }
+    }
+
+    &.mobile {
+        &, & > .table-row-table {
+            display: block;
+
+            & > .table-row:not(:last-child) {
+                margin-bottom: calc(var(--padding-prefix) * 4);
+            }
+
+            & > .table-row {
+                display: block;
+                width: 100%;
+                max-width: 100%;
+
+                & > .table-col {
+                    display: block;
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    border-radius: 0;
+                    border-left-width: 0 !important;
+                    border-right-width: 0 !important;
+                    border-top-width: 0 !important;
+                    border-bottom-width: 0 !important;
+
+                    &.border-left {
+                        border-top: solid 1px var(--table-table-border) !important;
+                    }
+
+                    &.border-right {
+                        border-bottom: solid 1px var(--table-table-border) !important;
+                    }
+
+                    &:first-child {
+                        border-top-left-radius: var(--table-border-radius);
+                        border-top-right-radius: var(--table-border-radius);
+                        border-bottom-left-radius: 0;
+                        border-bottom-right-radius: 0;
+                    }
+
+                    &:last-child {
+                        border-bottom-left-radius: var(--table-border-radius);
+                        border-bottom-right-radius: var(--table-border-radius);
+                        border-top-left-radius: 0;
+                        border-top-right-radius: 0;
+                    }
+                }
+            }
+
+            & > .table-row.header {
+                display: none;
+            }
+        }
+    }
+}

@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "./",
+    "paths": {
+      "reiso/*": ["../../../build/*"],
+      "~/*": ["./*"]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "public",
+    "dist",
+    "dev",
+    "server.js",
+    "tool.js",
+    "worker.js",
+    "applicationBack.js",
+    "applicationFront.js"
+  ]
+}

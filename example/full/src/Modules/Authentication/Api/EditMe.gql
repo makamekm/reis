@@ -1,0 +1,12 @@
+mutation UserEditMe($username: Username!, $password: Password, $email: Email, $avatar: Upload, $language: Language) {
+  user {
+    editMe(data: { username: $username, password: $password, email: $email, avatar: $avatar, language: $language }) {
+      id,
+      avatar,
+      username,
+      email,
+      rules,
+      language
+    }
+  }
+}

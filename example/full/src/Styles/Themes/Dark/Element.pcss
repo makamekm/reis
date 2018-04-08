@@ -1,0 +1,61 @@
+:root {
+  --element: {
+    position: relative;
+    touch-action: manipulation;
+    pointer-events: all;
+    outline: none !important;
+    -webkit-app-region: no-drag;
+    opacity: 1;
+
+    @apply --points;
+  }
+
+  --element-hover: {
+    &:hover, &.hover {
+      @apply --points-hover;
+    }
+
+    &:focus, &.focus {
+      @apply --points;
+    }
+  }
+
+  --element-active: {
+    &:not(.unactive) {
+      cursor: pointer;
+
+      * {
+        cursor: pointer;
+      }
+
+      &.inactive {
+        pointer-events: none;
+      }
+
+      &:active, &.active {
+        @apply --points-active;
+      }
+    }
+  }
+
+  --element-loading: {
+    &[loading], &.loading {
+      pointer-events: none;
+
+      @apply --points-loading;
+    }
+  }
+
+  --element-disabled: {
+    &[disabled], &.disabled {
+      pointer-events: none;
+      opacity: 0.4;
+    }
+  }
+
+  --element-error: {
+    &[error], &.error {
+      @apply --points-error;
+    }
+  }
+}

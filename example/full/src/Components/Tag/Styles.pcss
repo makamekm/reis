@@ -1,0 +1,49 @@
+.tag {
+    display: inline-block;
+    position: relative;
+    border-radius: 0.4rem;
+    text-align: center;
+    margin-top: var(--padding-prefix);
+    margin-bottom: var(--padding-prefix);
+    white-space: nowrap;
+    border: solid 1px var(--tag-border);
+
+    & > span {
+        display: inline-block;
+    }
+
+    & > span:not(:last-child) {
+        margin-right: calc(var(--padding-prefix) * 2);
+    }
+
+    & > .tag-img {
+        height: var(--padding-prefix);
+        width: var(--padding-prefix);
+
+        &:first-child {
+            margin-right: calc(var(--padding-prefix) * 2);
+        }
+    }
+
+    @apply --box-xs;
+
+    &.tag-xxs {
+        @apply --box-xxs;
+    }
+
+    &.tag-xs {
+        @apply --box-xs;
+    }
+
+    &.tag-sm {
+        @apply --box-sm;
+    }
+
+    &.tag-md {
+        @apply --box-md;
+    }
+
+    &.tag-lg {
+        @apply --box-lg;
+    }
+}

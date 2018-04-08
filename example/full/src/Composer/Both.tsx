@@ -1,0 +1,1 @@
+import * as _0 from "~/Modules/Authentication/Both/Session.ts";export module Authentication { export const Session = _0; }

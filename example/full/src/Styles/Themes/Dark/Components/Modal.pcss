@@ -1,0 +1,11 @@
+.modal-container {
+  &.std {
+    & > .modal {
+      @apply --points;
+
+      &::after, &::before {
+          z-index: 1;
+      }
+    }
+  }
+}

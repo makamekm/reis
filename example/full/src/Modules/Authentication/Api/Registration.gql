@@ -1,0 +1,7 @@
+mutation Registration($username: Username!, $password: Password!, $email: Email, $avatar: Upload) {
+  auth {
+    registration(data: { username: $username, password: $password, email: $email, avatar: $avatar }) {
+      id
+    }
+  }
+}

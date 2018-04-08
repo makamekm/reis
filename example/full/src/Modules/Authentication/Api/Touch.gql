@@ -1,0 +1,15 @@
+mutation Touch {
+  auth {
+    touch {
+      sid,
+      token,
+      user {
+        id,
+        username,
+        email,
+        avatar,
+        rules
+      }
+    }
+  }
+}

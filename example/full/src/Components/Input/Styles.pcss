@@ -1,0 +1,300 @@
+@keyframes fade-spec {
+  0% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.15);
+  }
+}
+
+.form-row {
+  display: table;
+  white-space: nowrap;
+  position: relative;
+  width: 100%;
+  min-width: 6rem;
+  pointer-events: all;
+
+  &.pointer {
+    cursor: pointer;
+  }
+
+  * {
+    pointer-events: none;
+  }
+
+  &, & > .group {
+    position: relative;
+
+    & > .group {
+      display: table-cell;
+      white-space: nowrap;
+    }
+
+    & > .fa {
+      opacity: 0.6;
+    }
+
+    & > .item {
+      display: table-cell;
+    }
+
+    .next {
+      padding: 0;
+      margin: 0;
+
+      &::before, &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        transform: scale(0.9);
+        border-radius: var(--form-row-border-radius);
+        pointer-events: none;
+
+        transition: transform 0.1s ease-in-out;
+        will-change: transform;
+        animation: none;
+      }
+    }
+
+    & > .selecting {
+      display: inline-block;
+      position: relative;
+      border: none;
+      border-radius: var(--form-row-border-radius);
+      width: 100%;
+      min-width: 3rem;
+      box-sizing: border-box;
+      text-align: left;
+      outline: none;
+      color: var(--form-row-color);
+      background-color: var(--form-row);
+
+      transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+      will-change: color, background-color;
+
+      & > .result + .placeholder {
+        display: none;
+      }
+
+      & > .placeholder {
+        color: var(--form-row-placeholder-color);
+        font-weight: 400;
+      }
+
+      &::before {
+        content: "\f0d7";
+        display: inline-block;
+        font: normal normal normal 14px/1 FontAwesome;
+        font-size: inherit;
+        text-rendering: auto;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        margin-right: calc(var(--padding-prefix) * 2);
+        transform: rotateZ(0);
+        color: var(--form-row-color);
+        opacity: 0.5;
+
+        transition: color 0.2s ease-in-out, transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
+        will-change: color, transform;
+      }
+
+      &:hover, &.hover, &:focus {
+        color: var(--form-row-hover-color);
+        background-color: var(--form-row-hover);
+
+        &::before {
+          transform: rotateZ(180deg);
+        }
+      }
+
+      &:hover ~ .next, &.hover ~ .next, &:focus ~ .next {
+        &::before {
+          transform: scale(1);
+          background-color: var(--form-row-hover);
+        }
+      }
+    }
+
+    & > .file {
+      cursor: pointer;
+      pointer-events: all;
+      display: inline-block;
+      position: relative;
+      border: none;
+      border-radius: var(--form-row-border-radius);
+      width: 100%;
+      min-width: 3rem;
+      box-sizing: border-box;
+      text-align: left;
+      outline: none;
+      color: var(--form-row-color);
+      background-color: var(--form-row);
+
+      transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+      will-change: color, background-color;
+
+      & > .result + .placeholder {
+        display: none;
+      }
+
+      & > .placeholder {
+        color: var(--form-row-placeholder-color);
+        font-weight: 400;
+      }
+
+      &:hover, &.hover, &:focus {
+        color: var(--form-row-hover-color);
+        background-color: var(--form-row-hover);
+
+        &::before {
+          transform: rotateZ(180deg);
+        }
+      }
+
+      &:hover ~ .next, &.hover ~ .next, &:focus ~ .next {
+        &::before {
+          transform: scale(1);
+          background-color: var(--form-row-hover);
+        }
+      }
+
+      input[type=file] {
+        display: none;
+      }
+    }
+
+    & > input[type=text], & > input[type=email], & > input[type=password] {
+      cursor: text;
+      display: table-cell;
+      outline: none;
+      pointer-events: all;
+      position: relative;
+      border-radius: var(--form-row-border-radius);
+      min-width: 3rem;
+      box-sizing: border-box;
+      width: 100%;
+      border: none;
+      box-shadow: inset 0px 0px 0px 0px transparent;
+      color: var(--form-row-color);
+      background-color: var(--form-row);
+      user-select: auto;
+
+      transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out, padding 0.2s ease-in-out, font-size 0.2s ease-in-out;
+      will-change: color, background-color, padding, font-size;
+
+      &:placeholder {
+        color: var(--form-row-placeholder-color);
+        font-weight: 400;
+      }
+
+      &:hover, &.hover {
+        color: var(--form-row-color);
+
+        &:placeholder {
+          color: var(--form-row-placeholder-focus-color);
+        }
+      }
+
+      &:focus {
+        color: var(--form-row-focus-color);
+        background-color: var(--form-row-focus);
+
+        &:placeholder {
+          color: var(--form-row-placeholder-focus-color);
+        }
+      }
+
+      &:hover ~ .next, &.hover ~ .next {
+        &::before {
+          transform: scale(1);
+          background-color: var(--form-row-hover);
+          animation: fade-spec 250ms ease-out forwards;
+        }
+      }
+
+      &:active ~ .next, &:focus ~ .next  {
+        &::before, &::after {
+          transform: scale(1);
+          background-color: var(--form-row-hover);
+        }
+      }
+    }
+
+    &[error], &.error {
+      & > input {
+        box-shadow: inset 0 0px 1rem var(--form-row-error-glow);
+        animation: pulseerror 1.2s infinite ease-in-out alternate forwards;
+      }
+
+      & > .selecting {
+        box-shadow: inset 0 0px 1rem var(--form-row-error-glow);
+        animation: pulseerror 1.2s infinite ease-in-out alternate forwards;
+      }
+    }
+
+    &[loading], &.loading {
+      & > input ~ .next {
+        &::before {
+          background-color: var(--form-row-loading);
+          transform: scale(1);
+        }
+
+        &::after {
+          background-color: var(--form-row-loading);
+          transform: scale(1);
+
+          animation: pulseafter .6s infinite ease-in-out alternate forwards;
+        }
+      }
+    }
+
+    &[disabled], &.disabled {
+      pointer-events: none !important;
+
+      * {
+        pointer-events: none !important;
+      }
+
+      & > input ~ .next {
+        &::after {
+          transform: scale(1);
+          background-color: var(--form-row-disabled);
+        }
+      }
+    }
+
+    & > *:not(.next) {
+      @apply --box-sm;
+    }
+
+    &.form-row-xs {
+      & > *:not(.next) {
+        @apply --box-xs;
+      }
+    }
+
+    &.form-row-sm {
+      & > *:not(.next) {
+        @apply --box-sm;
+      }
+    }
+
+    &.form-row-md {
+      & > *:not(.next) {
+        @apply --box-md;
+      }
+    }
+
+    &.form-row-lg {
+      & > *:not(.next) {
+        @apply --box-lg;
+      }
+    }
+  }
+}

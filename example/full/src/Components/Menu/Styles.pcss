@@ -1,0 +1,274 @@
+:root {
+  --menu-item: {
+    position: relative;
+    outline: none;
+    pointer-events: all;
+    touch-action: manipulation;
+    user-select: none;
+
+    transition: color 0.2s ease-in-out, border-bottom-width 0.2s;
+    will-change: color;
+
+    .fa {
+      opacity: 0.6;
+    }
+  }
+
+  --menu-item-disabled: {
+    &[disabled], &.disabled {
+      pointer-events: none;
+      opacity: 0.4;
+    }
+  }
+
+  --menu-item-hover: {
+    &:hover, &:hover {
+    }
+
+    &:focus, &.focus {
+    }
+  }
+
+  --menu-item-active: {
+    &.inactive {
+      pointer-events: none;
+    }
+
+    &:not(.unactive) {
+      cursor: pointer;
+
+      * {
+        cursor: pointer;
+      }
+
+      &:active {
+      }
+
+      &.active {
+        color: var(--menu-active-color);
+        border-bottom: 2px solid var(--menu-active-border);
+
+        .fa {
+          opacity: 0.8;
+        }
+      }
+    }
+  }
+
+  --menu-item-loading: {
+    &[loading], &.loading {
+    }
+  }
+
+  --menu-input: {
+    --local-menu-padding-modif: calc(var(--menu-padding) * 4 / 6);
+    --local-menu-padding-input: calc(var(--menu-padding) * 1.5);
+    --local-menu-m: var(--menu-input-multiplex, 0.8);
+
+    position: relative;
+    white-space: nowrap;
+    padding: 0 var(--local-menu-padding-modif);
+    pointer-events: all;
+    font-weight: 400;
+    color: var(--menu-input-color);
+    text-align: left;
+
+    & > input {
+      pointer-events: all;
+      cursor: text;
+      font-size: var(--local-menu-font-size) * var(--local-menu-m);
+      border-radius: var(--menu-border-radius);
+      width: 100%;
+      max-width: 25rem;
+      min-width: 10rem;
+      box-sizing: border-box;
+      background-color: var(--menu-input);
+      color: var(--menu-input-color);
+      outline: none;
+      padding: calc(var(--menu-padding) * 0.5 * var(--local-menu-m)) calc(var(--local-menu-padding-input) * var(--local-menu-m) / 2) calc(var(--menu-padding) * 0.5 * var(--local-menu-m)) calc(var(--local-menu-padding-input) * 1.2 * var(--local-menu-m));
+      border: 1px solid transparent;
+      user-select: auto;
+
+      transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out, padding 0.2s ease-in-out, font-size 0.2s ease-in-out, width 0.2s ease-in-out, max-width 0.2s ease-in-out;
+      will-change: color, background-color, padding, font-size;
+
+      &:placeholder {
+        color: var(--menu-color);
+      }
+
+      & + .fa {
+        font-size: calc(var(--local-menu-font-size) * var(--local-menu-m));
+        position: absolute;
+        text-align: center;
+        vertical-align: middle;
+        top: 50%;
+        width: calc(var(--local-menu-padding-input) * var(--local-menu-m));
+        left: calc(var(--local-menu-padding-modif) * 1.4);
+        transform: translateY(-50%);
+        color: var(--menu-input-color);
+
+        transition: opacity 0.2s ease-in-out, color 0.2s ease-in-out, left 0.2s ease-in-out, width 0.2s ease-in-out, font-size 0.2s ease-in-out;
+        will-change: opacity, color, left, width, font-size;
+      }
+
+      & ~ .right {
+        font-size: calc(var(--local-menu-font-size) * var(--local-menu-m));
+        position: absolute;
+        text-align: right;
+        top: 50%;
+        right: calc(var(--local-menu-padding-modif) + var(--local-menu-padding-input) / 2 * var(--local-menu-m) + 20rem);
+        transform: translateY(-50%);
+        color: var(--menu-input-color);
+        opacity: 0;
+        transition: opacity 0.2s ease-in-out, color 0.2s ease-in-out, left 0.2s ease-in-out, font-size 0.2s ease-in-out, right 0.2s ease-in-out;
+        will-change: opacity, color, left, font-size;
+      }
+
+      &:not(:placeholder-shown) ~ .right {
+        opacity: 0;
+      }
+
+      &:focus {
+        max-width: 100%;
+        font-size: var(--local-menu-font-size);
+        margin: 0;
+        padding: calc(var(--menu-padding) * 0.5) calc(var(--local-menu-padding-input) / 2) calc(var(--menu-padding) * 0.5) calc(var(--local-menu-padding-input));
+        color: var(--menu-input-focus-color);
+        background-color: var(--menu-input-focus);
+
+        :placeholder {
+          color: var(--menu-input-placeholder-color);
+        }
+
+        & + .fa {
+          font-size: var(--local-menu-font-size);
+          width: var(--local-menu-padding-input);
+          left: calc(var(--local-menu-padding-modif) * 1.2);
+          color: var(--menu-input-placeholder-color);
+        }
+
+        & ~ .right {
+          font-size: var(--local-menu-font-size);
+          right: calc(var(--local-menu-padding-modif) + var(--local-menu-padding-input) / 2);
+          color: var(--menu-input-placeholder-color);
+          opacity: 1;
+        }
+      }
+    }
+  }
+}
+
+.menu {
+  --local-menu-font-size: var(--menu-font-size, 0.8);
+
+  background: var(--menu);
+  color: var(--menu-color);
+  text-shadow: 1px 1px rgba(0, 0, 0, 0.1);
+
+  & > *, & > * > .group {
+    display: table-row;
+    height: 100%;
+    font-size: var(--local-menu-font-size);
+    font-weight: 400;
+    height: var(--menu-height);
+
+    & > * {
+      display: table-cell;
+      vertical-align: middle;
+      text-align: center;
+      white-space: nowrap;
+      padding: 0;
+
+      img {
+        height: calc(var(--local-menu-font-size) * 1.6);
+        object-fit: contain;
+        object-position: center;
+      }
+    }
+
+    & > .item {
+      white-space: nowrap;
+      padding: 0 var(--menu-padding);
+
+      & > .fa:first-child, & > .flag-icon:first-child {
+        margin-right: calc(var(--local-menu-font-size) / 2);
+      }
+
+      &.image {
+        width: var(--menu-height);
+        min-width: var(--menu-height);
+        text-align: center;
+        padding: 0;
+        font-size: calc(var(--local-menu-font-size) * 2.1);
+
+        & > .fa:first-child, & > .flag-icon:first-child {
+          margin-right: 0;
+        }
+      }
+
+      @apply --menu-item;
+      @apply --menu-item-hover;
+      @apply --menu-item-active;
+      @apply --menu-item-loading;
+      @apply --menu-item-disabled;
+    }
+
+    & > .header {
+      white-space: nowrap;
+      font-size: calc(var(--local-menu-font-size) * 1.1);
+      padding: 0 calc(var(--menu-padding) * 4 / 6);
+      color: var(--menu-header-color);
+
+      & > .fa, & > .flag-icon {
+        font-size: calc(var(--menu-height) / 2.4);
+      }
+
+      & > .fa:first-child, & > .flag-icon:first-child {
+        margin-right: calc(var(--local-menu-font-size) / 2);
+      }
+
+      svg {
+        height: calc(var(--menu-height) / 2.4);
+      }
+    }
+
+    & > .space {
+      width: 100%;
+    }
+
+    & > .divider {
+      position: relative;
+      padding: 0;
+
+      &:after {
+        content: "";
+        position: absolute;
+        height: calc(var(--menu-height) / 2.6);
+        width: 1px;
+        background-color: var(--menu-divider-color);
+        top: 50%;
+        transform: translateY(-50%);
+      }
+    }
+
+    & > .input {
+      @apply --menu-input;
+      @apply --menu-item;
+      @apply --menu-item-loading;
+    }
+  }
+}
+
+.menu-container {
+  background: var(--menu);
+  color: var(--menu-color);
+}
+
+.top-line {
+  content: '';
+  height: 4px;
+  width: 100%;
+  background-color: var(--top-line-color);
+  text-shadow: none;
+  box-shadow: none;
+}

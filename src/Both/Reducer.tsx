@@ -6,7 +6,16 @@ import * as ReactRedux from 'react-redux';
 import { responsiveStateReducer, responsiveStoreEnhancer, createResponsiveStoreEnhancer } from 'redux-responsive';
 import * as ApolloClient from "apollo-client";
 
-export const Connect = ReactRedux.connect;
+export function Connect<TStateProps = any, TDispatchProps = any, State = any, TOwnProps = any, TMergedProps = any>(
+  mapStateToProps: ReactRedux.MapStateToPropsParam<TStateProps, TOwnProps, State>,
+  mapDispatchToProps: ReactRedux.MapDispatchToPropsParam<TDispatchProps, TOwnProps> = (props): any => ({}),
+  mergeProps: ReactRedux.MergeProps<TStateProps, TDispatchProps, TOwnProps, TMergedProps> = null,
+  options: ReactRedux.Options<State, TStateProps, TOwnProps, TMergedProps> = {}
+) {
+  return function (target): any {
+    return ReactRedux.connect(mapStateToProps, mapDispatchToProps, mergeProps, options)(target);
+  }
+}
 
 let initialState: any = {};
 

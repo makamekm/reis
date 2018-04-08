@@ -1,0 +1,15 @@
+query Users($filter: UserFilter!, $order: [UserOrder], $limit: Int, $offset: Int) {
+  user {
+    list(filter: $filter, order: $order, limit: $limit, offset: $offset) {
+      users {
+        id,
+        username,
+        rules,
+        email,
+        language,
+        avatar
+      },
+      count
+    }
+  }
+}

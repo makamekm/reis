@@ -1,0 +1,68 @@
+.menu {
+  & > *, & > * > .group {
+    & > .item {
+      --points-offset: 0px;
+      @apply --points;
+
+      &::before, &::after {
+        opacity: 0;
+      }
+
+      &:hover, &:hover {
+        --points-offset: -2px;
+        @apply --points-hover;
+
+        &::before, &::after {
+          opacity: 1;
+        }
+      }
+
+      &:focus, &.focus {
+        --points-offset: 2px;
+        @apply --points;
+
+        &::before, &::after {
+          opacity: 1;
+        }
+      }
+
+      &:not(.unactive) {
+        &:active {
+          --points-offset: 0px;
+          @apply --points-active;
+
+          &::before, &::after {
+            opacity: 1;
+          }
+        }
+      }
+
+      &[loading], &.loading {
+        --points-offset: 0px;
+        @apply --points-loading;
+
+        &::before, &::after {
+          opacity: 1;
+        }
+      }
+    }
+
+    & > .input {
+      --points-offset: 0px;
+      @apply --points;
+
+      &::before, &::after {
+        opacity: 0;
+      }
+
+      &[loading], &.loading {
+        --points-offset: 0px;
+        @apply --points-loading;
+
+        &::before, &::after {
+          opacity: 1;
+        }
+      }
+    }
+  }
+}

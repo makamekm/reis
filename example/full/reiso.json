@@ -1,0 +1,51 @@
+{
+  "default": {
+    "secretKey": "secretps4",
+    "maxFileSize": 50,
+    "uploadDir": "./uploads/",
+    "port": 3000,
+    "portWS": 5000,
+    "host": "127.0.0.1",
+    "globalPort": 3000,
+    "globalPortWS": 5000,
+    "translation": "./translation.json",
+    "defaultLanguage": "en",
+    "languages": ["en", "ru"],
+    "logConsole": true,
+    "db": {
+      "Main": {
+        "database": "karpov",
+        "extra": {
+          "charset": "utf8_general_ci"
+        },
+        "host": "localhost",
+        "password": "",
+        "port": 3306,
+        "type": "mysql",
+        "username": "root"
+      }
+    },
+    "redisPubSub": {
+      "Main": {
+        "port": 6379,
+        "host": "127.0.0.1",
+        "password": "qwerty"
+      }
+    },
+    "redisJob": {
+      "Main": {
+        "port": 6379,
+        "host": "127.0.0.1",
+        "password": "qwerty",
+        "scope": "cb_subscription"
+      }
+    },
+    "redis": {
+      "Main": {
+        "port": 6379,
+        "host": "127.0.0.1",
+        "password": "qwerty"
+      }
+    }
+  }
+}

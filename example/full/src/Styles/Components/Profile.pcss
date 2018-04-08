@@ -1,0 +1,54 @@
+.profile-img {
+    border-radius: 100%;
+    height: calc(var(--padding-prefix) * 20);
+    width: calc(var(--padding-prefix) * 20);
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    object-fit: cover;
+    object-position: center;
+    transition: opacity 0.3s ease-in-out, filter 0.3s ease-in-out;
+    will-change: opacity, filter;
+
+    &.empty {
+        background-image: url('images/avatar-empty.png');
+    }
+
+    &.favicon {
+        background-image: url('images/icon.png');
+    }
+
+    &.big {
+        height: calc(var(--padding-prefix) * 40);
+        width: calc(var(--padding-prefix) * 40);
+    }
+
+    &.nano {
+        height: calc(var(--padding-prefix) * 4);
+        width: calc(var(--padding-prefix) * 4);
+    }
+
+    &.file {
+        cursor: pointer;
+
+        opacity: 1;
+
+        &:hover {
+            opacity: 0.6;
+        }
+
+        &:active {
+            opacity: 0.7;
+        }
+
+        & + input[type=file] {
+            display: none;
+        }
+    }
+
+    &.loading {
+        pointer-events: none;
+        animation: loadingimage .6s infinite ease-in-out alternate forwards;
+    }
+}

@@ -1,0 +1,28 @@
+.pagination {
+  & > .item {
+    @apply --element;
+
+    &:before, &:after {
+      opacity: 0;
+    }
+
+    & {
+      --points-offset: -3px;
+      @apply --element-hover;
+      @apply --element-active;
+      @apply --element-loading;
+    }
+
+    &.active {
+      &:before, &:after {
+        opacity: 0;
+      }
+    }
+
+    &[disabled], &.disabled {
+      &:before, &:after {
+        opacity: 0;
+      }
+    }
+  }
+}

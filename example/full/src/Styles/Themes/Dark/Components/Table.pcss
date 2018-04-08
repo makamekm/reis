@@ -1,0 +1,16 @@
+.table {
+  & > .table-row > .table-col.item, .table-row-table > .table-row > .table-col.item {
+    --points-offset: -2px;
+    @apply --element;
+    @apply --element-error;
+
+    & {
+      --points-offset: 0px;
+      @apply --element-hover;
+    }
+
+    @apply --element-active;
+    @apply --element-loading;
+    @apply --element-disabled;
+  }
+}
