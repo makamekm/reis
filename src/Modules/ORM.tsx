@@ -57,7 +57,6 @@ function initialize(scope: string = 'Main') {
 export function Manager(scope: string = 'Main'): ORM.Manager {
     if (!Managers[scope]) {
         Managers[scope] = initialize(scope);
-    } else {
-        return Managers[scope];
     }
+    return Managers[scope];
 };
