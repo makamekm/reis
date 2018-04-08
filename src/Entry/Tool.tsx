@@ -18,9 +18,8 @@ export const run = () => {
     db_sync: {
       description: "Sync DB",
       action: async (read, callback) => {
-        console.log("DB has been successfully synced!");
-        let orm = ORM.Manager();
-        await orm.Sync();
+        console.log("DB syncing...");
+        await ORM.Sync();
         console.log("DB has been successfully synced!");
         callback();
       }
@@ -28,9 +27,8 @@ export const run = () => {
     db_drop: {
       description: "Drop DB",
       action: async (read, callback) => {
-        console.log("DB has been successfully dropped!");
-        let orm = ORM.Manager();
-        await orm.Drop();
+        console.log("DB dropping");
+        await ORM.Drop();
         console.log("DB has been successfully dropped!");
         callback();
       }
@@ -38,22 +36,21 @@ export const run = () => {
     db_test: {
       description: "Test DB",
       action: async (read, callback) => {
-        console.log("DB has been successfully tested!");
-        let orm = ORM.Manager();
-        await orm.Test();
+        console.log("DB testing...");
+        await ORM.Test();
         console.log("DB has been successfully tested!");
         callback();
       }
     },
     log_test: {
-      description: "Test DB",
+      description: "Test logging",
       action: async (read, callback) => {
         Log.logInfo({message: "test"})
         callback();
       }
     },
     log_error_test: {
-      description: "Test DB",
+      description: "Test error logging",
       action: async (read, callback) => {
         Log.logError(new Error("test"), "tool");
         callback();

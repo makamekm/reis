@@ -11,8 +11,8 @@ interface Map<T> {
 const Entities: Map<any[]> = {};
 
 export class Manager {
-    private conn: Map<ORM.Connection> = {};
-    private connPromises: Map<Promise<ORM.Connection>> = {};
+    private conn: ORM.Connection;
+    private connPromise: Promise<ORM.Connection>;
 
     public static addEntity(name: any, entity: any) {
         if (Entities[name]) {
@@ -45,18 +45,18 @@ export class Manager {
         this.config = config;
     }
 
-    public async Connect(name: string = 'Main'): Promise<ORM.Connection> {
-        if (!this.conn[name] && !this.connPromises[name]) {
+    public async Connect(): Promise<ORM.Connection> {
+        if (!this.conn && !this.connPromise) {
             let resolve = async () => {
-                this.conn[name] = await this.init(this.config[name]);
-                return this.conn[name];
+                this.conn = await this.init(this.config);
+                return this.conn;
             };
-            this.connPromises[name] = resolve();
+            this.connPromise = resolve();
         }
 
-        await this.connPromises[name];
+        await this.connPromise;
 
-        return this.conn[name];
+        return this.conn;
     }
 
     private async init(config): Promise<ORM.Connection> {
@@ -64,39 +64,33 @@ export class Manager {
     }
 
     public async Test() {
-        for (let name in this.config) {
-            let connection = await this.Connect(name);
-        }
+        let connection = await this.Connect();
     }
 
     public async Sync(mode: 'passive' | 'force' | 'standart' = 'standart') {
-        for (let name in this.config) {
-            let connection = await this.Connect(name);
-            if (mode == 'force') {
-                try {
-                    await connection.synchronize();
-                }
-                catch(e) {
-                    await connection.synchronize(true);
-                }
-            }
-            else if (mode == 'passive') {
-                try {
-                    await connection.synchronize();
-                }
-                catch(e) {}
-            }
-            else if (mode == 'standart') {
+        let connection = await this.Connect();
+        if (mode == 'force') {
+            try {
                 await connection.synchronize();
             }
+            catch(e) {
+                await connection.synchronize(true);
+            }
+        }
+        else if (mode == 'passive') {
+            try {
+                await connection.synchronize();
+            }
+            catch(e) {}
+        }
+        else if (mode == 'standart') {
+            await connection.synchronize();
         }
     }
 
     public async Drop() {
-        for (let name in this.config) {
-            let connection = await this.Connect(name);
-            await connection.dropDatabase();
-        }
+        let connection = await this.Connect();
+        await connection.dropDatabase();
     }
 }
 

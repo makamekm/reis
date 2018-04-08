@@ -110,6 +110,7 @@
     "source-map": "0.7.2",
     "stacktrace-parser": "0.1.4",
     "store": "2.0.12",
+    "reiso": "0.2.7",
     "synaptic": "1.1.4",
     "zen-observable-ts": "0.8.8",
     "delaunay-fast": "1.0.1"

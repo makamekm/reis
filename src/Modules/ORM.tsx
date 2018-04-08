@@ -60,3 +60,21 @@ export function Manager(scope: string = 'Main'): ORM.Manager {
     }
     return Managers[scope];
 };
+
+export async function Test() {
+    for (let name in getConfig().db) {
+        await Manager(name).Test();
+    }
+}
+
+export async function Drop() {
+    for (let name in getConfig().db) {
+        await Manager(name).Drop();
+    }
+}
+
+export async function Sync() {
+    for (let name in getConfig().db) {
+        await Manager(name).Sync();
+    }
+}
