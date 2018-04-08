@@ -45,6 +45,20 @@ export const run = () => {
         callback();
       }
     },
+    log_test: {
+      description: "Test DB",
+      action: async (read, callback) => {
+        Log.logInfo({message: "test"})
+        callback();
+      }
+    },
+    log_error_test: {
+      description: "Test DB",
+      action: async (read, callback) => {
+        Log.logError(new Error("test"), "tool");
+        callback();
+      }
+    },
     ...Tool.commands
   }
   const commander = new Commander(commands);
