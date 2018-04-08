@@ -45,6 +45,7 @@ let config: any = {
     "logVerboseToConsole": null,
     "logClientToConsole": null,
     "logLogstash": null,
+    "ddos": null,
     "db": {
       "Main": {
         "database": "test",

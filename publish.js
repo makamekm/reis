@@ -15,6 +15,9 @@ delete data.scripts;
 let strData = JSON.stringify(data, null, 2);
 fs.writeFileSync(path.resolve(__dirname, 'build', 'package.json'), strData);
 
+let strComposer = fs.readFileSync(path.resolve(__dirname, 'composer.js'));
+fs.writeFileSync(path.resolve(__dirname, 'build', 'composer.js'), strComposer);
+
 let args = process.argv.slice(2)
 
 let username = args[0];

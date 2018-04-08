@@ -1,6 +1,6 @@
 {
   "name": "reiso-src",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "reiso",
   "private": true,
   "keywords": [
@@ -53,15 +53,15 @@
     "git-repo-watch": "1.0.0"
   },
   "dependencies": {
-    "apollo-cache": "1.1.6",
-    "apollo-cache-inmemory": "1.1.11",
-    "apollo-client": "2.2.7",
+    "apollo-cache": "1.1.7",
+    "apollo-cache-inmemory": "1.1.12",
+    "apollo-client": "2.2.8",
     "apollo-fetch": "0.7.0",
     "apollo-link": "1.2.1",
     "apollo-link-batch-http": "1.2.1",
     "apollo-link-error": "1.0.7",
     "apollo-link-ws": "1.0.7",
-    "apollo-server-express": "1.3.2",
+    "apollo-server-express": "1.3.4",
     "basic-auth": "2.0.0",
     "body-parser": "1.18.2",
     "bull": "3.3.10",
@@ -107,9 +107,9 @@
     "request": "2.85.0",
     "seaport": "2.0.9",
     "stacktrace-parser": "0.1.4",
-    "subscriptions-transport-ws": "0.9.6",
+    "subscriptions-transport-ws": "0.9.7",
     "tslib": "1.9.0",
-    "typeorm": "0.1.16",
+    "typeorm": "0.1.20",
     "winston": "2.4.1",
     "zen-observable-ts": "0.8.8",
     "winston-logstash": "0.4.0"

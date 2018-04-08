@@ -11,8 +11,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as compression from 'compression';
 import * as seaport from 'seaport';
-// import ddos = require('ddos');
-// import ddos from 'ddos';
+const ddos = require('ddos');
 
 // Config
 import { getConfig } from '../Modules/Config';
@@ -73,18 +72,9 @@ export class Server {
     this.app.use(compression());
     this.app.disable('x-powered-by');
     this.app.use(bodyParser.json());
-    // if (process.env.NODE_ENV == 'production') {
-    //   this.app.use(new ddos({
-    //     testmode: false,
-    //     maxcount: 30,
-    //     burst: 3,
-    //     limit: 120,
-    //     maxexpiry: 60,
-    //     checkinterval: 1,
-    //     errormessage: "{ message: 'DDoS Protection, try later (maximum 60 seconds)' }",
-    //     responseStatus: 429
-    //   }).express);
-    // }
+    if (getConfig().ddos) {
+      this.app.use(new ddos(getConfig().ddos).express);
+    }
     this.app.get('*.js', (req, res, next) => {
       if (fs.existsSync(path.resolve(getConfig().publicDir, req.url.replace(/^((http|https):\/\/[\w\.:]+\/)|^(\/)/, '')) + '.gz')) {
         req.url = req.url + '.gz';
