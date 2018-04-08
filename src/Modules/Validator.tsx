@@ -161,79 +161,79 @@ export const dateValidator = (value: any, opts: {
   return errors;
 }
 
-export const configValidator = (value: any, opts: {
-  languages?: string[]
-} = {
-  languages: []
-}): (string | { name: string, message: string })[] => {
-  let errors = [];
+// export const configValidator = (value: any, opts: {
+//   languages?: string[]
+// } = {
+//   languages: []
+// }): (string | { name: string, message: string })[] => {
+//   let errors = [];
 
-  if (!value) {
-    errors.push("Config shouldn't be null (object)");
-  }
-  else {
-    if (!value.uploadDir || typeof value.uploadDir != 'string') {
-      errors.push({name: 'uploadDir', message: 'Config.uploadDir must be a path (string)'});
-    }
+//   if (!value) {
+//     errors.push("Config shouldn't be null (object)");
+//   }
+//   else {
+//     if (!value.uploadDir || typeof value.uploadDir != 'string') {
+//       errors.push({name: 'uploadDir', message: 'Config.uploadDir must be a path (string)'});
+//     }
 
-    if (value.port == null || value.port == undefined || isNaN(value.port) || value.port < 1) {
-      errors.push({name: 'port', message: 'Config.port must be a number (number)'});
-    }
+//     if (value.port == null || value.port == undefined || isNaN(value.port) || value.port < 1) {
+//       errors.push({name: 'port', message: 'Config.port must be a number (number)'});
+//     }
 
-    if (value.port == null || value.port == undefined || isNaN(value.port) || value.portWS < 1) {
-      errors.push({name: 'portWS', message: 'Config.portWS must be > 1 a number (number)'});
-    }
+//     if (value.port == null || value.port == undefined || isNaN(value.port) || value.portWS < 1) {
+//       errors.push({name: 'portWS', message: 'Config.portWS must be > 1 a number (number)'});
+//     }
 
-    if (value.secretKey == null || value.secretKey == undefined || typeof value.secretKey != 'string' || value.secretKey.length < 3 || value.secretKey.length > 10) {
-      errors.push({name: 'secretKey', message: 'Config.secretKey must be > 1 and <= 10 (string)'});
-    }
+//     if (value.secretKey == null || value.secretKey == undefined || typeof value.secretKey != 'string' || value.secretKey.length < 3 || value.secretKey.length > 10) {
+//       errors.push({name: 'secretKey', message: 'Config.secretKey must be > 1 and <= 10 (string)'});
+//     }
 
-    if (value.defaultLanguage == null || value.defaultLanguage == undefined || typeof value.defaultLanguage != 'string' || ["en", "ru", "fr"].indexOf(value.defaultLanguage) < 0) {
-      errors.push({name: 'defaultLanguage', message: 'Config.defaultLanguage must be in [' + opts.languages.join(', ') + '] (string)'});
-    }
+//     if (value.defaultLanguage == null || value.defaultLanguage == undefined || typeof value.defaultLanguage != 'string' || ["en", "ru", "fr"].indexOf(value.defaultLanguage) < 0) {
+//       errors.push({name: 'defaultLanguage', message: 'Config.defaultLanguage must be in [' + opts.languages.join(', ') + '] (string)'});
+//     }
 
-    if (!value.db) {
-      errors.push({name: 'db', message: 'Config.db must be an object (object)'});
-    }
-    else {
-      if (!value.db.Main) {
-        errors.push({name: 'db.Main', message: 'Config.db.Main must be an object (object)'});
-      }
+//     if (!value.db) {
+//       errors.push({name: 'db', message: 'Config.db must be an object (object)'});
+//     }
+//     else {
+//       if (!value.db.Main) {
+//         errors.push({name: 'db.Main', message: 'Config.db.Main must be an object (object)'});
+//       }
 
-      Object.keys(value.db).forEach(name => {
-        if (!value.db[name].type || typeof value.db[name].type != 'string' || ["mysql", "sqlite", "mongodb"].indexOf(value.db[name].type) < 0) {
-          errors.push({name: 'Config.db.' + name + '.type', message: 'Config.db.' + name + '.type must be in [' + ["mysql"].join(', ') + '] (string)'});
-        }
+//       Object.keys(value.db).forEach(name => {
+//         if (!value.db[name].type || typeof value.db[name].type != 'string' || ["mysql", "sqlite", "mongodb"].indexOf(value.db[name].type) < 0) {
+//           errors.push({name: 'Config.db.' + name + '.type', message: 'Config.db.' + name + '.type must be in [' + ["mysql"].join(', ') + '] (string)'});
+//         }
 
-        if (value.db[name].host && typeof value.db[name].host != 'string') {
-          errors.push({name: 'Config.db.' + name + '.host', message: 'Config.db.' + name + '.host must be a string (string)'});
-        }
+//         if (value.db[name].host && typeof value.db[name].host != 'string') {
+//           errors.push({name: 'Config.db.' + name + '.host', message: 'Config.db.' + name + '.host must be a string (string)'});
+//         }
 
-        if (value.db[name].port && (isNaN(value.db[name].port) || value.db[name].port < 1)) {
-          errors.push({name: 'Config.db.' + name + '.port', message: 'Config.db.' + name + '.port must be a number (number)'});
-        }
+//         if (value.db[name].port && (isNaN(value.db[name].port) || value.db[name].port < 1)) {
+//           errors.push({name: 'Config.db.' + name + '.port', message: 'Config.db.' + name + '.port must be a number (number)'});
+//         }
 
-        if (value.db[name].username && typeof value.db[name].username != 'string') {
-          errors.push({name: 'Config.db.' + name + '.username', message: 'Config.db.' + name + '.username must be a string (string)'});
-        }
+//         if (value.db[name].username && typeof value.db[name].username != 'string') {
+//           errors.push({name: 'Config.db.' + name + '.username', message: 'Config.db.' + name + '.username must be a string (string)'});
+//         }
 
-        if (value.db[name].password && typeof value.db[name].password != 'string') {
-          errors.push({name: 'Config.db.' + name + '.password', message: 'Config.db.' + name + '.password must be a string (string)'});
-        }
+//         if (value.db[name].password && typeof value.db[name].password != 'string') {
+//           errors.push({name: 'Config.db.' + name + '.password', message: 'Config.db.' + name + '.password must be a string (string)'});
+//         }
 
-        if (value.db[name].database == null || value.db[name].database == undefined || typeof value.db[name].database != 'string') {
-          errors.push({name: 'Config.db.' + name + '.database', message: 'Config.db.' + name + '.database must be a string (string)'});
-        }
+//         if (value.db[name].database == null || value.db[name].database == undefined || typeof value.db[name].database != 'string') {
+//           errors.push({name: 'Config.db.' + name + '.database', message: 'Config.db.' + name + '.database must be a string (string)'});
+//         }
 
-        if (value.db[name].storage && typeof value.db[name].storage != 'string') {
-          errors.push({name: 'Config.db.' + name + '.storage', message: 'Config.db.' + name + '.storage must be a string (string)'});
-        }
-      })
-    }
-  }
+//         if (value.db[name].storage && typeof value.db[name].storage != 'string') {
+//           errors.push({name: 'Config.db.' + name + '.storage', message: 'Config.db.' + name + '.storage must be a string (string)'});
+//         }
+//       })
+//     }
+//   }
 
-  return errors;
-}
+//   return errors;
+// }
 
 // export const dateValidator = (value: any, opts: {
 //   nullable?: boolean

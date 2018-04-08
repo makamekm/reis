@@ -10,16 +10,7 @@ let isMulticore: any = process.env.MULTI;
 
 import * as Log from '../Server/Log';
 
-import { translation, awalableLanguages } from '../Modules/Config';
-import { configValidator } from '../Modules/Validator';
-
-let validate = configValidator(getConfig(), {
-  languages: awalableLanguages
-})
-
-if (validate.length) {
-  throw new Error('Config is not valid: ' + validate.map(e => typeof(e) === 'string' ? e : e.message).join('; ') + ';');
-}
+import { translation } from '../Modules/Config';
 
 import * as Translation from '../Modules/Translation';
 Translation.setState(getConfig().defaultLanguage, getConfig().languages, translation);

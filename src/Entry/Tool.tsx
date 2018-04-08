@@ -3,16 +3,7 @@ readConfig();
 
 import * as Log from '../Server/Log';
 
-import { translation, awalableLanguages } from '../Modules/Config';
-import { configValidator } from '../Modules/Validator';
-
-let validate = configValidator(getConfig(), {
-  languages: awalableLanguages
-})
-
-if (validate.length) {
-  throw new Error('Config is not valid: ' + validate.map(e => typeof(e) === 'string' ? e : e.message).join('; ') + ';');
-}
+import { translation } from '../Modules/Config';
 
 import * as Translation from '../Modules/Translation';
 Translation.setState(getConfig().defaultLanguage, getConfig().languages, translation);
@@ -23,6 +14,39 @@ import * as Tool from '../Modules/Tool';
 import { Commander } from '../Server/Commander';
 
 export const run = () => {
-  const commander = new Commander(Tool.commands);
+  let commands = {
+    db_sync: {
+      description: "Sync DB",
+      action: async (read, callback) => {
+        console.log("DB has been successfully synced!");
+        let orm = ORM.Manager();
+        await orm.Sync();
+        console.log("DB has been successfully synced!");
+        callback();
+      }
+    },
+    db_drop: {
+      description: "Drop DB",
+      action: async (read, callback) => {
+        console.log("DB has been successfully dropped!");
+        let orm = ORM.Manager();
+        await orm.Drop();
+        console.log("DB has been successfully dropped!");
+        callback();
+      }
+    },
+    db_test: {
+      description: "Test DB",
+      action: async (read, callback) => {
+        console.log("DB has been successfully tested!");
+        let orm = ORM.Manager();
+        await orm.Test();
+        console.log("DB has been successfully tested!");
+        callback();
+      }
+    },
+    ...Tool.commands
+  }
+  const commander = new Commander(commands);
   commander.cycle();
 }
