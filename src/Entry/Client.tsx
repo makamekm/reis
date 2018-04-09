@@ -8,7 +8,6 @@ import * as ApolloCache from 'apollo-cache-inmemory';
 import * as ApolloLinkWS from "apollo-link-ws";
 import * as ApolloLink from "apollo-link";
 import { BatchHttpLink } from 'apollo-link-batch-http';
-import { onError } from "apollo-link-error";
 import * as graphql from 'graphql';
 import * as Responsive from 'redux-responsive';
 
@@ -107,11 +106,9 @@ class Main {
     //   $('head title').html(store.getState().Friends.title);
     // });
 
-    let ReactDOMMed: any = ReactDOM;
-
     let Html = Router.GetHtml();
 
-    ReactDOMMed.hydrate(
+    ReactDOM.hydrate(
       <ApolloReact.ApolloProvider client={gqlClient as any}>
         <ReactRedux.Provider store={store}>
           <BrowserRouter>

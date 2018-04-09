@@ -1,85 +1,46 @@
+import * as cluster from 'cluster';
+import * as os from 'os';
 import * as cron from 'cron';
 
 import { getConfig, readConfig } from '../Modules/Config';
 readConfig();
 
-let scope: any = process.env.SCOPE_GROUP;
-let isCommander: any = process.env.COMMANDER;
+let scope: any = process.env.WORKER_SCOPE;
+let isMulticore: any = !!process.env.MULTI;
 
 import * as Log from '../Server/Log';
-
-import { translation } from '../Modules/Config';
-
-import * as Translation from '../Modules/Translation';
-Translation.setState(getConfig().defaultLanguage, getConfig().languages, translation);
-
-import * as ORM from '../Modules/ORM';
-import { Commander } from '../Server/Commander';
 import * as Worker from '../Modules/Worker';
+import * as Translation from '../Modules/Translation';
 
 export const run = () => {
-  const cronManager = new Worker.CronManager(scope || 'Main');
-  cronManager.init();
+  if (!isMulticore) {
+    const cronManager = new Worker.CronManager(scope);
+    cronManager.init();
+  } else {
 
-  if (isCommander) {
-    let commands = {
-      status: {
-        description: Translation.transDefault('Cron.GetStatusDescription') || "Get a status of a job",
-        action: (read, callback) => read.question(Translation.transDefault('Cron.EnterJobName') || "Enter the job's name: ", function (answer) {
-          if (cronManager.isJob(answer)) {
-            console.log(Translation.transDefault('Cron.JobStatus', cronManager.status(answer) ? '1' : '0', cronManager.isRunning(answer) ? '1' : '0')) || `Status: ${cronManager.status(answer) ? '1' : '0'}; Is running: ${cronManager.isRunning(answer) ? '1' : '0'}`;
-          }
-          else {
-            console.log(Translation.transDefault('Cron.JobDeesntExist') || "The job doesn't exist");
-          }
-          callback();
-        })
-      },
-      stop: {
-        description: Translation.transDefault('Cron.StopDescription') || "Stop a job by name",
-        action: (read, callback) => read.question(Translation.transDefault('Cron.EnterJobName') || "Enter the job's name: ", function (answer) {
-          if (cronManager.isJob(answer)) {
-            console.log(Translation.transDefault('Cron.JobStatus', cronManager.status(answer) ? '1' : '0', cronManager.isRunning(answer) ? '1' : '0') || `Status: ${cronManager.status(answer) ? '1' : '0'}; Is running: ${cronManager.isRunning(answer) ? '1' : '0'}`);
-            console.log(Translation.transDefault('Cron.Stopping') || "Stopping...");
-            cronManager.stop(answer).then(() => {
-              console.log(Translation.transDefault('Cron.Stoped') || "Stoped!");
-              callback();
-            }).catch(e => {
-              console.log(Translation.transDefault("StopFailed") || "Failed, but the jos has stopped!");
-              console.error(e);
-              callback();
-            });
-          }
-          else {
-            console.log(Translation.transDefault('Cron.JobDeesntExist') || "The job doesn't exist");
-            callback();
-          }
-        })
-      },
-      start: {
-        description: Translation.transDefault('Cron.StartDescription'),
-        action: (read, callback) => read.question(Translation.transDefault('Cron.EnterJobName'), function (answer) {
-          if (cronManager.isJob(answer)) {
-            console.log(Translation.transDefault('Cron.JobStatus', cronManager.status(answer) ? '1' : '0', cronManager.isRunning(answer) ? '1' : '0') || `Status: ${cronManager.status(answer) ? '1' : '0'}; Is running: ${cronManager.isRunning(answer) ? '1' : '0'}`);
-            cronManager.start(answer);
-            console.log(Translation.transDefault('Cron.Started') || "Stoped!");
-          }
-          else {
-            console.log(Translation.transDefault('Cron.JobDeesntExist') || "The job doesn't exist");
-          }
-          callback();
-        })
-      },
-      names: {
-        description: Translation.transDefault('Cron.GetNamesDescription') || "Show all names of jobs",
-        action: (read, callback) => {
-          cronManager.getNames().forEach(name => console.log(name));
-          callback();
-        }
+    if (cluster.isMaster) {
+
+      let numCPUs = os.cpus().length;
+
+      // Fork workers.
+      for (let i = 0; i < numCPUs; i++) {
+        cluster.fork();
       }
-    }
 
-    const commander = new Commander(commands);
-    commander.cycle();
+      // If a worker dies, log it to the console and start another worker.
+      cluster.on('exit', function(worker, code, signal) {
+        Log.logInfo('Worker ' + worker.process.pid + ' died.');
+        cluster.fork();
+      });
+
+      // Log when a worker starts listening
+      cluster.on('listening', function(worker, address) {
+        Log.logInfo('Worker started with PID ' + worker.process.pid + '.');
+      });
+
+    } else {
+      const cronManager = new Worker.CronManager(scope);
+      cronManager.init();
+    }
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "reiso-src",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "reiso",
   "private": true,
   "keywords": [
@@ -95,6 +95,7 @@
     "react-router": "4.2.0",
     "react-router-dom": "4.2.2",
     "redis": "2.8.0",
+    "cron-cluster": "1.0.0",
     "redux": "3.7.2",
     "redux-promise": "0.5.3",
     "redux-promise-middleware": "5.0.0",

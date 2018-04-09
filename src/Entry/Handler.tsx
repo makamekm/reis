@@ -1,25 +1,19 @@
 import * as cluster from 'cluster';
 import * as os from 'os';
 
+let scope: any = process.env.HANDLER_SCOPE || 'Main';
+let isMulticore: any = !!process.env.MULTI;
+
 import { getConfig, readConfig } from '../Modules/Config';
 readConfig();
 
-let scope: any = process.env.SCOPE_GROUP;
-let isMulticore: any = process.env.MULTI;
-
 import * as Log from '../Server/Log';
-
-import { translation } from '../Modules/Config';
-
-import * as Translation from '../Modules/Translation';
-Translation.setState(getConfig().defaultLanguage, getConfig().languages, translation);
-
 import * as ORM from '../Modules/ORM';
 import * as Handler from '../Modules/Handler';
 
 export const run = () => {
   if (!isMulticore) {
-    const cronManager = new Handler.JobManager(scope || 'Main');
+    const cronManager = new Handler.JobManager(scope);
     cronManager.init();
   } else {
 
@@ -44,7 +38,7 @@ export const run = () => {
       });
 
     } else {
-      const cronManager = new Handler.JobManager();
+      const cronManager = new Handler.JobManager(scope);
       cronManager.init();
     }
   }

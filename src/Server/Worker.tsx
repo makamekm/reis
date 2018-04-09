@@ -1,16 +1,16 @@
-import * as cron from 'cron';
+import redis = require("redis");
+const cron = require("cron-cluster");
 
 import { Commander } from './Commander';
 import * as Log from '../Modules/Log';
+import { getConfig } from 'Modules/Config';
 
 export let scope: { [name: string]: { [name: string]: Job } } = {}
 
 export interface Job {
   cronTime: string
-  start: boolean
-  description: string
   onTick(previous: Date | null): Promise<boolean>
-  job?: cron.CronJob | null
+  job?: any | null
   current?: Date | null
   currentTick?: Promise<boolean>
 }
@@ -18,12 +18,7 @@ export interface Job {
 export interface WorkerOption {
   name?: string
   scope?: string
-  description: string
   cronTime: string
-  start: boolean
-  job?: cron.CronJob | null
-  current?: Date | null
-  currentTick?: Promise<boolean>
 }
 
 export function RegisterWorker(opt: WorkerOption) {
@@ -31,8 +26,6 @@ export function RegisterWorker(opt: WorkerOption) {
     if (!scope[opt.scope || 'Main']) scope[opt.scope || 'Main'] = {};
     scope[opt.scope || 'Main'][opt.name || key] = {
       cronTime: opt.cronTime,
-      start: opt.start,
-      description: opt.description,
       onTick: descriptor.value
     }
   }
@@ -41,64 +34,53 @@ export function RegisterWorker(opt: WorkerOption) {
 export type CronEvents = 'start' | 'stop' | 'run' | 'success' | 'fail' | 'finish';
 
 export class CronManager {
+  private scope: string
   private jobs: { [name: string]: Job } = {}
   private events: {
     type: CronEvents
     event: ((name: string) => void)
   }[] = []
 
-  public on(name: CronEvents, event: ((name: string) => void)) {
-    this.events.push({
-      type: name,
-      event
-    });
-  }
-
-  public unon(event: ((name: string) => void)) {
-    let index = this.events.findIndex(s => s.event === event);
-    if (index >= 0) this.events = this.events.splice(this.events.findIndex(s => s.event === event), 1);
-  }
-
   constructor(name: string = 'Main') {
+    this.scope = name;
     this.jobs = scope[name];
   }
 
   public init() {
+    const cacheClient = redis.createClient(getConfig().redisWorker[this.scope]);
+    const CronJob = cron(cacheClient).CronJob;
+
     for (var name in this.jobs) {
       const job = this.jobs[name];
-      job.job = new cron.CronJob({
-        cronTime: job.cronTime,
-        onTick: () => {
-          let current = new Date();
-          let promise = job.onTick(job.current !== current && job.current);
+      job.job = new CronJob(job.cronTime, () => {
+        let current = new Date();
+        let promise = job.onTick(job.current !== current && job.current);
 
-          if (!job.current) {
-            job.current = current;
-            job.currentTick = promise;
-          }
+        if (!job.current) {
+          job.current = current;
+          job.currentTick = promise;
+        }
 
-          this.events.filter(s => s.type == 'run').forEach(e => e.event(name));
+        this.events.filter(s => s.type == 'run').forEach(e => e.event(name));
 
-          promise.then(r => {
-            if (r !== false) {
-              job.current = null;
-              job.currentTick = null;
-            }
-
-            this.events.filter(s => s.type == 'success').forEach(e => e.event(name));
-            this.events.filter(s => s.type == 'finish').forEach(e => e.event(name));
-          }).catch(e => {
+        promise.then(r => {
+          if (r !== false) {
             job.current = null;
             job.currentTick = null;
-            Log.logError(e, 'worker', {
-              name: name
-            });
+          }
 
-            this.events.filter(s => s.type == 'fail').forEach(e => e.event(name));
-            this.events.filter(s => s.type == 'finish').forEach(e => e.event(name));
+          this.events.filter(s => s.type == 'success').forEach(e => e.event(name));
+          this.events.filter(s => s.type == 'finish').forEach(e => e.event(name));
+        }).catch(e => {
+          job.current = null;
+          job.currentTick = null;
+          Log.logError(e, 'worker', {
+            name: name
           });
-        },
-        start: job.start
+
+          this.events.filter(s => s.type == 'fail').forEach(e => e.event(name));
+          this.events.filter(s => s.type == 'finish').forEach(e => e.event(name));
+        });
       })
     }
   }

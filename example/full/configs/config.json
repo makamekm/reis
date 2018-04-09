@@ -43,6 +43,13 @@
         "scope": "cb_subscription"
       }
     },
+    "redisWorker": {
+      "Main": {
+        "port": 6379,
+        "host": "172.16.238.11",
+        "password": "qwerty"
+      }
+    },
     "redis": {
       "Main": {
         "port": 6379,

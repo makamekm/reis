@@ -93,14 +93,6 @@ export function Route(path: string, render: (data: {
   }
 }
 
-export class Empty extends React.Component<{
-  render: any
-}, {}> {
-  render() {
-    return this.props.render();
-  }
-}
-
 export function GetRoutes(store, language) {
   let routes = [];
   Routes = Routes.sort((a, b) => a.order > b.order ? 1 : -1);

@@ -16,7 +16,6 @@ const ddos = require('ddos');
 // Config
 import { getConfig } from '../Modules/Config';
 import * as Translation from '../Modules/Translation';
-import * as ORM from '../Modules/ORM';
 import * as Query from '../Modules/Query';
 import * as Log from '../Modules/Log';
 import * as WebHook from '../Modules/WebHook';
@@ -67,7 +66,7 @@ export class Server {
     this.app = express();
     getConfig().port && this.app.set('port', getConfig().port);
     this.app.use(cookieParser());
-    // this.app.set('trust proxy', 1); // trust first proxy
+    if (getConfig().proxyProtection) this.app.set('trust proxy', 1);
     this.app.use(helmet());
     this.app.use(compression());
     this.app.disable('x-powered-by');
@@ -105,7 +104,7 @@ export class Server {
   private logErrors(error, req, res, next) {
     if (error.status) res.status(error.status);
     else res.status(501);
-    console.error(error);
+    Log.logError(error, 'express');
     res.json(parseError(error, 'expressjs'));
   }
 

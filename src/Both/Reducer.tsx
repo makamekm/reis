@@ -1,10 +1,6 @@
-import * as React from 'react';
-import * as ReactDOM from "react-dom";
 import * as Redux from 'redux';
-import * as PromiseMiddleware from 'redux-promise';
 import * as ReactRedux from 'react-redux';
 import { responsiveStateReducer, responsiveStoreEnhancer, createResponsiveStoreEnhancer } from 'redux-responsive';
-import * as ApolloClient from "apollo-client";
 
 export function Connect<TStateProps = any, TDispatchProps = any, State = any, TOwnProps = any, TMergedProps = any>(
   mapStateToProps: ReactRedux.MapStateToPropsParam<TStateProps, TOwnProps, State>,

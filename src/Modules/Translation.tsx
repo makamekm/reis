@@ -39,7 +39,7 @@ function evaluate(obj: any, queries: string[], path: string): string {
     return evaluate(obj[name], queries, path);
   }
   else {
-    return obj[name];
+    return obj[name] || '';
   }
 }
 

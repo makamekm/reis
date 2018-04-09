@@ -2,15 +2,8 @@ import { getConfig, readConfig } from '../Modules/Config';
 readConfig();
 
 import * as Log from '../Server/Log';
-
-import { translation } from '../Modules/Config';
-
-import * as Translation from '../Modules/Translation';
-Translation.setState(getConfig().defaultLanguage, getConfig().languages, translation);
-
 import * as ORM from '../Modules/ORM';
 import * as Tool from '../Modules/Tool';
-
 import { Commander } from '../Server/Commander';
 
 export const run = () => {

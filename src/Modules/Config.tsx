@@ -1,6 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+import * as Translation from '../Modules/Translation';
+
 let configPath = path.resolve(process.env.CONFIG_PATH || './reiso.json');
 let scope = process.env.SCOPE || 'default';
 
@@ -19,8 +21,6 @@ function reduce(language, row): any {
   else return res;
 }
 
-export let translation: any = {};
-export let awalableLanguages = [];
 let config: any = {
   default: {
     "translation": "./translation.json",
@@ -40,6 +40,7 @@ let config: any = {
     "logConsole": null,
     "logLogstash": null,
     "ddos": null,
+    "proxyProtection": null,
     "db": {
       "Main": {
         "database": "test",
@@ -65,7 +66,14 @@ let config: any = {
         "port": 6379,
         "host": "127.0.0.1",
         "password": "",
-        "scope": 'cb_subscription'
+        "scope": "cb_subscription"
+      }
+    },
+    "redisWorker": {
+      "Main": {
+        "port": 6379,
+        "host": "127.0.0.1",
+        "password": ""
       }
     },
     "redis": {
@@ -77,6 +85,8 @@ let config: any = {
     }
   }
 };
+
+export let translation: any = {};
 
 export function getConfig() {
   return config[scope];
@@ -93,16 +103,18 @@ export function readConfig() {
   }
   catch (e) {}
 
-  awalableLanguages = config[scope].languages;
+  if (config[scope].languages) {
+    try {
+      let data = JSON.parse(fs.readFileSync(path.resolve(config[scope].translation), "utf8"));
 
-  try {
-    let data = JSON.parse(fs.readFileSync(path.resolve(config[scope].translation), "utf8"));
+      config[scope].languages.forEach(language => {
+        translation[language] = reduce(language, data);
+      });
+    }
+    catch (e) {}
 
-    config[scope]['languages'].forEach(language => {
-      translation[language] = reduce(language, data);
-    });
+    Translation.setState(config[scope].defaultLanguage, config[scope].languages, translation);
   }
-  catch (e) {}
 }
 
 export const SaveConfig = (config) => {
@@ -113,8 +125,4 @@ export const SaveConfig = (config) => {
     encoding: 'utf8',
     flag: 'wx'
   });
-}
-
-export const existConfig = () => {
-  return fs.existsSync(configPath);
 }
