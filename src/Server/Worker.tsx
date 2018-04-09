@@ -3,7 +3,7 @@ const cron = require("cron-cluster");
 
 import { Commander } from './Commander';
 import * as Log from '../Modules/Log';
-import { getConfig } from 'Modules/Config';
+import { getConfig } from '../Modules/Config';
 
 export let scope: { [name: string]: { [name: string]: Job } } = {}
 
