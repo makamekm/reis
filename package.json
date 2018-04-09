@@ -3,6 +3,7 @@
   "version": "0.2.8",
   "description": "reiso",
   "private": true,
+  "repository": "github:makamekm/reiso",
   "keywords": [
     "reiso",
     "react",
@@ -16,7 +17,10 @@
     "build": "tsc",
     "publish": "publish"
   },
-  "author": "mkarpov",
+  "author": {
+    "name": "Karpov Maxim",
+    "email": "makame@mail.ru"
+  },
   "license": "GNU",
   "devDependencies": {
     "@types/async": "2.0.48",
