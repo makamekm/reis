@@ -112,6 +112,7 @@ export function readConfig() {
       });
     }
     catch (e) {}
+    console.log(config[scope])
 
     Translation.setState(config[scope].defaultLanguage, config[scope].languages, translation);
   }
