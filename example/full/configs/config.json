@@ -12,7 +12,7 @@
     "defaultLanguage": "en",
     "languages": ["en", "ru"],
     "logLogstash": {
-      "port": 5044,
+      "port": 9600,
       "host": "elk"
     },
     "db": {

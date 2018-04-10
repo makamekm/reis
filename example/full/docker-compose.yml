@@ -13,18 +13,18 @@ services:
       - elk
     command: /usr/sbin/sshd -p 5001 -D
 
-  worker:
-    build: .
-    restart: always
-    ports:
-      - 5002:5001 # ssh
-    depends_on:
-      - mysql
-      - redis
-      - elk
-    command: node /dist/worker
-    environment:
-      NODE_NAME: "worker 1"
+  # worker:
+  #   build: .
+  #   restart: always
+  #   ports:
+  #     - 5002:5001 # ssh
+  #   depends_on:
+  #     - mysql
+  #     - redis
+  #     - elk
+  #   command: node /dist/worker
+  #   environment:
+  #     NODE_NAME: "worker 1"
 
   seaport:
     image: makame/seaport
@@ -51,14 +51,16 @@ services:
       - ~/redisdata:/data
 
   elk:
-    image: sebp/elk
+    image: sebp/elk:latest
     restart: always
     ports:
       - 5001:5601 # Kubana
       # - 9200:9200 # Elastic
       # - 5044:5044 # Logstash
+      # - 9600:9600 # Logstash API
     volumes:
       - ~/elasticsearch:/var/lib/elasticsearch
+      - ~/logstash:/etc/logstash
     environment:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
       # ES_JAVA_OPTS: "-Xms512m -Xmx2g"
