@@ -79,13 +79,13 @@
   "dependencies": {
     "@playlyfe/gql": "2.6.0",
     "babel-polyfill": "6.26.0",
-    "velocity-animate": "1.5.1",
     "bull-arena": "2.4.2",
+    "delaunay-fast": "1.0.1",
     "draft-js": "0.10.5",
     "es6-promise": "4.2.4",
     "eventemitter3": "3.0.1",
+    "fetch-everywhere": "1.0.5",
     "file-loader": "1.1.11",
-    "forever": "0.15.3",
     "fs": "0.0.2",
     "gm": "1.23.1",
     "intl": "1.2.5",
@@ -93,8 +93,6 @@
     "moment": "2.21.0",
     "mysql": "2.15.0",
     "node-fetch": "2.1.1",
-    "fetch-everywhere": "1.0.5",
-    "nodemon": "1.17.2",
     "path": "0.12.7",
     "prop-types": "15.6.1",
     "react": "16.2.0",
@@ -106,13 +104,13 @@
     "react-transition-group": "2.2.1",
     "reflect-metadata": "0.1.12",
     "regenerator-runtime": "0.11.1",
+    "reiso": "0.2.10",
     "request": "2.85.0",
     "source-map": "0.7.2",
     "stacktrace-parser": "0.1.4",
     "store": "2.0.12",
-    "reiso": "0.2.10",
     "synaptic": "1.1.4",
-    "zen-observable-ts": "0.8.8",
-    "delaunay-fast": "1.0.1"
+    "velocity-animate": "1.5.1",
+    "zen-observable-ts": "0.8.8"
   }
 }

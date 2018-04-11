@@ -7,6 +7,8 @@ services:
     restart: always
     ports:
       - 5002:5001 # ssh
+    volumes:
+      - ./configs/config.json:/dist/config.json
     depends_on:
       - mysql
       - redis
@@ -55,12 +57,12 @@ services:
     restart: always
     ports:
       - 5001:5601 # Kubana
+      - 5801:5801
       # - 9200:9200 # Elastic
       # - 5044:5044 # Logstash
-      # - 9600:9600 # Logstash API
     volumes:
       - ~/elasticsearch:/var/lib/elasticsearch
-      - ~/logstash:/etc/logstash
+      - ./configs/logstash.conf:/etc/logstash/conf.d/winston.conf
     environment:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
       # ES_JAVA_OPTS: "-Xms512m -Xmx2g"

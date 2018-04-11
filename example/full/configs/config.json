@@ -11,9 +11,13 @@
     "translation": "./translation.json",
     "defaultLanguage": "en",
     "languages": ["en", "ru"],
+    "logConsole": true,
     "logLogstash": {
-      "port": 9600,
-      "host": "elk"
+      "host": "elk",
+      "port": 5801,
+      "tags": ["production", "test"],
+      "tries": 2,
+      "interval": 100
     },
     "db": {
       "Main": {
