@@ -58,7 +58,7 @@ services:
     ports:
       - 5001:5601 # Kubana
       - 5801:5801
-      # - 9200:9200 # Elastic
+      - 9200:9200 # Elastic
       # - 5044:5044 # Logstash
     volumes:
       - ~/elasticsearch:/var/lib/elasticsearch

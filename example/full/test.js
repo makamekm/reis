@@ -4,7 +4,7 @@ var logHost = '127.0.0.1'
   , logPort = 5801
   , sender = require('os').hostname();
 
-var conn = net.createConnection(logPort, logHost, () => {
+var conn = net.createConnection({host: logHost, port: logPort}, () => {
   console.log('connected!')
   var message = {
     '@tags': ['nodejs', 'test']
