@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import * as moment from 'moment';
 import * as ReactDOM from 'react-dom';
 import * as $ from 'jquery';
 

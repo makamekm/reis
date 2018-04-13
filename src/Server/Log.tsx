@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as prependFile from 'prepend-file';
 import * as StackTraceParser from 'stacktrace-parser';
 
 import { getConfig } from '../Modules/Config';

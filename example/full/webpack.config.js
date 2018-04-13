@@ -3,11 +3,9 @@ var fs = require('fs');
 var path = require('path');
 var { execSync } = require('child_process');
 
-// var CompressionPlugin = require("compression-webpack-plugin");
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var GitRevisionPlugin = require('git-revision-webpack-plugin');
 // var CopyWebpackPlugin = require('copy-webpack-plugin');
-// var UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
 class BeforeWatchPlugin {
     constructor(arr) {
