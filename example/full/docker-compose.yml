@@ -40,7 +40,7 @@ services:
     ports:
       - 5003:3306
     volumes:
-      - ~/mysqldata:/var/lib/mysql
+      - ./data/mysql:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: "qwerty"
       MYSQL_DATABASE: "karpov"
@@ -50,7 +50,7 @@ services:
     restart: always
     command: ["redis-server", "--appendonly", "yes", "--requirepass", "qwerty"]
     volumes:
-      - ~/redisdata:/data
+      - ./data/redis:/data
 
   elk:
     image: sebp/elk:latest
@@ -61,7 +61,7 @@ services:
       - 9200:9200 # Elastic
       # - 5044:5044 # Logstash
     volumes:
-      - ~/elasticsearch:/var/lib/elasticsearch
+      - ./data/elasticsearch:/var/lib/elasticsearch
       - ./configs/logstash.conf:/etc/logstash/conf.d/winston.conf
     environment:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"

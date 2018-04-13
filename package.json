@@ -1,6 +1,6 @@
 {
   "name": "reiso-src",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "description": "reiso",
   "private": true,
   "repository": "github:makamekm/reiso",
@@ -112,7 +112,6 @@
     "stacktrace-parser": "0.1.4",
     "subscriptions-transport-ws": "0.9.7",
     "tslib": "1.9.0",
-    "typeorm": "0.1.20",
-    "zen-observable-ts": "0.8.8"
+    "typeorm": "0.1.20"
   }
 }

@@ -61,3 +61,4 @@ uploads/
 .npmrc
 /docker-compose.yml
 package-lock.json
+data/
