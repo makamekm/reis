@@ -38,14 +38,14 @@ export const run = () => {
     log_test: {
       description: "Test logging",
       action: async (read, callback) => {
-        Log.logInfo({message: "test"})
+        Log.logInfo({text: "test"})
         callback();
       }
     },
     log_error_test: {
       description: "Test error logging",
       action: async (read, callback) => {
-        Log.logError(new Error("test"), "tool");
+        Log.logError(new Error("test"), { type: "tool" });
         callback();
       }
     },

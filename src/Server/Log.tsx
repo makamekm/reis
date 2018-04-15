@@ -19,27 +19,22 @@ class Logstash {
   logstashStatus: boolean = false;
   logstashTries: number = 0;
 
-  private logstashMessage(tags, level, {message, ...data}: any) {
+  private logstashMessage(tags, fields, metadata, level, message) {
     return JSON.stringify({
+      ...message,
       "@tags": tags,
-      "@message": message,
-      "@fields": {
-        "sender": sender
-      },
+      "@fields": fields,
+      "@metadata": metadata,
       "level": level,
-      ...data
-    });
+      "version": process.env.VERSION
+    }) + "\n";
   }
 
   private async logstashBack(host, port, onClose): Promise<LogstashI> {
     return await new Promise<LogstashI>((r, e) => {
       const connection = net.createConnection({host, port}, function() {
         r({
-          log: async (message) => {
-            await new Promise(mr => {
-              mr(connection.write(message));
-            })
-          },
+          log: (message) => connection.write(message),
           connection
         })
       })
@@ -56,7 +51,7 @@ class Logstash {
     if (this.messageQueue.length > 0 && !this.logstashStatus) {
       if (this.logstashTries > (logLogstash.tries || 3)) {
         this.logstashTries = 0;
-        this.messageQueue = this.messageQueue.splice(0, 1);
+        this.messageQueue = this.messageQueue.slice(1);
       }
     }
 
@@ -82,7 +77,7 @@ class Logstash {
       let result: boolean;
 
       try {
-        result = await this.logstashConnection.log(message);
+        result = this.logstashConnection.log(message);
       } catch (e) {
         try {
           await new Promise(r => this.logstashConnection.connection.close(r));
@@ -96,7 +91,7 @@ class Logstash {
 
       if (result) {
         this.logstashTries = 0;
-        this.messageQueue = this.messageQueue.splice(0, 1);
+        this.messageQueue = this.messageQueue.slice(1);
       } else {
         this.logstashTries++;
         console.log('Cant send a logstash message', logLogstash, message);
@@ -108,18 +103,18 @@ class Logstash {
     return this.messageQueue.length > 0;
   }
 
-  async log(tags: string[], level: string, line: LogType) {
-    let message = this.logstashMessage(tags, level, line);
+  async log(tags: string[], fields: string[], metadata: string[], level: string, line: LogType) {
+    let message = this.logstashMessage(tags, fields, metadata, level, line);
     this.messageQueue.push(message);
     if (this.messageQueue.length > 1000) {
       this.logstashTries = 0;
-      this.messageQueue = this.messageQueue.slice(this.messageQueue.length - 1000, this.messageQueue.length);
+      this.messageQueue = this.messageQueue.slice(this.messageQueue.length - 1000);
     }
     await this.logstashSend();
   }
 }
 
-export type LogType = { [name: string]: string | LogType };
+export type LogType = { [name: string]: string | string[] | LogType };
 
 interface LoggerI {
   log(level, line: LogType): void
@@ -145,10 +140,22 @@ class LogstashLogger implements LoggerI {
   }
 
   public log(level: string, line: LogType) {
+    const fields = {
+      'sender': process.env.LOG_SENDER || logLogstash.sender || sender,
+      ...(typeof line['@fields'] == 'object' ? (line['@fields'] as any) : {})
+    };
+    const metadata = {
+      'beat': process.env.LOG_BEAT || logLogstash.beat || 'reiso',
+      'type': process.env.LOG_TYPE || logLogstash.type || 'reiso',
+      ...(typeof line['@metadata'] == 'object' ? (line['@metadata'] as any) : {})
+    };
+
     let tags = process.env.TAGS ? process.env.TAGS.split(',') : [];
     tags = logLogstash.tags ? logLogstash.tags.concat(tags) : tags;
+    tags = (line.tags && Array.isArray(line.tags)) ? line.tags.concat(tags) : tags;
     tags = this.distinct(tags);
-    this.logger.log(tags, level, line);
+
+    this.logger.log(tags, fields, metadata, level, line);
   }
 }
 
@@ -169,14 +176,13 @@ class LoggerManager {
   }
 }
 
-export const logError = (error: Error, error_type: string, additional: LogType = {}) => {
+export const logError = (error: Error, data: LogType = {}) => {
   let stack = StackTraceParser.parse(error.stack);
+
   let line = {
-    ...additional,
-    version: process.env.VERSION,
+    ...data,
     message: error.message,
-    stack,
-    error_type
+    stack
   };
 
   LoggerManager.log('error', line);

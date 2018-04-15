@@ -1,4 +1,3 @@
-export { Request, Response } from 'express-serve-static-core';
 import { GraphQLObjectType, GraphQLInputObjectType, GraphQLString, GraphQLUnionType, GraphQLInt, GraphQLFloat, GraphQLBoolean, GraphQLID, GraphQLList, GraphQLNonNull, GraphQLSchema } from 'graphql';
 import * as Subscriptions from 'graphql-subscriptions';
 import * as RedisNRP from 'node-redis-pubsub';

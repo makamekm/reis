@@ -11,13 +11,15 @@
     "translation": "./translation.json",
     "defaultLanguage": "en",
     "languages": ["en", "ru"],
-    "logConsole": true,
+    "logConsole": false,
     "logLogstash": {
       "host": "elk",
       "port": 5801,
       "tags": ["production", "test"],
       "tries": 2,
-      "interval": 100
+      "interval": 100,
+      "beat": "reiso_ex_full",
+      "type": "reiso_ex_full"
     },
     "db": {
       "Main": {

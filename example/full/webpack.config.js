@@ -132,14 +132,14 @@ module.exports = function(env) {
                     'VERSION': version,
                     // 'NODE_ENV': isProd ? 'production' : 'development'
                 }),
-            ].concat(isProd ? [
+            ].concat(isProd ? (isMaps ? [
                 // To Prod
-                // new webpack.LoaderOptionsPlugin({
-                //     minimize: true
-                // }),
-                // new webpack.optimize.AggressiveMergingPlugin(),
-                // new webpack.optimize.OccurrenceOrderPlugin()
-            ] : [
+                new webpack.BannerPlugin({
+                    banner: 'require("source-map-support").install();',
+                    raw: true,
+                    entryOnly: false
+                }),
+            ] : []) : [
                 // To Dev
                 new webpack.BannerPlugin({
                     banner: 'require("source-map-support").install();',
@@ -283,21 +283,7 @@ module.exports = function(env) {
                     filename: '[name].css',
                     allChunks: true
                 })
-            ].concat(isProd ? [
-                // To Prod
-                // new webpack.LoaderOptionsPlugin({
-                //     minimize: true
-                // }),
-                // new webpack.optimize.AggressiveMergingPlugin(),
-                // new webpack.optimize.OccurrenceOrderPlugin(),
-                // new CompressionPlugin({
-                //     asset: "[path].gz[query]",
-                //     algorithm: "gzip",
-                //     test: /\.js$|\.css$|\.html$/,
-                //     threshold: 10240,
-                //     minRatio: 0.8
-                // })
-            ] : [
+            ].concat(isProd ? [] : [
                 // To Dev
                 new webpack.WatchIgnorePlugin([
                     /Composer\/.*$/,
@@ -383,30 +369,14 @@ module.exports = function(env) {
                     'VERSION': version,
                     // 'NODE_ENV': isProd ? 'production' : 'development'
                 })
-            ].concat(isProd ? [
+            ].concat(isProd ? (isMaps ? [
                 // To Prod
-                // new webpack.LoaderOptionsPlugin({
-                //     minimize: true
-                // }),
-                // new UglifyJSPlugin({
-                //     test: /\.js($|\?)/i,
-                //     sourceMap: !!isMaps,
-                //     uglifyOptions: {
-                //         compress: true,
-                //         mangle: true,
-                //         ecma: 6,
-                //     }
-                // }),
-                // new webpack.optimize.AggressiveMergingPlugin(),
-                // new webpack.optimize.OccurrenceOrderPlugin(),
-                // new CompressionPlugin({
-                //     asset: "[path].gz[query]",
-                //     algorithm: "gzip",
-                //     test: /\.js$|\.css$|\.html$/,
-                //     threshold: 10240,
-                //     minRatio: 0.8
-                // })
-            ] : [
+                new webpack.BannerPlugin({
+                    banner: 'require("source-map-support").install();',
+                    raw: true,
+                    entryOnly: false
+                }),
+            ] : []) : [
                 // To Dev
                 new webpack.WatchIgnorePlugin([
                     /Composer\/.*$/,
@@ -493,14 +463,14 @@ module.exports = function(env) {
                     'VERSION': version,
                     // 'NODE_ENV': isProd ? 'production' : 'development'
                 })
-            ].concat(isProd ? [
+            ].concat(isProd ? (isMaps ? [
                 // To Prod
-                // new webpack.LoaderOptionsPlugin({
-                //     minimize: true
-                // }),
-                // new webpack.optimize.AggressiveMergingPlugin(),
-                // new webpack.optimize.OccurrenceOrderPlugin(),
-            ] : [
+                new webpack.BannerPlugin({
+                    banner: 'require("source-map-support").install();',
+                    raw: true,
+                    entryOnly: false
+                }),
+            ] : []) : [
                 // To Dev
                 new webpack.WatchIgnorePlugin([
                     /Composer\/.*$/,
@@ -593,14 +563,14 @@ module.exports = function(env) {
                     'VERSION': version,
                     // 'NODE_ENV': isProd ? 'production' : 'development'
                 }),
-            ].concat(isProd ? [
+            ].concat(isProd ? (isMaps ? [
                 // To Prod
-                // new webpack.LoaderOptionsPlugin({
-                //     minimize: true
-                // }),
-                // new webpack.optimize.AggressiveMergingPlugin(),
-                // new webpack.optimize.OccurrenceOrderPlugin()
-            ] : [
+                new webpack.BannerPlugin({
+                    banner: 'require("source-map-support").install();',
+                    raw: true,
+                    entryOnly: false
+                }),
+            ] : []) : [
                 // To Dev
                 new webpack.WatchIgnorePlugin([
                     /Composer\/.*$/,
@@ -693,14 +663,14 @@ module.exports = function(env) {
                     'VERSION': version,
                     // 'NODE_ENV': isProd ? 'production' : 'development'
                 }),
-            ].concat(isProd ? [
+            ].concat(isProd ? (isMaps ? [
                 // To Prod
-                // new webpack.LoaderOptionsPlugin({
-                //     minimize: true
-                // }),
-                // new webpack.optimize.AggressiveMergingPlugin(),
-                // new webpack.optimize.OccurrenceOrderPlugin()
-            ] : [
+                new webpack.BannerPlugin({
+                    banner: 'require("source-map-support").install();',
+                    raw: true,
+                    entryOnly: false
+                }),
+            ] : []) : [
                 // To Dev
                 new webpack.WatchIgnorePlugin([
                     /Composer\/.*$/,

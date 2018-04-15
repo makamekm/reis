@@ -91,11 +91,12 @@ export class JobManager {
           return result;
         }
         catch (e) {
-          Log.logError(e, 'handler', {
+          Log.logError(e, {
             name: name,
             scope: this.name,
             id: job.id,
-            data: JSON.stringify(job.data)
+            data: JSON.stringify(job.data),
+            type: 'handler'
           });
           done(e, null);
         }

@@ -74,8 +74,9 @@ export class CronManager {
         }).catch(e => {
           job.current = null;
           job.currentTick = null;
-          Log.logError(e, 'worker', {
-            name: name
+          Log.logError(e, {
+            name,
+            type: 'worker'
           });
 
           this.events.filter(s => s.type == 'fail').forEach(e => e.event(name));

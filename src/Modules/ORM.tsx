@@ -20,11 +20,11 @@ class Logger implements TypeORM.Logger {
     }
 
     logQueryError(error: string, query: string, parameters?: any[], queryRunner?: TypeORM.QueryRunner) {
-        Log.logError(new Error('Error: ' + error + ' Query: ' + query + ' With parameters: ' + JSON.stringify(parameters)), 'orm');
+        Log.logError(new Error('Error: ' + error + ' Query: ' + query + ' With parameters: ' + JSON.stringify(parameters)), { type: "typeorm" });
     }
 
     logQuerySlow(time: number, query: string, parameters?: any[], queryRunner?: TypeORM.QueryRunner) {
-        Log.logError(new Error('Slow: ' + time + ' Query: ' + query + ' With parameters: ' + JSON.stringify(parameters)), 'ormSlow');
+        Log.logError(new Error('Slow: ' + time + ' Query: ' + query + ' With parameters: ' + JSON.stringify(parameters)), { type: "typeorm" });
     }
 
     logSchemaBuild(message: string, queryRunner?: TypeORM.QueryRunner) {

@@ -24,7 +24,7 @@ import { Render } from '../Server/Render';
 
 // Catch errors
 export function parseError(error, type = 'graphql') {
-  Log.logError(error, type);
+  Log.logError(error, { type });
 
   let result = {
     status: error.originalError && error.originalError.status,
@@ -104,8 +104,8 @@ export class Server {
   private logErrors(error, req, res, next) {
     if (error.status) res.status(error.status);
     else res.status(501);
-    Log.logError(error, 'express');
-    res.json(parseError(error, 'expressjs'));
+    Log.logError(error, { type: 'server' });
+    res.json(parseError(error, 'server'));
   }
 
   public setRender() {

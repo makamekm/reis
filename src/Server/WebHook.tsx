@@ -89,6 +89,6 @@ export const hook: any = async (webHook: WebHookInterface, req: REQ, res: RES, n
   catch (e) {
     res.status(501);
     res.send(e.message);
-    Log.logError(e, 'serverWebHook');
+    Log.logError(e, { type: "webhook" });
   }
 }
