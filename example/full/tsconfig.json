@@ -27,6 +27,7 @@
     "experimentalDecorators": true,
     "allowJs": true
   },
+  "types": ["jasmine"],
   "compileOnSave": false,
   "suppressImplicitAnyIndexErrors": true,
   "exclude": [

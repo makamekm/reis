@@ -33,6 +33,7 @@
     "@types/webpack": "4.1.2",
     "@types/graphql": "0.12.6",
     "@types/velocity-animate": "1.2.32",
+    "@types/jasmine": "2.8.6",
     "apollo-codegen": "0.19.0",
     "autoprefixer": "8.2.0",
     "babel-core": "6.26.0",
@@ -72,7 +73,15 @@
     "ts-loader": "4.1.0",
     "tslib": "1.9.0",
     "typescript": "2.7.2",
-    "webpack": "4.2.0"
+    "webpack": "4.2.0",
+    "jasmine-core": "3.1.0",
+    "jasmine": "3.1.0",
+    "karma": "2.0.0",
+    "karma-chrome-launcher": "2.2.0",
+    "karma-phantomjs-launcher": "1.0.4",
+    "karma-jasmine": "1.1.1",
+    "karma-webpack": "3.0.0",
+    "karma-jasmine-html-reporter": "1.0.0"
   },
   "dependencies": {
     "babel-polyfill": "6.26.0",
