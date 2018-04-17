@@ -1,0 +1,7 @@
+{
+    "spec_dir": "src/Test/Server",
+    "spec_files": [
+      "**/*Test.js"
+    ],
+    "stopSpecOnExpectationFailure": true
+  }
