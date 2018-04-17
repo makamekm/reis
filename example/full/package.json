@@ -22,7 +22,7 @@
     "api": "node_modules/.bin/apollo-codegen introspect-schema http://127.0.0.1:3000/graphql --output schema.json && node_modules/.bin/apollo-codegen generate src/**/*.gql --schema schema.json --target typescript --output src/ApiType.ts",
     "schema": "gqlschema http://127.0.0.1:3000/graphql -t",
     "test_client": "karma start",
-    "test_server": "jasmine -config=jasmine.json"
+    "test_server": "jasmine --config=jasmine.json"
   },
   "author": "mkarpov",
   "license": "ISC",
