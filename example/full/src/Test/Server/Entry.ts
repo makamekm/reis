@@ -8,9 +8,3 @@ describe("A suite", function() {
     expect(5 * 5).toBe(r);
   });
 });
-
-describe("B file", function() {
-  it("contains spec with an expectation", function() {
-    expect(fs.existsSync(path.resolve(__dirname, 'reiso.json'))).toBe(true);
-  });
-});

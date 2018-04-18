@@ -18,7 +18,7 @@ module.exports = (config) => {
             './node_modules/reflect-metadata/Reflect.js',
             // './node_modules/fetch-everywhere/fetch-npm-node.js',
             {
-                pattern: 'src/Test/Client/**/*Test.ts',
+                pattern: 'src/Test/Client/**/*Entry.ts',
                 watched: false
             }
         ],

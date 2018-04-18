@@ -24,7 +24,6 @@ class BeforeWatchPlugin {
     }
 }
 
-
 module.exports = function(env) {
     var gitRevisionPlugin = new GitRevisionPlugin();
 
@@ -45,23 +44,59 @@ module.exports = function(env) {
     var arr = [];
 
     if (((packages && packages.indexOf('server') >= 0) || !packages)) arr.push(
+        factoryServer(
+            'server',
+            path.resolve(__dirname, 'src', 'Entry', 'Server.ts'), 
+            [
+                new BeforeWatchPlugin(["node ../../composer.js outDir ./src/Composer dir ./src/Modules incDir '~/Modules' type ts Entity Reducer Query View WebHook Server Both", "node ../../composer.js outDir ./src/Composer dir ./src/Modules incDir '~/Modules' type gql Api"])
+            ]
+        )
+    );
+
+    if (((packages && packages.indexOf('test') >= 0) || !packages)) arr.push(
+        factoryServer(
+            'test',
+            path.resolve(__dirname, 'src', 'Test', 'Server', 'Entry.ts')
+        )
+    );
+
+    if (((packages && packages.indexOf('tool') >= 0) || !packages)) arr.push(
+        factoryServer(
+            'tool',
+            path.resolve(__dirname, 'src', 'Entry', 'Tool.ts'), 
+            [
+                new BeforeWatchPlugin(["node ../../composer.js outDir ./src/Composer dir ./src/Modules incDir '~/Modules' type ts Tool"])
+            ]
+        )
+    );
+
+    if (((packages && packages.indexOf('handler') >= 0) || !packages)) arr.push(
+        factoryServer(
+            'handler',
+            path.resolve(__dirname, 'src', 'Entry', 'Handler.ts'), 
+            [
+                new BeforeWatchPlugin(["node ../../composer.js outDir ./src/Composer dir ./src/Modules incDir '~/Modules' type ts Entity Reducer Handler"]),
+            ]
+        )
+    );
+
+    if (((packages && packages.indexOf('worker') >= 0) || !packages)) arr.push(
+        factoryServer(
+            'worker',
+            path.resolve(__dirname, 'src', 'Entry', 'Worker.ts'), 
+            [
+                new BeforeWatchPlugin(["node ../../composer.js outDir ./src/Composer dir ./src/Modules incDir '~/Modules' type ts Entity Reducer Worker"]),
+            ]
+        )
+    );
+
+    if (((packages && packages.indexOf('client') >= 0) || !packages)) arr.push(
         {
             mode: isProd ? 'production' : 'development',
-            externals: nodeModules,
             entry: {
-                js: ['babel-polyfill', 'reflect-metadata', 'fetch-everywhere', path.resolve(__dirname, 'src', 'Entry', 'Server.ts')],
+                js: ['babel-polyfill', 'reflect-metadata', 'fetch-everywhere', path.resolve(__dirname, 'src', 'Entry', 'Client.ts')]
             },
             output: {
-                // devtoolModuleFilenameTemplate: "..//[absolute-resource-path]",
-                // devtoolFallbackModuleFilenameTemplate: "..//[absolute-resource-path]?[hash]",
-                // devtoolModuleFilenameTemplate: function(info) {
-                //     return "file:///"+info.absoluteResourcePath;
-                // },
-                // chunkFilename: '[id].chunk.js',
-                // libraryTarget: "umd",
-                // library: 'Server',
-                // umdNamedDefine: true,
-
                 devtoolModuleFilenameTemplate: function(info) {
                     if (info.absoluteResourcePath.charAt(0) === '/') {
                         return 'file://' + info.absoluteResourcePath;
@@ -76,12 +111,12 @@ module.exports = function(env) {
                         return 'file:///' + info.absoluteResourcePath + '?' + info.hash;
                     }
                 },
-                sourceMapFilename: 'server.js.map',
-                path: isProd ? path.resolve(__dirname, isApp ? 'build/raw' : 'dist') : path.resolve(__dirname, 'dev'),
-                filename: 'server.js'
+                sourceMapFilename: 'index.js.map',
+                path: isProd ? path.resolve(__dirname, isApp ? 'build/raw' : 'dist', 'public') : path.resolve(__dirname, 'dev', 'public'),
+                filename: 'index.js'
             },
             resolve: {
-                extensions: ['.ts', '.tsx', '.js', '.json', '.less', '.css', '.svg'],
+                extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.js', '.json', '.less', '.css', '.svg'],
                 alias: {
                     '~': path.resolve(__dirname, 'src'),
                     'reiso': path.resolve(__dirname, '../../build'),
@@ -90,34 +125,26 @@ module.exports = function(env) {
                 modules: [
                     path.resolve(__dirname, '../../node_modules'),
                     path.resolve(__dirname, 'node_modules')
-                ]
+                ],
+                mainFields: ['browser', 'main', 'module'],
             },
-            target: 'node',
-            node: {
-                console: false,
-                process: false,
-                child_process: false,
-                global: false,
-                buffer: false,
-                crypto: false,
-                __filename: false,
-                __dirname: false
-            },
+            target: 'web',
             module: {
                 rules: [
                     {
-                        test: /\.json$/,
+                        test: /\.(tsx|ts)$/,
                         loaders: [
-                            'json-loader'
+                            'babel-loader',
+                            'ts-loader'
                         ]
                     },
                     {
                         test: /\.gql$/,
-                        loader: 'graphql-tag/loader'
+                        loaders: 'graphql-tag/loader'
                     },
                     {
-                        test: /\.(tsx|ts)$/,
-                        loader: 'ts-loader',
+                        test: /\.json$/,
+                        loaders: 'json-loader'
                     },
                     {
                         test: /\.svg$/,
@@ -125,13 +152,20 @@ module.exports = function(env) {
                     }
                 ]
             },
-            devtool: isProd ? isMaps : 'cheap-module-source-map',
+            devtool: isProd ? isMaps : false,
             plugins: [
+                new webpack.NoEmitOnErrorsPlugin(),
+                new webpack.ProvidePlugin({
+                    $: 'jquery',
+                    jQuery: 'jquery',
+                    'window.jQuery': 'jquery'
+                }),
                 new webpack.EnvironmentPlugin({
-                    'MODE': 'server',
+                    'MODE': 'client',
                     'VERSION': version,
                     // 'NODE_ENV': isProd ? 'production' : 'development'
                 }),
+                new BeforeWatchPlugin(["node ../../composer.js outDir ./src/Composer dir ./src/Modules incDir '~/Modules' type ts Client"])
             ].concat(isProd ? (isMaps ? [
                 // To Prod
                 new webpack.BannerPlugin({
@@ -141,15 +175,9 @@ module.exports = function(env) {
                 }),
             ] : []) : [
                 // To Dev
-                new webpack.BannerPlugin({
-                    banner: 'require("source-map-support").install();',
-                    raw: true,
-                    entryOnly: false
-                }),
                 new webpack.WatchIgnorePlugin([
                     /Composer\/.*$/,
-                ]),
-                new BeforeWatchPlugin(["node ../../composer.js outDir ./src/Composer dir ./src/Modules incDir '~/Modules' type ts Entity Reducer Query View WebHook Server Both", "node ../../composer.js outDir ./src/Composer dir ./src/Modules incDir '~/Modules' type gql Api"])
+                ])
             ])
         }
     );
@@ -282,101 +310,9 @@ module.exports = function(env) {
                 new ExtractTextPlugin({
                     filename: '[name].css',
                     allChunks: true
-                })
-            ].concat(isProd ? [] : [
-                // To Dev
-                new webpack.WatchIgnorePlugin([
-                    /Composer\/.*$/,
-                ]),
-                new BeforeWatchPlugin(["node ../../composer.js outDir ./src/Composer dir ./src/Modules incDir '~/Modules' type ts Client"]),
+                }),
                 new BeforeWatchPlugin(["node ../../composer.js outDir ./src/Composer dir ./src incDir '..' type pcss Components Modules"])
-            ])
-        }
-    );
-
-    if (((packages && packages.indexOf('client') >= 0) || !packages)) arr.push(
-        {
-            mode: isProd ? 'production' : 'development',
-            entry: {
-                js: ['babel-polyfill', 'reflect-metadata', 'fetch-everywhere', path.resolve(__dirname, 'src', 'Entry', 'Client.ts')]
-            },
-            output: {
-                devtoolModuleFilenameTemplate: function(info) {
-                    if (info.absoluteResourcePath.charAt(0) === '/') {
-                        return 'file://' + info.absoluteResourcePath;
-                    } else {
-                        return 'file:///' + info.absoluteResourcePath;
-                    }
-                },
-                devtoolFallbackModuleFilenameTemplate: function(info) {
-                    if (info.absoluteResourcePath.charAt(0) === '/') {
-                        return 'file://' + info.absoluteResourcePath + '?' + info.hash;
-                    } else {
-                        return 'file:///' + info.absoluteResourcePath + '?' + info.hash;
-                    }
-                },
-                sourceMapFilename: 'index.js.map',
-                path: isProd ? path.resolve(__dirname, isApp ? 'build/raw' : 'dist', 'public') : path.resolve(__dirname, 'dev', 'public'),
-                filename: 'index.js'
-            },
-            resolve: {
-                extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.js', '.json', '.less', '.css', '.svg'],
-                alias: {
-                    '~': path.resolve(__dirname, 'src'),
-                    'reiso': path.resolve(__dirname, '../../build'),
-                    node_modules: path.resolve(__dirname, 'node_modules')
-                },
-                modules: [
-                    path.resolve(__dirname, '../../node_modules'),
-                    path.resolve(__dirname, 'node_modules')
-                ],
-                mainFields: ['browser', 'main', 'module'],
-            },
-            target: 'web',
-            module: {
-                rules: [
-                    {
-                        test: /\.(tsx|ts)$/,
-                        loaders: [
-                            'babel-loader',
-                            'ts-loader'
-                        ]
-                    },
-                    {
-                        test: /\.gql$/,
-                        loaders: 'graphql-tag/loader'
-                    },
-                    {
-                        test: /\.json$/,
-                        loaders: 'json-loader'
-                    },
-                    {
-                        test: /\.svg$/,
-                        loaders: 'raw-loader'
-                    }
-                ]
-            },
-            devtool: isProd ? isMaps : false,
-            plugins: [
-                new webpack.NoEmitOnErrorsPlugin(),
-                new webpack.ProvidePlugin({
-                    $: 'jquery',
-                    jQuery: 'jquery',
-                    'window.jQuery': 'jquery'
-                }),
-                new webpack.EnvironmentPlugin({
-                    'MODE': 'client',
-                    'VERSION': version,
-                    // 'NODE_ENV': isProd ? 'production' : 'development'
-                })
-            ].concat(isProd ? (isMaps ? [
-                // To Prod
-                new webpack.BannerPlugin({
-                    banner: 'require("source-map-support").install();',
-                    raw: true,
-                    entryOnly: false
-                }),
-            ] : []) : [
+            ].concat(isProd ? [] : [
                 // To Dev
                 new webpack.WatchIgnorePlugin([
                     /Composer\/.*$/,
@@ -385,114 +321,24 @@ module.exports = function(env) {
         }
     );
 
-    if (((packages && packages.indexOf('tool') >= 0) || !packages)) arr.push(
-        {
+    function factoryServer(name, entry, plugins = []) {
+        return {
             mode: isProd ? 'production' : 'development',
             externals: nodeModules,
             entry: {
-                js: ['babel-polyfill', 'reflect-metadata', 'fetch-everywhere', path.resolve(__dirname, 'src', 'Entry', 'Tool.ts')],
+                js: ['babel-polyfill', 'reflect-metadata', 'fetch-everywhere', entry],
             },
             output: {
-                devtoolModuleFilenameTemplate: function(info) {
-                    if (info.absoluteResourcePath.charAt(0) === '/') {
-                        return 'file://' + info.absoluteResourcePath;
-                    } else {
-                        return 'file:///' + info.absoluteResourcePath;
-                    }
-                },
-                devtoolFallbackModuleFilenameTemplate: function(info) {
-                    if (info.absoluteResourcePath.charAt(0) === '/') {
-                        return 'file://' + info.absoluteResourcePath + '?' + info.hash;
-                    } else {
-                        return 'file:///' + info.absoluteResourcePath + '?' + info.hash;
-                    }
-                },
-                path: isProd ? path.resolve(__dirname, isApp ? 'build/raw' : 'dist') : path.resolve(__dirname, 'dev'),
-                sourceMapFilename: 'tool.js.map',
-                filename: 'tool.js'
-            },
-            resolve: {
-                extensions: ['.ts', '.tsx', '.js', '.json', '.less', '.css', '.svg'],
-                alias: {
-                    '~': path.resolve(__dirname, 'src'),
-                    'reiso': path.resolve(__dirname, '../../build'),
-                    node_modules: path.resolve(__dirname, 'node_modules')
-                },
-                modules: [
-                    path.resolve(__dirname, '../../node_modules'),
-                    path.resolve(__dirname, 'node_modules')
-                ]
-            },
-            target: 'node',
-            node: {
-                console: false,
-                process: false,
-                child_process: false,
-                global: false,
-                buffer: false,
-                crypto: false,
-                __filename: false,
-                __dirname: false
-            },
-            module: {
-                rules: [
-                    {
-                        test: /\.json$/,
-                        loaders: [
-                            'json-loader'
-                        ]
-                    },
-                    {
-                        test: /\.gql$/,
-                        loader: 'graphql-tag/loader'
-                    },
-                    {
-                        test: /\.(tsx|ts)$/,
-                        loader: 'ts-loader',
-                    },
-                    {
-                        test: /\.svg$/,
-                        loaders: 'raw-loader'
-                    }
-                ]
-            },
-            devtool: isProd ? isMaps : 'cheap-module-source-map',
-            plugins: [
-                new webpack.EnvironmentPlugin({
-                    'MODE': 'server',
-                    'VERSION': version,
-                    // 'NODE_ENV': isProd ? 'production' : 'development'
-                })
-            ].concat(isProd ? (isMaps ? [
-                // To Prod
-                new webpack.BannerPlugin({
-                    banner: 'require("source-map-support").install();',
-                    raw: true,
-                    entryOnly: false
-                }),
-            ] : []) : [
-                // To Dev
-                new webpack.WatchIgnorePlugin([
-                    /Composer\/.*$/,
-                ]),
-                new BeforeWatchPlugin(["node ../../composer.js outDir ./src/Composer dir ./src/Modules incDir '~/Modules' type ts Tool"]),
-                new webpack.BannerPlugin({
-                    banner: 'require("source-map-support").install();',
-                    raw: true,
-                    entryOnly: false
-                })
-            ])
-        }
-    );
+                // devtoolModuleFilenameTemplate: "..//[absolute-resource-path]",
+                // devtoolFallbackModuleFilenameTemplate: "..//[absolute-resource-path]?[hash]",
+                // devtoolModuleFilenameTemplate: function(info) {
+                //     return "file:///"+info.absoluteResourcePath;
+                // },
+                // chunkFilename: '[id].chunk.js',
+                // libraryTarget: "umd",
+                // library: 'Server',
+                // umdNamedDefine: true,
 
-    if (((packages && packages.indexOf('worker') >= 0) || !packages)) arr.push(
-        {
-            mode: isProd ? 'production' : 'development',
-            externals: nodeModules,
-            entry: {
-                js: ['babel-polyfill', 'reflect-metadata', 'fetch-everywhere', path.resolve(__dirname, 'src', 'Entry', 'Worker.ts')],
-            },
-            output: {
                 devtoolModuleFilenameTemplate: function(info) {
                     if (info.absoluteResourcePath.charAt(0) === '/') {
                         return 'file://' + info.absoluteResourcePath;
@@ -507,9 +353,9 @@ module.exports = function(env) {
                         return 'file:///' + info.absoluteResourcePath + '?' + info.hash;
                     }
                 },
-                sourceMapFilename: 'worker.js.map',
                 path: isProd ? path.resolve(__dirname, isApp ? 'build/raw' : 'dist') : path.resolve(__dirname, 'dev'),
-                filename: 'worker.js'
+                filename: name + '.js',
+                sourceMapFilename: name + '.js.map'
             },
             resolve: {
                 extensions: ['.ts', '.tsx', '.js', '.json', '.less', '.css', '.svg'],
@@ -563,7 +409,7 @@ module.exports = function(env) {
                     'VERSION': version,
                     // 'NODE_ENV': isProd ? 'production' : 'development'
                 }),
-            ].concat(isProd ? (isMaps ? [
+            ].concat(plugins).concat(isProd ? (isMaps ? [
                 // To Prod
                 new webpack.BannerPlugin({
                     banner: 'require("source-map-support").install();',
@@ -572,118 +418,17 @@ module.exports = function(env) {
                 }),
             ] : []) : [
                 // To Dev
-                new webpack.WatchIgnorePlugin([
-                    /Composer\/.*$/,
-                ]),
-                new BeforeWatchPlugin(["node ../../composer.js outDir ./src/Composer dir ./src/Modules incDir '~/Modules' type ts Entity Reducer Worker"]),
-                new webpack.BannerPlugin({
-                    banner: 'require("source-map-support").install();',
-                    raw: true,
-                    entryOnly: false
-                })
-            ])
-        }
-    );
-
-    if (((packages && packages.indexOf('handler') >= 0) || !packages)) arr.push(
-        {
-            mode: isProd ? 'production' : 'development',
-            externals: nodeModules,
-            entry: {
-                js: ['babel-polyfill', 'reflect-metadata', 'fetch-everywhere', path.resolve(__dirname, 'src', 'Entry', 'Handler.ts')],
-            },
-            output: {
-                devtoolModuleFilenameTemplate: function(info) {
-                    if (info.absoluteResourcePath.charAt(0) === '/') {
-                        return 'file://' + info.absoluteResourcePath;
-                    } else {
-                        return 'file:///' + info.absoluteResourcePath;
-                    }
-                },
-                devtoolFallbackModuleFilenameTemplate: function(info) {
-                    if (info.absoluteResourcePath.charAt(0) === '/') {
-                        return 'file://' + info.absoluteResourcePath + '?' + info.hash;
-                    } else {
-                        return 'file:///' + info.absoluteResourcePath + '?' + info.hash;
-                    }
-                },
-                sourceMapFilename: 'handler.js.map',
-                path: isProd ? path.resolve(__dirname, isApp ? 'build/raw' : 'dist') : path.resolve(__dirname, 'dev'),
-                filename: 'handler.js',
-            },
-            resolve: {
-                extensions: ['.ts', '.tsx', '.js', '.json', '.less', '.css', '.svg'],
-                alias: {
-                    '~': path.resolve(__dirname, 'src'),
-                    'reiso': path.resolve(__dirname, '../../build'),
-                    node_modules: path.resolve(__dirname, 'node_modules')
-                },
-                modules: [
-                    path.resolve(__dirname, '../../node_modules'),
-                    path.resolve(__dirname, 'node_modules')
-                ]
-            },
-            target: 'node',
-            node: {
-                console: false,
-                process: false,
-                child_process: false,
-                global: false,
-                buffer: false,
-                crypto: false,
-                __filename: false,
-                __dirname: false
-            },
-            module: {
-                rules: [
-                    {
-                        test: /\.json$/,
-                        loaders: [
-                            'json-loader'
-                        ]
-                    },
-                    {
-                        test: /\.gql$/,
-                        loader: 'graphql-tag/loader'
-                    },
-                    {
-                        test: /\.(tsx|ts)$/,
-                        loader: 'ts-loader',
-                    },
-                    {
-                        test: /\.svg$/,
-                        loaders: 'raw-loader'
-                    }
-                ]
-            },
-            devtool: isProd ? isMaps : 'cheap-module-source-map',
-            plugins: [
-                new webpack.EnvironmentPlugin({
-                    'MODE': 'server',
-                    'VERSION': version,
-                    // 'NODE_ENV': isProd ? 'production' : 'development'
-                }),
-            ].concat(isProd ? (isMaps ? [
-                // To Prod
                 new webpack.BannerPlugin({
                     banner: 'require("source-map-support").install();',
                     raw: true,
                     entryOnly: false
                 }),
-            ] : []) : [
-                // To Dev
                 new webpack.WatchIgnorePlugin([
                     /Composer\/.*$/,
-                ]),
-                new BeforeWatchPlugin(["node ../../composer.js outDir ./src/Composer dir ./src/Modules incDir '~/Modules' type ts Handler"]),
-                new webpack.BannerPlugin({
-                    banner: 'require("source-map-support").install();',
-                    raw: true,
-                    entryOnly: false
-                })
+                ])
             ])
         }
-    );
+    }
 
     return arr;
 }
