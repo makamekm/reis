@@ -56,7 +56,7 @@ module.exports = function(env) {
     if (((packages && packages.indexOf('test') >= 0) || !packages)) arr.push(
         factoryServer(
             'test',
-            path.resolve(__dirname, 'src', 'Test', 'Server', 'Entry.ts')
+            path.resolve(__dirname, 'src', 'Test', 'Server', 'Unit', 'Entry.ts')
         )
     );
 
