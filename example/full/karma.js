@@ -20,6 +20,10 @@ module.exports = (config) => {
             {
                 pattern: 'src/Test/Client/**/*Entry.ts',
                 watched: false
+            },
+            {
+                pattern: 'src/Test/Client/**/*Entry.tsx',
+                watched: false
             }
         ],
 
@@ -28,8 +32,8 @@ module.exports = (config) => {
         ],
     
         preprocessors: {
-            'src/Test/Client/**/*.ts': [ 'webpack' ],
-            'src/Test/Client/**/*.tsx': [ 'webpack' ]
+            '**/*.ts': [ 'webpack' ],
+            '**/*.tsx': [ 'webpack' ]
         },
     
         webpack: {
@@ -58,17 +62,25 @@ module.exports = (config) => {
                         ]
                     },
                     {
+                        test: /\.js$/,
+                        loader: 'babel-loader',
+                        exclude: /\/node_modules\//,
+                        query: {
+                            presets: ['airbnb']
+                        }
+                    },
+                    {
                         test: /\.gql$/,
                         loaders: 'graphql-tag/loader'
-                    },
-                    {
-                        test: /\.json$/,
-                        loaders: 'json-loader'
-                    },
-                    {
-                        test: /\.svg$/,
-                        loaders: 'raw-loader'
                     }
+                    // {
+                    //     test: /\.json$/,
+                    //     loaders: 'json-loader'
+                    // },
+                    // {
+                    //     test: /\.svg$/,
+                    //     loaders: 'raw-loader'
+                    // }
                 ]
             },
             plugins: [

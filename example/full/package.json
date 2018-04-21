@@ -86,7 +86,9 @@
     "karma-jasmine": "1.1.1",
     "karma-webpack": "3.0.0",
     "karma-jasmine-html-reporter": "1.0.0",
-    "enzyme": "3.3.0"
+    "enzyme": "3.3.0",
+    "enzyme-adapter-react-16": "1.1.1",
+    "jasmine-enzyme": "6.0.0"
   },
   "dependencies": {
     "babel-polyfill": "6.26.0",
