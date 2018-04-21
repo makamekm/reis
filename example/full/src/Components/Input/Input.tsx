@@ -1,7 +1,5 @@
 import * as React from 'react';
 
-import { Modal } from '../Modal';
-import { Popup } from '../Popup';
 import { Icon } from '../Icon';
 
 export type InputSize = 'md' | 'xs' | 'lg' | 'sm';
@@ -10,8 +8,8 @@ export type InputType = 'text' | 'password' | 'email';
 export interface InputProps {
     className?: string
     placeholder?: string
-    size: InputSize
-    type: InputType
+    size?: InputSize
+    type?: InputType
     icon?: string
     addon?: string
     disabled?: boolean

@@ -18,18 +18,18 @@ module.exports = (config) => {
             './node_modules/reflect-metadata/Reflect.js',
             // './node_modules/fetch-everywhere/fetch-npm-node.js',
             {
-                pattern: 'src/Test/Client/**/*Entry.ts',
+                pattern: 'src/Test/Client/**/*Test.ts',
                 watched: false
             },
             {
-                pattern: 'src/Test/Client/**/*Entry.tsx',
+                pattern: 'src/Test/Client/**/*Test.tsx',
                 watched: false
             }
         ],
 
-        exclude: [
-            "node_modules"
-        ],
+        // exclude: [
+        //     "node_modules"
+        // ],
     
         preprocessors: {
             '**/*.ts': [ 'webpack' ],
@@ -39,23 +39,24 @@ module.exports = (config) => {
         webpack: {
             mode: 'development',
             resolve: {
-                extensions: ['.ts', '.tsx', '.js', '.json', '.gql'],
+                extensions: ['.ts', '.tsx', '.js'],
                 alias: {
                     '~': path.resolve(__dirname, 'src'),
                     'reiso': path.resolve(__dirname, '../../build'),
-                    node_modules: path.resolve(__dirname, 'node_modules')
+                    // node_modules: path.resolve(__dirname, 'node_modules')
                 },
-                modules: [
-                    path.resolve(__dirname, '../../node_modules'),
-                    path.resolve(__dirname, 'node_modules')
-                ],
-                mainFields: ['browser', 'main', 'module'],
+                // modules: [
+                //     path.resolve(__dirname, '../../node_modules'),
+                //     path.resolve(__dirname, 'node_modules')
+                // ],
+                // mainFields: ['browser', 'main', 'module'],
             },
-            target: 'web',
+            // target: 'web',
             module: {
                 rules: [
                     {
-                        test: /\.(tsx|ts)$/,
+                        test: /\.tsx?$/,
+                        exclude: /\/node_modules\//,
                         loaders: [
                             'babel-loader',
                             'ts-loader'
@@ -64,15 +65,12 @@ module.exports = (config) => {
                     {
                         test: /\.js$/,
                         loader: 'babel-loader',
-                        exclude: /\/node_modules\//,
-                        query: {
-                            presets: ['airbnb']
-                        }
+                        exclude: /\/node_modules\//
                     },
-                    {
-                        test: /\.gql$/,
-                        loaders: 'graphql-tag/loader'
-                    }
+                    // {
+                    //     test: /\.gql$/,
+                    //     loaders: 'graphql-tag/loader'
+                    // }
                     // {
                     //     test: /\.json$/,
                     //     loaders: 'json-loader'

@@ -5,23 +5,26 @@ import * as Adapter from 'enzyme-adapter-react-16';
 
 import { Button } from '~/Components/Button';
 
-describe("<Button/>", async () => {
-  beforeEach(() => {
-    configure({ adapter: new Adapter() });
-  });
+describe("<Button/>", () => {
+  configure({ adapter: new Adapter() });
+
+  // beforeEach(() => {
+  // });
 
   it("Render", async () => {
     const wrapper = shallow(
       <Button>Test</Button>
     );
-    console.log($(wrapper.html()).text());
-    expect($(wrapper.html()).text()).toBe("Test");
+    let btn = wrapper.children();
+  
+    expect(btn.text()).toBe("Test");
   });
 
-  it("Classes", async () => {
+  it("Classes", () => {
     const wrapper = shallow(
       <Button className="test" size="xs" type="primary">Test</Button>
     );
+
     expect(wrapper.hasClass("test")).toBeTruthy();
     expect(wrapper.hasClass("btn-primary")).toBeTruthy();
     expect(wrapper.hasClass("btn-xs")).toBeTruthy();
@@ -34,7 +37,9 @@ describe("<Button/>", async () => {
         clicked = true;
       }}>Test</Button>
     );
-    wrapper.simulate("click");
+
+    await wrapper.simulate("click");
+  
     expect(clicked).toBeTruthy();
   });
 });
