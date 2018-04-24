@@ -15,7 +15,6 @@ import { Notification } from '~/Modules/Notification/View/Notification';
 import { ModalService } from '~/Modules/Notification/View/ModalService';
 
 import * as Header from '../Reducer/Header';
-import { Application } from './Application';
 
 function createCookie(name, value, days) {
   var expires = "";

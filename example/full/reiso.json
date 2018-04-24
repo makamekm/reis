@@ -2,7 +2,8 @@
   "default": {
     "secretKey": "secretps4",
     "maxFileSize": 50,
-    "uploadDir": "./uploads/",
+    "uploadDir": "./dev/uploads/",
+    "publicDir": "./dev/public",
     "port": 3000,
     "portWS": 5000,
     "host": "127.0.0.1",

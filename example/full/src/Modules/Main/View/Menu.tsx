@@ -24,9 +24,6 @@ import { LoginForm } from './Auth/LoginForm';
 import { RegistrationForm } from './Auth/RegistrationForm';
 import * as Header from '../Reducer/Header';
 
-// const burdSvg = require('~/Styles/Modules/images/logo3.svg');
-
-
 export interface StateProps {
   isDesktop?: boolean
   theme?: Header.Model['theme']

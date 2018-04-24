@@ -120,7 +120,7 @@ export const Render = async (req, res, next, _language?) => {
   );
 
   try {
-    let data = await ApolloReact.getDataFromTree(component);
+    await ApolloReact.getDataFromTree(component);
   }
   catch (e) {
     Log.logError(e, { type: "server_render" });

@@ -3,21 +3,7 @@ import { configure, shallow } from 'enzyme';
 // import jasmineEnzyme from 'jasmine-enzyme';
 import * as Adapter from 'enzyme-adapter-react-16';
 
-import { Input } from '~/Components/Input';
-
-async function simulateKeyPresses(wrapper, characters, ...args) {
-  await wrapper.simulate('focus');
-  await wrapper.simulate('change', { target: { value: characters } });
-  // for(let i = 0; i < characters.length; i++) {
-  //   wrapper.simulate('keyPress', {
-  //     which: characters.charCodeAt(i),
-  //     key: characters[i],
-  //     keyCode: characters.charCodeAt(i),
-  //     ...args
-  //   });
-  // }
-  await wrapper.simulate('blur');
-}
+import { Input, InputSelect, Select, SelectItem } from '~/Components/Input';
 
 describe("<Input/>", () => {
   configure({ adapter: new Adapter() });
@@ -48,8 +34,49 @@ describe("<Input/>", () => {
       }}/>
     );
     let input = wrapper.find('input');
+
+    await input.simulate('focus');
+    await input.simulate('change', { target: { value: "test" } });
+    await input.simulate('blur');
+
+    expect(value).toBe('test');
+  });
+});
+
+describe("<InputSelect/>", () => {
+  configure({ adapter: new Adapter() });
+
+  it("Render", async () => {
+    let value = 'test';
+    const wrapper = shallow(
+      <InputSelect linkValue={{
+        get: () => value,
+        set: v => value = v
+      }} source={async val => ['test']} rows={data => data.map(name => <SelectItem>{name}</SelectItem>)}/>
+    );
+    let input = wrapper.find('input');
+    let inputEl: any = input.get(0);
+
+    await wrapper.update();
   
-    await simulateKeyPresses(input, "test");
+    expect(input.length).toBe(1);
+    expect(inputEl.props.value).toBe('test');
+  });
+
+  it("Change Text", async () => {
+    let value = '';
+    const wrapper = shallow(
+      <InputSelect linkValue={{
+        get: () => value,
+        set: v => value = v
+      }} source={async val => ['test']} rows={data => data.map(name => <SelectItem>{name}</SelectItem>)}/>
+    );
+    let input = wrapper.find('input');
+    let inputEl: any = input.get(0);
+
+    await input.simulate('focus');
+    await input.simulate('change', { target: { value: "test" } });
+    await input.simulate('blur');
 
     expect(value).toBe('test');
   });

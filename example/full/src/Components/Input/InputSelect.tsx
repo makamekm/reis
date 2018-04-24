@@ -10,8 +10,8 @@ export type InputSelectType = 'text' | 'password' | 'email';
 export class InputSelect extends React.Component<{
   className?: string
   placeholder?: string
-  size: InputSelectSize
-  type: InputSelectType
+  size?: InputSelectSize
+  type?: InputSelectType
   icon?: string
   addon?: string
   disabled?: boolean
@@ -105,10 +105,10 @@ export class InputSelect extends React.Component<{
     if (rowsRender && rowsRender.length > 0) content = rowsRender;
 
     return (
-      <div className={"form-row " + (this.props.className || '') + " form-row-" + this.props.size + (this.props.disabled ? ' disabled' : '') + (this.props.error ? ' error' : '') + (this.props.loading || this.loading ? ' loading' : '')}>
+      <div className={"form-row " + (this.props.className || '') + " form-row-" + (this.props.size || 'md') + (this.props.disabled ? ' disabled' : '') + (this.props.error ? ' error' : '') + (this.props.loading || this.loading ? ' loading' : '')}>
         {this.props.icon ? <Icon name={this.props.icon} className="item text subsub pl-3 pr-3" style={{width: '1px'}}/> : null}
         <Popup {...props} type="select" position="bottom center" element={
-          <input type={this.props.type} placeholder={this.props.placeholder || ''} value={this.props.linkValue.get() || ''} onKeyUp={e => {
+          <input type={this.props.type || "text"} placeholder={this.props.placeholder || ''} value={this.props.linkValue.get() || ''} onKeyUp={e => {
             if (e.keyCode == 13 && this.props.onKeyUpEnter) {
               this.props.onKeyUpEnter(e);
             }

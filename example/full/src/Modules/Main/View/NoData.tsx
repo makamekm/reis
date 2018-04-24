@@ -3,8 +3,6 @@ import * as PropTypes from 'prop-types';
 
 import * as Router from 'reiso/Modules/Router';
 
-import { Application } from '~/Modules/Main/View/Application';
-
 @Router.withRouter
 export class NoData extends React.Component {
     context: {

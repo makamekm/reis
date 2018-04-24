@@ -112,7 +112,7 @@ class Main {
       <ApolloReact.ApolloProvider client={gqlClient as any}>
         <ReactRedux.Provider store={store}>
           <BrowserRouter>
-            <Html store={store} client={gqlClient} language={Translation.getLanguage()}>
+            <Html client={gqlClient} store={store} language={Translation.getLanguage()}>
               {Router.GetRoutes(store, Translation.getLanguage())}
             </Html>
           </BrowserRouter>
