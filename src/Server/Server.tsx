@@ -194,8 +194,8 @@ export class Server {
 
         const subscriptionsServer = new subscriptionServer.SubscriptionServer({
             schema: Query.getSchema(),
-            execute: graphql.execute,
-            subscribe: (graphql as any).subscribe,
+            execute: graphql.execute as any,
+            subscribe: graphql.subscribe,
             onConnect: async (connectionParams, webSocket, connectionContext) => {
               for (let hook of getHooksWSonConnect()) {
                 await hook(connectionParams, webSocket, connectionContext);
@@ -235,8 +235,8 @@ export class Server {
 
         const subscriptionsServer = new subscriptionServer.SubscriptionServer({
             schema: Query.getSchema(),
-            execute: graphql.execute,
-            subscribe: (graphql as any).subscribe,
+            execute: graphql.execute as any,
+            subscribe: graphql.subscribe,
             onConnect: async (connectionParams, webSocket, connectionContext) => {
               for (let hook of getHooksWSonConnect()) {
                 await hook(connectionParams, webSocket, connectionContext);

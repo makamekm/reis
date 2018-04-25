@@ -1,7 +1,8 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import * as ApolloReact from 'react-apollo';
-import * as Helmet from "react-helmet";
+import { Helmet as _Helmet } from "react-helmet";
+const Helmet: any = _Helmet;
 import * as StackTraceParser from 'stacktrace-parser';
 
 import * as Translation from 'reiso/Modules/Translation';
@@ -87,7 +88,7 @@ export class Html extends React.Component<StateProps & DispatchProps & {
     modals: []
   }
 
-  getChildContext(){
+  getChildContext() {
     return {
       client: this.props.client,
       store: this.props.store,
@@ -401,7 +402,7 @@ export class Html extends React.Component<StateProps & DispatchProps & {
         </div>
       ),
       (
-        <Helmet.Helmet key="helmet">
+        <Helmet key="helmet">
           <title>{this.props.title}</title>
           {/* <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet"/> */}
           <link href="/index.css" rel="stylesheet" media="screen"/>
@@ -410,7 +411,7 @@ export class Html extends React.Component<StateProps & DispatchProps & {
           <link rel="icon" href="/images/icon.svg" type="image/svg"/>
           <link rel="shortcut" href="/images/icon.ico" type="image/x-icon"/>
           <body/>
-        </Helmet.Helmet>
+        </Helmet>
       ),
       (
         <Notification ref="notificationService" key="notifications"/>

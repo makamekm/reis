@@ -29,22 +29,24 @@ export type Props = StateProps & DispatchProps & {
     children?: any
 }
 
-export const Application: (props: Props) => any = Router.withRouter(
-Reducer.Connect<StateProps, DispatchProps, Header.StateModel>(state => ({}), (dispatch, props) => ({
+@Router.withRouter
+@Reducer.Connect<StateProps, DispatchProps, Header.StateModel>(state => ({}), (dispatch, props) => ({
     setTitle: async (name: string) => {
         await dispatch(Header.setTitle(name));
     }
-}))(
-Reducer.Connect<StateProps, {}, UserReducer.StateModel>(state => ({
+}))
+@Reducer.Connect<StateProps, {}, UserReducer.StateModel>(state => ({
     user: state.User.entity
-}))(
-function (props: Props) {
-    return (
-        <div>
-            <Menu/>
-            <Transition appear id={props.location.pathname}>
-                {props.children}
-            </Transition>
-        </div>
-    )
-})))
+}))
+export class Application extends React.Component<Props> {
+    render() {
+        return (
+            <div>
+                <Menu/>
+                <Transition appear id={this.props.location.pathname}>
+                    {this.props.children}
+                </Transition>
+            </div>
+        )
+    }
+}

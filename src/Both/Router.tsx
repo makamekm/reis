@@ -11,6 +11,7 @@ import * as Translation from '../Modules/Translation';
 import { getHooksRouter } from '../Modules/BothHook';
 
 let Html = null
+let Context = null
 
 export function DeclareHtml() {
   return function (target, ...args): any {
@@ -22,24 +23,20 @@ export function GetHtml(): any {
   return Html
 }
 
+export function DeclareContext(target) {
+  Context = target;
+}
+
+export function GetContext(): any {
+  return Context
+}
+
 export const withRouter: any = ReactRouter.withRouter;
 export const matchPath: any = ReactRouter.matchPath;
 export const gql = graphqltag;
 export type ApolloClient = any;
 // export type ApolloClient = ApolloReact.ApolloClient;
-export const graphql: <TResult = any, TMutation = any, TProps = any, TChildProps = ApolloReact.ChildProps<TProps, TResult>>(path: DocumentNode, operationOptions?: {
-  options?: ApolloReact.QueryOpts | ApolloReact.MutationOpts<TMutation> | ((props: TProps) => ApolloReact.QueryOpts | ApolloReact.MutationOpts<TMutation>);
-  props?: (props: {
-    ownProps: TProps;
-    data?: ApolloReact.QueryProps & TResult;
-    mutate?: ApolloReact.MutationFunc<TResult, TMutation>;
-}) => any;
-  skip?: boolean | ((props: any) => boolean);
-  name?: string;
-  withRef?: boolean;
-  shouldResubscribe?: (props: TProps, nextProps: TProps) => boolean;
-  alias?: string;
-}) => any = (str, operationOptions) => ApolloReact.graphql(str, operationOptions);
+export const graphql = ApolloReact.graphql;
 
 let Routes: RouteModel[] = [];
 

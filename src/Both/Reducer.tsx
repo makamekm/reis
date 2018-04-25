@@ -38,15 +38,15 @@ export let createStore: () => Redux.Store<any> = () => {
     )
   }
 
-  const store: Redux.Store<any> = Redux.createStore<any>(Redux.combineReducers<any>(Reducers), initialState, composed);
+  const store: Redux.Store<any> = Redux.createStore<any, any, {}, {}>(Redux.combineReducers<any>(Reducers), initialState, composed);
 
   return store;
 }
 
-export let createStoreEnc: (enc: Redux.GenericStoreEnhancer, initialState?: any) => Redux.Store<any> = (enc: Redux.GenericStoreEnhancer, initialState: any = {}) => {
+export let createStoreEnc: (enc: Redux.StoreEnhancer, initialState?: any) => Redux.Store<any> = (enc: Redux.StoreEnhancer, initialState: any = {}) => {
   Reducers.browser = responsiveStateReducer;
 
-  const store: Redux.Store<any> = Redux.createStore<any>(Redux.combineReducers<any>(Reducers), initialState, enc);
+  const store: Redux.Store<any> = Redux.createStore<any, any, {}, {}>(Redux.combineReducers<any>(Reducers), initialState, enc);
   return store;
 }
 

@@ -52,7 +52,7 @@ class Main {
 
     const linkSplitted = ApolloLink.ApolloLink.split(
       operation => {
-        const operationAST = graphql.getOperationAST(operation.query, operation.operationName);
+        const operationAST = graphql.getOperationAST(operation.query as any, operation.operationName);
         return !!operationAST && operationAST.operation === 'subscription';
       },
       linkWS,

@@ -109,7 +109,7 @@ export class Portal extends React.Component<PortalProps, PortalState> {
 
   update() {
     if (this.props.didUpdate) {
-      this.props.didUpdate(this.state.node, this.mounted && ReactDOM.findDOMNode(this.refs.elem));
+      this.props.didUpdate(this.state.node, this.mounted && ReactDOM.findDOMNode(this.refs.elem) as Element);
     }
   }
 
@@ -125,7 +125,7 @@ export class Portal extends React.Component<PortalProps, PortalState> {
 
     this.state.onResize = (s) => {
       if (this.props.didUpdate) {
-        this.props.didUpdate(this.state.node, this.mounted && ReactDOM.findDOMNode(this.refs.elem));
+        this.props.didUpdate(this.state.node, this.mounted && ReactDOM.findDOMNode(this.refs.elem) as Element);
       }
     }
 
@@ -341,7 +341,7 @@ export class Portal extends React.Component<PortalProps, PortalState> {
     if (this.state.node && this.props.onOpen) this.props.onOpen(this.state.node, this.mounted && ReactDOM.findDOMNode(this.refs.elem));
 
     if (this.props.didUpdate) {
-      this.props.didUpdate(this.state.node, this.mounted && ReactDOM.findDOMNode(this.refs.elem));
+      this.props.didUpdate(this.state.node, this.mounted && ReactDOM.findDOMNode(this.refs.elem) as Element);
     }
 
     if (this.props.isModal) {
@@ -380,7 +380,7 @@ export class Portal extends React.Component<PortalProps, PortalState> {
     }
 
     if (this.props.didUpdate) {
-      this.props.didUpdate(this.state.node, this.mounted && ReactDOM.findDOMNode(this.refs.elem));
+      this.props.didUpdate(this.state.node, this.mounted && ReactDOM.findDOMNode(this.refs.elem) as Element);
     }
 
     if (this.props.isModal) {
@@ -448,7 +448,7 @@ export class Portal extends React.Component<PortalProps, PortalState> {
     );
 
     if (this.props.didUpdate) {
-      this.props.didUpdate(this.state.node, this.mounted && ReactDOM.findDOMNode(this.refs.elem));
+      this.props.didUpdate(this.state.node, this.mounted && ReactDOM.findDOMNode(this.refs.elem) as Element);
     }
   }
 
@@ -514,7 +514,7 @@ export class Portal extends React.Component<PortalProps, PortalState> {
 
   componentDidUpdate() {
     if (this.props.didUpdate) {
-      this.props.didUpdate(this.state.node, this.mounted && ReactDOM.findDOMNode(this.refs.elem));
+      this.props.didUpdate(this.state.node, this.mounted && ReactDOM.findDOMNode(this.refs.elem) as Element);
     }
   }
 

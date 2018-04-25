@@ -92,7 +92,7 @@ export class UserEditMutation {
     }
 
     for (let id of ids) {
-      let user = await userRepository.findOneById(id);
+      let user = await userRepository.findOne(id);
 
       if (!user) throw new Error.MissMatchError("The user hasn't been found by id: " + id);
 
@@ -303,7 +303,7 @@ export class UserEditMutation {
     let emailRepository = connection.getRepository(Email);
     let userAvatarRepository = connection.getRepository(UserAvatar);
 
-    let user = await userRepository.findOneById(id);
+    let user = await userRepository.findOne(id);
 
     if (!user) throw new Error.MissMatchError("The user hasn't been found by id: " + id);
 
@@ -511,7 +511,7 @@ export class UserEditMutation {
     let emailRepository = connection.getRepository(Email);
     let userAvatarRepository = connection.getRepository(UserAvatar);
 
-    let user = await userRepository.findOneById(context.session.user.id);
+    let user = await userRepository.findOne(context.session.user.id);
 
     // ----------------
 

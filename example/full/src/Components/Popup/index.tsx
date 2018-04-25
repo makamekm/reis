@@ -227,7 +227,7 @@ export class Popup extends React.Component<PopupProps, PopupState> {
       this.mutationObserver.disconnect()
     }
 
-    this.popup = ReactDOM.findDOMNode(this.refs.popup);
+    this.popup = ReactDOM.findDOMNode(this.refs.popup) as Element;
     this.element = elementNode
 
     this.reposition()

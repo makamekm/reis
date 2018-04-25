@@ -6,7 +6,7 @@ import * as ApolloReact from 'react-apollo';
 import * as ApolloClient from 'apollo-client';
 import * as ReactRedux from 'react-redux';
 import * as ApolloCache from 'apollo-cache-inmemory';
-import * as Helmet from "react-helmet";
+import { Helmet } from "react-helmet";
 import { BatchHttpLink } from 'apollo-link-batch-http';
 import * as ApolloLink from "apollo-link";
 import { onError } from "apollo-link-error";
@@ -119,16 +119,21 @@ export const Render = async (req, res, next, _language?) => {
     </ApolloReact.ApolloProvider>
   );
 
+  let html: string;
+
   try {
-    await ApolloReact.getDataFromTree(component);
+    // html = await ApolloReact.renderToStringWithData(component);
+    // await ApolloReact.getDataFromTree(component);
   }
   catch (e) {
     Log.logError(e, { type: "server_render" });
+
+    // html = ReactDOMServer.renderToString(component);
   }
 
-  let html = ReactDOMServer.renderToString(component);
+  html = ReactDOMServer.renderToString(component);
 
-  const helmet = Helmet.Helmet.renderStatic();
+  const helmet = Helmet.renderStatic();
 
   res.status(200);
   res.send(`

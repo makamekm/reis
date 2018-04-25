@@ -103,7 +103,7 @@ export class Table extends React.Component<{
             return;
         }
 
-        const top = bodyElem.getBoundingClientRect().top;
+        const top = (bodyElem as Element).getBoundingClientRect().top;
         // const height = bodyElem.getBoundingClientRect().height;
         // const bottom = bodyElem.getBoundingClientRect().top + height;
 
