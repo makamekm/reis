@@ -80,10 +80,6 @@ export class Html extends React.Component<StateProps & DispatchProps & {
     loadingTheme: PropTypes.func,
   }
 
-  constructor(props, context){
-    super(props, context);
-  }
-
   state = {
     modals: []
   }

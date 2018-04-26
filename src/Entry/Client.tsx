@@ -82,7 +82,11 @@ class Main {
     const cache = new ApolloCache.InMemoryCache((window as any).__APOLLO_STATE__);
 
     const gqlClient = new ApolloClient.ApolloClient({
-      link, cache, queryDeduplication: true, defaultOptions: {
+      link,
+      cache,
+      ssrMode: true,
+      queryDeduplication: true,
+      defaultOptions: {
         watchQuery: {
           fetchPolicy: 'cache-and-network',
           errorPolicy: 'ignore',

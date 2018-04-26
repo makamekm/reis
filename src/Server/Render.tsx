@@ -90,7 +90,11 @@ export const Render = async (req, res, next, _language?) => {
   let cache = new ApolloCache.InMemoryCache();
 
   const gqlClient = new ApolloClient.ApolloClient({
-    link, cache, queryDeduplication: true, defaultOptions: {
+    link,
+    cache,
+    ssrMode: true,
+    queryDeduplication: true,
+    defaultOptions: {
       watchQuery: {
         fetchPolicy: 'cache-and-network',
         errorPolicy: 'ignore',
@@ -123,7 +127,7 @@ export const Render = async (req, res, next, _language?) => {
 
   try {
     // html = await ApolloReact.renderToStringWithData(component);
-    // await ApolloReact.getDataFromTree(component);
+    await ApolloReact.getDataFromTree(component);
   }
   catch (e) {
     Log.logError(e, { type: "server_render" });
