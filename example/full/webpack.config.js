@@ -152,7 +152,7 @@ module.exports = function(env) {
                     }
                 ]
             },
-            devtool: isProd ? isMaps : false,
+            devtool: isProd ? isMaps : 'inline-source-map',
             plugins: [
                 new webpack.NoEmitOnErrorsPlugin(),
                 new webpack.ProvidePlugin({

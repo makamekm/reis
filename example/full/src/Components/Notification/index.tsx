@@ -23,11 +23,6 @@ export class Notification extends React.Component<NotificationProps, {}> {
   public timeout: any = null
   public hover: boolean = false
 
-  refs: {
-    [key: string]: any;
-    portal: Portal;
-  }
-
   handleOver() {
     this.hover = true;
     this.stopTimer();
@@ -42,7 +37,7 @@ export class Notification extends React.Component<NotificationProps, {}> {
     if (!this.hover) {
       this.stopTimer();
       this.timeout = setTimeout(() => {
-        this.close();
+        // this.close();
       }, this.props.timeout);
     }
   }
@@ -53,23 +48,13 @@ export class Notification extends React.Component<NotificationProps, {}> {
     }
   }
 
-  close() {
-    if (this.mounted) this.refs.portal.closePortal();
-  }
-
-  open() {
-    if (this.mounted) this.refs.portal.openPortal();
-  }
-
   mounted: boolean = false
 
   componentDidMount() {
     this.mounted = true;
-    this.open();
   }
 
   componentWillUnmount() {
-    this.close();
     this.mounted = false;
   }
 
@@ -87,7 +72,7 @@ export class Notification extends React.Component<NotificationProps, {}> {
                 </span>
               </div>
               <div className="col text right py-2">
-                <Button className="mr-1" size="sm" onClick={async () => this.close()}><span className="fa fa-close"></span></Button>
+                {/* <Button className="mr-1" size="sm" onClick={async () => this.close()}><span className="fa fa-close"></span></Button> */}
               </div>
             </div>
           </div>
@@ -98,23 +83,24 @@ export class Notification extends React.Component<NotificationProps, {}> {
       )
     }
 
-    return (
-      <Portal ref="portal" level={this.props.level} className="notification-container std" isModal={false}
-        onOpen={(node, elem) => {
-          setTimeout(() => {
-            $(node).children().addClass('show');
-            this.startTimer();
-          }, 0);
-        }}
-        beforeClose={(node, callback) => {
-          $(node).children().removeClass('show');
-          setTimeout(callback, 400);
-        }}
-        onClose={() => {
-          this.props.onClose();
-        }}>
-        {content}
-      </Portal>
-    )
+    return null
+    // return (
+    //   <Portal ref="portal" level={this.props.level} className="notification-container std" isModal={false}
+    //     onOpen={(node, elem) => {
+    //       setTimeout(() => {
+    //         $(node).children().addClass('show');
+    //         this.startTimer();
+    //       }, 0);
+    //     }}
+    //     beforeClose={(node, callback) => {
+    //       $(node).children().removeClass('show');
+    //       setTimeout(callback, 400);
+    //     }}
+    //     onClose={() => {
+    //       this.props.onClose();
+    //     }}>
+    //     {content}
+    //   </Portal>
+    // )
   }
 }

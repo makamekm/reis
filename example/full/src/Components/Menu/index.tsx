@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Popup } from '../Popup';
+import { Popup, Consumer } from '../Popup';
 import { Icon } from '../Icon';
 import { Flag } from '../Flag';
 import { Clickable } from '../Clickable';
@@ -79,13 +79,12 @@ export function MenuDrop(props: {
   maxWidth?: string
   className?: string
 }) {
-  return <Popup bodyFixed type="select" minWidth={props.minWidth} maxWidth={props.maxWidth} position={props.position || "bottom right"} element={
-    <div className={"item" + (!props.text ? ' image' : '') + (props.className ? (' ' + props.className) : '')}>
+  return <Popup type="select" minWidth={props.minWidth} maxWidth={props.maxWidth} position={props.position || "bottom right"} timeout={300} element={
+    popup => <div onClick={() => popup.open()} ref={ref => popup.ref(ref)} className={"item" + (!props.text ? ' image' : '') + (props.className ? (' ' + props.className) : '')}>
       {props.flag && <Flag name={props.flag}/>}
       {props.icon && <Icon name={props.icon}/>}
       {props.text && <span>{props.text}</span>}
-    </div>
-  } openOnFocus openOnOverMove closeOnOutsideClick closeOnBlur closeOnOutMove closeOnOutMovePop timeout={300}>
+    </div>}>
     {props.children}
   </Popup>
 }

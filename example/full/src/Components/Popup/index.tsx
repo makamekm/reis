@@ -1,14 +1,30 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom';
 import * as PropTypes from 'prop-types';
+import { Context } from 'create-react-context';
+import * as createContext from 'create-react-context';
 
 import { Transition } from '../Animation';
-import { Portal, PortalProps, ConnectionPortal } from '../Private/Portal';
+import { Portal } from '../Private/Portal';
 import { Clickable } from '../Clickable';
 import { Icon } from '../Icon';
 import { Link } from '../Link';
 
-export * from './PopupSelect';
+// export * from './PopupSelect';
+
+export type ConsumerType = {
+  close: () => void
+  open: () => void
+  reposition: () => void
+  ref: (r: any) => void
+}
+
+export const { Provider, Consumer }: Context<ConsumerType> = (createContext as any)({
+  close: () => {},
+  open: () => {},
+  reposition: () => {},
+  ref: (r) => {}
+});
 
 export function PopupLink(props: {
   icon?: string
@@ -47,28 +63,21 @@ export type PopupItemProps = {
   onClick?(e?: React.MouseEvent<HTMLElement>): Promise<void> | void
 }
 
-export class PopupItem extends React.Component<PopupItemProps & {
+export const PopupItem = (props: PopupItemProps & {
   popup?: any
-}> {
-  context: {
-    popup: any
-  }
-
-  static contextTypes: React.ValidationMap<any> = {
-    popup: PropTypes.object.isRequired
-  }
-
-  render () {
-    return <Transition className="group" type="fade" appear>
-      <Clickable type={this.props.type} href={this.props.href} className={"item" + (this.props.active ? ' active' : '') + ' ' + (this.props.className || '')} onClick={async (e) => {
-        if (this.props.onClick) await this.props.onClick(e);
-        if (!this.props.notCloseOnClick) this.context.popup.close();
+}) => {
+  return <Consumer>{context =>
+    <Transition className="group" type="fade" appear>
+      <Clickable type={props.type} href={props.href} className={"item" + (props.active ? ' active' : '') + ' ' + (props.className || '')} onClick={async (e) => {
+        if (props.onClick) await props.onClick(e);
+        if (!props.notCloseOnClick) context.close();
       }}>
-        {this.props.icon && <Icon name={this.props.icon} style={this.props.style}/>}
-        {this.props.children}
+        {props.icon && <Icon name={props.icon} style={props.style}/>}
+        {props.children}
       </Clickable>
     </Transition>
-  }
+
+  }</Consumer>
 }
 
 export function PopupScroll(props: {
@@ -97,73 +106,42 @@ export function PopupInput(props: {
   </Transition>
 }
 
-export class PopupProps extends PortalProps {
-  level?: number
-  closeOnOutsideClick?: boolean
-  toggleOnClick?: boolean
-  openOnClick?: boolean
-  closeOnClick?: boolean
-  toggleOnContextMenu?: boolean
-  openOnContextMenu?: boolean
-  closeOnContextMenu?: boolean
-  closeOnOutMove?: boolean
-  openOnOverMove?: boolean
-  openOnFocus?: boolean
-  openOnInput?: boolean
-  openOnBlur?: boolean
-  closeOnBlur?: boolean
-  closeOnOutMovePop?: boolean
-  closeOnInput?: boolean
-  bodyFixed?: boolean
+export class PopupProps {
+  onOpen?: (node: HTMLElement) => void
+  onClose?: (node: HTMLElement, callback: () => void) => void
 
+  element: (popup: ConsumerType) => any
   padding_window?: number = 10
   offset?: number = 5
   timeout?: number = 0
   activeClassName?: string = 'hover'
   delay?: number = 0
-  onShow?: () => void
-  onClose?: () => void
-  positionEl?: string
   minWidth?: string
   maxWidth?: string
   type?: 'select' | 'info' | 'error' = 'info'
   position?: 'top left' | 'top center' | 'top right' | 'bottom left' | 'bottom center' | 'bottom right' | 'left top' | 'left middle' | 'left bottom' | 'right top' | 'right middle' | 'right bottom'
 }
 
-export class PopupState {
-  timer?: number
-}
+export class Popup extends React.Component<PopupProps> {
 
-export class Popup extends React.Component<PopupProps, PopupState> {
+  // mounted: boolean = false
 
-	static childContextTypes: React.ValidationMap<any> = {
-		popup: PropTypes.object,
-	}
-
-  constructor(props, context){
-    super(props, context);
-  }
-
-  getChildContext(){
-    return {
-      popup: {
-        close: () => this.closePortal()
-      }
-    }
-  }
+  // refs: {
+  //   [key: string]: any;
+  //   popup: HTMLElement;
+  // }
 
   public static defaultProps = new PopupProps()
-
-  state = new PopupState()
+  scrollEvent: any
+  timeout: any
+  hideTimeout: any
+  open: boolean = false
   mounted: boolean = false
+  toObserve = {childList: true, attributes: true, subtree: true, attributeOldValue: true, attributeFilter: ['class', 'style']}
+  mutationObserver: MutationObserver
 
-  refs: {
-    [key: string]: any;
-    portal: Portal;
-    popup: HTMLElement;
-  }
-
-  event: any
+  popup: Element
+  element: Element
 
   componentDidMount() {
     this.mounted = true;
@@ -173,90 +151,84 @@ export class Popup extends React.Component<PopupProps, PopupState> {
     this.mounted = false;
   }
 
-  onScroll(e) {
-    if (this.element && this.elementOrParentIsFixed(this.element)) {
-      this.reposition();
-    }
-  }
+  // onScroll(e) {
+  //   // if (this.element && this.elementOrParentIsFixed(this.element)) {
+  //     this.reposition();
+  //   // }
+  // }
 
-  componentWillMount() {
-    if (process.env.MODE == "client") this.mutationObserver = new MutationObserver((mutationRecords) => {
-      $.each(mutationRecords, (index, mutationRecord) => {
-        if (mutationRecord.type === 'childList') {
-          if (mutationRecord.addedNodes.length > 0) {
-            //DOM node added, do something
-            this.reposition();
-          }
-          else if (mutationRecord.removedNodes.length > 0) {
-            //DOM node removed, do something
-            this.reposition();
-          }
-        }
-        else if (mutationRecord.type === 'attributes') {
-          if (mutationRecord.attributeName === 'class') {
-            //class changed, do something
-            this.reposition();
-          }
-        }
-      });
-    });
-  }
+  // componentWillMount() {
+  //   if (process.env.MODE == "client") this.mutationObserver = new MutationObserver((mutationRecords) => {
+  //     $.each(mutationRecords, (index, mutationRecord) => {
+  //       if (mutationRecord.type === 'childList') {
+  //         if (mutationRecord.addedNodes.length > 0) {
+  //           //DOM node added, do something
+  //           this.reposition();
+  //         }
+  //         else if (mutationRecord.removedNodes.length > 0) {
+  //           //DOM node removed, do something
+  //           this.reposition();
+  //         }
+  //       }
+  //       else if (mutationRecord.type === 'attributes') {
+  //         if (mutationRecord.attributeName === 'class') {
+  //           //class changed, do something
+  //           this.reposition();
+  //         }
+  //       }
+  //     });
+  //   });
+  // }
 
-  toObserve = {childList: true, attributes: true, subtree: true, attributeOldValue: true, attributeFilter: ['class', 'style']}
+  // closePortal() {
+  //   if (this.refs.portal) {
+  //     this.refs.portal.closePortal();
+  //   }
+  // }
 
-  mutationObserver: MutationObserver
+  // openPortal() {
+  //   if (this.refs.portal) {
+  //     this.refs.portal.openPortal();
+  //   }
+  // }
 
-  closePortal() {
-    if (this.refs.portal) {
-      this.refs.portal.closePortal();
-    }
-  }
+  // lock = false
+  // prevW: number = 0
+  // prevH: number = 0
 
-  openPortal() {
-    if (this.refs.portal) {
-      this.refs.portal.openPortal();
-    }
-  }
+  // didUpdate(popupNode, elementNode) {
+    // if (this.mutationObserver && this.popup) {
+    //   this.mutationObserver.disconnect();
+    // }
 
-  popup: Element
-  element: Element
+    // this.popup = ReactDOM.findDOMNode(this.refs.popup) as Element;
+    // this.element = elementNode;
 
-  didUpdate(popupNode, elementNode) {
+    // this.reposition();
 
-    if (this.mutationObserver && this.popup) {
-      this.mutationObserver.disconnect()
-    }
-
-    this.popup = ReactDOM.findDOMNode(this.refs.popup) as Element;
-    this.element = elementNode
-
-    this.reposition()
-
-    if (this.mutationObserver && this.popup) {
-      this.mutationObserver.observe(this.popup, this.toObserve)
-    }
-  }
-
-  lock = false
+    // if (this.mutationObserver && this.popup) {
+    //   this.mutationObserver.observe(this.popup, this.toObserve)
+    // }
+  // }
 
   elementOrParentIsFixed(element) {
     var $element = $(element);
     var $checkElements = $element.add($element.parents());
     var isFixed = false;
     $checkElements.each(function(){
-        if ($(this).css("position") === "fixed") {
-            isFixed = true;
-            return false;
-        }
+      if ($(this).css("position") === "fixed") {
+        isFixed = true;
+        return false;
+      }
     });
     return isFixed;
   }
 
   reposition() {
-    if (this.lock) return;
+    // if (this.lock) return;
 
-    if (!this.popup || !this.refs.portal || !this.refs.portal.state.active || this.refs.portal.props.isHidden) {
-      return
+    if (!this.mounted || !this.popup || !this.element) {
+      return;
     }
 
     let doc = document.documentElement;
@@ -459,316 +431,244 @@ export class Popup extends React.Component<PopupProps, PopupState> {
     $(this.popup).css('min-width', this.props.minWidth || this_width);
     this.props.maxWidth && $(this.popup).css('max-width', this.props.maxWidth);
 
-    if ((Math.abs(popup_height - this.prevH) > 1 || Math.abs(popup_width - this.prevW) > 1) && this.mounted) {
-      setTimeout(this.reposition.bind(this), 1);
-    }
-    else {
-      if (!this.show) {
-        this.show = true;
+    // if ((Math.abs(popup_height - this.prevH) > 1 || Math.abs(popup_width - this.prevW) > 1) && this.mounted) {
+    //   setTimeout(this.reposition.bind(this), 1);
+    // }
+    // else {
+    //   if (!this.show) {
+    //     this.show = true;
 
-        // this.popup.velocity({ translateY: [0, '-0.5rem'] }, { duration: 200, complete: () => {
-        //   this.lock = false;
-        // }, begin: () => {
-        //   this.lock = true;
-        // } });
-      }
-      $(this.popup).addClass('show');
-    }
-
-    this.prevH = popup_height;
-    this.prevW = popup_width;
+    //     // this.popup.velocity({ translateY: [0, '-0.5rem'] }, { duration: 200, complete: () => {
+    //     //   this.lock = false;
+    //     // }, begin: () => {
+    //     //   this.lock = true;
+    //     // } });
+    //   }
+    //   $(this.popup).addClass('show');
+    // }
 
     $(this.popup).offset({top: top, left: left});
+    $(this.popup).addClass('show');
+
+    // this.prevH = popup_height;
+    // this.prevW = popup_width;
   }
 
-  show = false;
+  // handleWrapperInput(e) {
+  //   if (!this.mounted) return;
 
-  prevW: number = 0
-  prevH: number = 0
+  //   if (this.props.openOnInput && !this.refs.portal.state.active && !this.refs.portal.props.isHidden) {
+  //     // e.preventDefault();
+  //     // e.stopPropagation();
+  //     window.clearTimeout(this.state.timer);
+  //     this.state.timer = window.setTimeout(() => {
+  //       if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.openPortal();
+  //     }, this.props.delay);
+  //   }
+  //   else if (this.props.closeOnInput && this.refs.portal.state.active) {
+  //     // e.preventDefault();
+  //     // e.stopPropagation();
+  //     window.clearTimeout(this.state.timer);
+  //     this.state.timer = window.setTimeout(() => {
+  //       if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.closePortal();
+  //     }, this.props.timeout);
+  //   }
+  // }
 
-  handleWrapperInput(e) {
-    if (!this.mounted) return;
+  // handleWrapperClick(e) {
+  //   if (!this.mounted) return;
 
-    if (this.props.openOnInput && !this.refs.portal.state.active && !this.refs.portal.props.isHidden) {
-      // e.preventDefault();
-      // e.stopPropagation();
-      window.clearTimeout(this.state.timer);
-      this.state.timer = window.setTimeout(() => {
-        if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.openPortal();
-      }, this.props.delay);
-    }
-    else if (this.props.closeOnInput && this.refs.portal.state.active) {
-      // e.preventDefault();
-      // e.stopPropagation();
-      window.clearTimeout(this.state.timer);
-      this.state.timer = window.setTimeout(() => {
-        if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.closePortal();
-      }, this.props.timeout);
-    }
-  }
+  //   if (this.props.toggleOnClick && !this.refs.portal.props.isHidden) {
+  //     // e.preventDefault();
+  //     // e.stopPropagation();
+  //     window.clearTimeout(this.state.timer);
+  //     this.state.timer = window.setTimeout(() => {
+  //       if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.togglePortal();
+  //     }, this.props.delay);
+  //   }
+  //   else if (this.props.openOnClick && !this.refs.portal.state.active && !this.refs.portal.props.isHidden) {
+  //     // e.preventDefault();
+  //     // e.stopPropagation();
+  //     window.clearTimeout(this.state.timer);
+  //     this.state.timer = window.setTimeout(() => {
+  //       if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.openPortal();
+  //     }, this.props.delay);
+  //   }
+  //   else if (this.props.closeOnClick && this.refs.portal.state.active) {
+  //     // e.preventDefault();
+  //     // e.stopPropagation();
+  //     window.clearTimeout(this.state.timer);
+  //     this.state.timer = window.setTimeout(() => {
+  //       if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.closePortal();
+  //     }, this.props.timeout);
+  //   }
+  // }
 
-  handleWrapperClick(e) {
-    if (!this.mounted) return;
+  // handleWrapperContextMenu(e) {
+  //   if (!this.mounted) return;
 
-    if (this.props.toggleOnClick && !this.refs.portal.props.isHidden) {
-      // e.preventDefault();
-      // e.stopPropagation();
-      window.clearTimeout(this.state.timer);
-      this.state.timer = window.setTimeout(() => {
-        if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.togglePortal();
-      }, this.props.delay);
-    }
-    else if (this.props.openOnClick && !this.refs.portal.state.active && !this.refs.portal.props.isHidden) {
-      // e.preventDefault();
-      // e.stopPropagation();
-      window.clearTimeout(this.state.timer);
-      this.state.timer = window.setTimeout(() => {
-        if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.openPortal();
-      }, this.props.delay);
-    }
-    else if (this.props.closeOnClick && this.refs.portal.state.active) {
-      // e.preventDefault();
-      // e.stopPropagation();
-      window.clearTimeout(this.state.timer);
-      this.state.timer = window.setTimeout(() => {
-        if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.closePortal();
-      }, this.props.timeout);
-    }
-  }
-
-  handleWrapperContextMenu(e) {
-    if (!this.mounted) return;
-
-    if (this.props.toggleOnContextMenu) {
-      e.preventDefault();
-      e.stopPropagation();
-      window.clearTimeout(this.state.timer);
-      this.state.timer = window.setTimeout(() => {
-        if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.togglePortal();
-      }, this.props.delay);
-    }
-    else if (this.props.openOnContextMenu && !this.refs.portal.state.active) {
-      e.preventDefault();
-      e.stopPropagation();
-      window.clearTimeout(this.state.timer);
-      this.state.timer = window.setTimeout(() => {
-        if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.openPortal();
-      }, this.props.delay);
-    }
-    else if (this.props.closeOnContextMenu && this.refs.portal.state.active) {
-      e.preventDefault();
-      e.stopPropagation();
-      window.clearTimeout(this.state.timer);
-      this.state.timer = window.setTimeout(() => {
-        if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.closePortal();
-      }, this.props.timeout);
-    }
-  }
+  //   if (this.props.toggleOnContextMenu) {
+  //     e.preventDefault();
+  //     e.stopPropagation();
+  //     window.clearTimeout(this.state.timer);
+  //     this.state.timer = window.setTimeout(() => {
+  //       if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.togglePortal();
+  //     }, this.props.delay);
+  //   }
+  //   else if (this.props.openOnContextMenu && !this.refs.portal.state.active) {
+  //     e.preventDefault();
+  //     e.stopPropagation();
+  //     window.clearTimeout(this.state.timer);
+  //     this.state.timer = window.setTimeout(() => {
+  //       if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.openPortal();
+  //     }, this.props.delay);
+  //   }
+  //   else if (this.props.closeOnContextMenu && this.refs.portal.state.active) {
+  //     e.preventDefault();
+  //     e.stopPropagation();
+  //     window.clearTimeout(this.state.timer);
+  //     this.state.timer = window.setTimeout(() => {
+  //       if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.closePortal();
+  //     }, this.props.timeout);
+  //   }
+  // }
 
   handleWrapperOver(e) {
-    if (!this.mounted) return;
+    // if (!this.mounted) return;
 
-    if (this.props.closeOnOutMove) {
-      window.clearTimeout(this.state.timer);
-      this.state.timer = null;
-    }
+    // if (this.props.closeOnOutMove) {
+    //   window.clearTimeout(this.state.timer);
+    //   this.state.timer = null;
+    // }
 
-    if (this.props.openOnOverMove && !this.refs.portal.state.active) {
-      window.clearTimeout(this.state.timer);
-      this.state.timer = window.setTimeout(() => {
-        if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.openPortal();
-      }, this.props.delay);
-    }
+    // if (this.props.openOnOverMove && !this.refs.portal.state.active) {
+    //   window.clearTimeout(this.state.timer);
+    //   this.state.timer = window.setTimeout(() => {
+    //     if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.openPortal();
+    //   }, this.props.delay);
+    // }
   }
 
   handleWrapperOut(e) {
-    if (!this.mounted) return;
+    // if (!this.mounted) return;
 
-    if (this.props.openOnOverMove) {
-      window.clearTimeout(this.state.timer);
-      this.state.timer = null;
-    }
+    // if (this.props.openOnOverMove) {
+    //   window.clearTimeout(this.state.timer);
+    //   this.state.timer = null;
+    // }
 
-    if (this.props.closeOnOutMove && this.refs.portal.state.active) {
-      window.clearTimeout(this.state.timer);
-      this.state.timer = window.setTimeout(() => {
-        if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.closePortal();
-      }, this.props.timeout);
-    }
+    // if (this.props.closeOnOutMove && this.refs.portal.state.active) {
+    //   window.clearTimeout(this.state.timer);
+    //   this.state.timer = window.setTimeout(() => {
+    //     if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.closePortal();
+    //   }, this.props.timeout);
+    // }
   }
 
-  handleWrapperFocus(e) {
-    if (!this.mounted) return;
+  // handleWrapperFocus(e) {
+  //   if (!this.mounted) return;
 
-    if (this.props.openOnFocus && !this.refs.portal.state.active) {
-      window.clearTimeout(this.state.timer);
-      this.state.timer = window.setTimeout(() => {
-        if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.openPortal();
-      }, this.props.delay);
-    }
-  }
+  //   if (this.props.openOnFocus && !this.refs.portal.state.active) {
+  //     window.clearTimeout(this.state.timer);
+  //     this.state.timer = window.setTimeout(() => {
+  //       if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.openPortal();
+  //     }, this.props.delay);
+  //   }
+  // }
 
-  handleWrapperBlur(e) {
-    if (!this.mounted) return;
+  // handleWrapperBlur(e) {
+  //   if (!this.mounted) return;
 
-    if (this.props.closeOnBlur && this.refs.portal.state.active) {
-      window.clearTimeout(this.state.timer);
-      this.state.timer = window.setTimeout(() => {
-        if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.closePortal();
-      }, this.props.delay);
-    }
-  }
+  //   if (this.props.closeOnBlur && this.refs.portal.state.active) {
+  //     window.clearTimeout(this.state.timer);
+  //     this.state.timer = window.setTimeout(() => {
+  //       if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.closePortal();
+  //     }, this.props.delay);
+  //   }
+  // }
 
   handleOutsideClick(e) {
-    if (!this.mounted) return;
+    // if (!this.mounted) return;
 
-    if (this.props.closeOnOutsideClick && this.refs.portal.state.active) {
-      // e.preventDefault();
-      // e.stopPropagation();
-      window.clearTimeout(this.state.timer);
-      this.state.timer = window.setTimeout(() => {
-        this.refs.portal.closePortal();
-      }, this.props.timeout);
-    }
-    else if (this.props.onOutsideClick) {
-      this.props.onOutsideClick(e)
-    }
+    // if (this.props.closeOnOutsideClick && this.refs.portal.state.active) {
+    //   // e.preventDefault();
+    //   // e.stopPropagation();
+    //   window.clearTimeout(this.state.timer);
+    //   this.state.timer = window.setTimeout(() => {
+    //     this.refs.portal.closePortal();
+    //   }, this.props.timeout);
+    // }
+    // else if (this.props.onOutsideClick) {
+    //   this.props.onOutsideClick(e)
+    // }
   }
 
-  hideTimeout
+  componentDidUpdate() {
+    if (this.open && this.mounted) this.reposition();
+  }
 
   render() {
-    let self = this
+    var modifedActiveClassName = this.props.activeClassName + ' open';
 
-    const {
-      level,
-      closeOnEsc,
-      isOpened,
-      isHidden,
-      isGhost,
-      connectionPortal,
-      onElementClick,
-      onElementOver,
-      onElementContextMenu,
-      onElementOut,
-      onElementFocus,
-      onElementBlur,
-      onKeyDown,
-      onOpen,
-      onUpdate,
-      didUpdate,
-      beforeClose,
-      onClose,
-      isModal,
-      style,
-      element,
-      activeClassName,
-
-      children,
-      className,
-      onOutsideClick,
-      closeOnOutsideClick,
-      toggleOnClick,
-      openOnClick,
-      closeOnClick,
-      toggleOnContextMenu,
-      openOnContextMenu,
-      closeOnContextMenu,
-      closeOnOutMove,
-      openOnInput,
-      openOnOverMove,
-      openOnFocus,
-      openOnBlur,
-      closeOnBlur,
-      closeOnOutMovePop,
-      closeOnInput,
-      padding_window,
-      offset,
-      timeout,
-      delay,
-      onShow,
-      positionEl,
-      type,
-      position,
-      minWidth,
-      maxWidth,
-      bodyFixed,
-      ...elementProps
-    } = this.props
-
-    const props = {
-      level,
-      closeOnEsc,
-      isOpened,
-      isHidden,
-      isGhost,
-      connectionPortal,
-      onElementClick,
-      onElementOver,
-      onElementContextMenu,
-      onElementOut,
-      onElementFocus,
-      onElementBlur,
-      onKeyDown,
-      onOpen,
-      didUpdate,
-      beforeClose,
-      onClose,
-      isModal,
-      style,
-      element,
-      activeClassName
+    const consumer = {
+      close: () => {
+        this.open = false;
+        if (this.mounted) this.forceUpdate();
+      },
+      open: () => {
+        this.open = true;
+        if (this.mounted) this.forceUpdate();
+      },
+      reposition: () => {
+        this.reposition();
+      },
+      ref: (ref) => {
+        this.element = ReactDOM.findDOMNode(ref) as Element;
+      }
     }
 
-    var modifedActiveClassName = activeClassName + ' open';
-
-    return (
-      <Portal ref="portal" {...props} elementProps={elementProps} className="popup-back" didUpdate={this.didUpdate.bind(this)} onUpdate={this.refs.portal ? this.refs.portal.update : null} activeClassName={modifedActiveClassName}
-        onOpen={(node) => {
-          if (self.props.onShow) self.props.onShow();
+    return <Provider value={consumer}>
+      {this.props.element(consumer)}
+      <Portal isOpen={this.open} onOpen={node => {
           {/* console.log($(node).find('.popup')); */}
           {/* $(node).velocity("stop");
           $(node).children().velocity("stop"); */}
           if (this.hideTimeout) clearTimeout(this.hideTimeout);
 
-          this.event = this.onScroll.bind(this);
-          window.addEventListener("scroll", this.event);
-          {/* $(node).find('.popup').addClass('show'); */}
-          {/* setImmediate(() => $(node).find('.popup').addClass('show')); */}
-          {/* $(node).velocity({ opacity: [1.0, 0] }, { duration: 200 }); */}
-          // $(node).find('.popup').velocity({ translateY: [0, "-0.5rem"] }, { duration: 200 });
+          // this.scrollEvent = this.onScroll.bind(this);
+          // window.addEventListener("scroll", this.scrollEvent);
+          
+          this.reposition();
+          $(node).find('.popup').addClass('show').velocity({ translateY: [0, "-0.5rem"] }, { duration: 200 });
+
+          // $(node).velocity({ opacity: [1.0, 0] }, { duration: 200 });
+          // $(node).find('.popup');
         }}
-        beforeClose={(node, callback) => {
+        onClose={(node, callback) => {
           // self.props.onClose();
           {/* $(node).children().velocity("stop"); */}
           {/* $(node).velocity("stop"); */}
-          $(node).find('.popup').removeClass('show');
+          $(node).find('.popup').removeClass('show').velocity({ translateY: "-0.5rem" }, { duration: 300 });
 
           if (this.hideTimeout) clearTimeout(this.hideTimeout);
           this.hideTimeout = setTimeout(() => {
-            this.show = false;
             callback();
           }, 300);
 
-          if (this.event) {
-            window.removeEventListener("scroll", this.event);
-          }
+          // if (this.scrollEvent) {
+          //   window.removeEventListener("scroll", this.scrollEvent);
+          // }
+
           {/* $(node).velocity({ opacity: 0.0 }, { duration: 200, complete: _ => {
             callback();
           }}); */}
-        }}
-        onElementInput={this.handleWrapperInput.bind(this)}
-        onElementOut={this.handleWrapperOut.bind(this)}
-        onElementOver={this.handleWrapperOver.bind(this)}
-        onElementFocus={this.handleWrapperFocus.bind(this)}
-        onElementBlur={this.handleWrapperBlur.bind(this)}
-        onElementClick={this.handleWrapperClick.bind(this)}
-        onOutsideClick={closeOnOutsideClick || onOutsideClick ? this.handleOutsideClick.bind(this) : null}
-        onElementContextMenu={this.handleWrapperContextMenu.bind(this)}>
-        <div ref="popup" className={"popup " + (this.props.type ? (this.props.type + " ") : '') + (className || '')} onMouseOver={this.handleWrapperOver.bind(this)} onMouseOut={this.handleWrapperOut.bind(this)}>
-          {children}
+        }}>
+        <div className="popup-back">
+          <div ref={ref => this.popup = ReactDOM.findDOMNode(ref) as Element} className={"popup " + (this.props.type || '')} onMouseOver={this.handleWrapperOver.bind(this)} onMouseOut={this.handleWrapperOut.bind(this)}>
+            {this.props.children}
+          </div>
         </div>
       </Portal>
-    )
+    </Provider>
   }
 }

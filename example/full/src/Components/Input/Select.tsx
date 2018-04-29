@@ -9,118 +9,118 @@ export type SelectType = 'text' | 'password' | 'email';
 
 export const SelectItem = PopupItem;
 
-export class Select extends React.Component<{
-  className?: string
-  placeholder?: string
-  size: SelectSize
-  icon?: string
-  addon?: string
-  disabled?: boolean
-  error?: boolean
-  loading?: boolean
-  init?: boolean
-  initOpen?: boolean
-  filter?: boolean
-  source: (value: string) => Promise<any[]>
-  rows: (data: any[], update?: Function) => any
+// export class Select extends React.Component<{
+//   className?: string
+//   placeholder?: string
+//   size: SelectSize
+//   icon?: string
+//   addon?: string
+//   disabled?: boolean
+//   error?: boolean
+//   loading?: boolean
+//   init?: boolean
+//   initOpen?: boolean
+//   filter?: boolean
+//   source: (value: string) => Promise<any[]>
+//   rows: (data: any[], update?: Function) => any
 
-  level?: number
-}, {
-  data: any[]
-  value: string
-}> {
-  state = {
-    data: [],
-    value: ''
-  }
+//   level?: number
+// }, {
+//   data: any[]
+//   value: string
+// }> {
+//   state = {
+//     data: [],
+//     value: ''
+//   }
 
-  loading: boolean = false
-  needToLoad: boolean = false
-  mounted: boolean = false
+//   loading: boolean = false
+//   needToLoad: boolean = false
+//   mounted: boolean = false
 
-  componentDidMount() {
-    this.mounted = true;
-    if (this.props.init) {
-      this.update();
-    }
-  }
+//   componentDidMount() {
+//     this.mounted = true;
+//     if (this.props.init) {
+//       this.update();
+//     }
+//   }
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
+//   componentWillUnmount() {
+//     this.mounted = false;
+//   }
 
-  async update() {
-    if (this.mounted) {
-      if (!this.loading) {
-        this.loading = true;
-        this.forceUpdate();
-        let data = await this.props.source(this.state.value);
-        if (this.mounted) {
-          if (this.needToLoad) {
-            this.loading = false;
-            this.needToLoad = false;
-            await this.update();
-          }
-          else {
-            this.loading = false;
-            this.state.data = data;
-            this.forceUpdate();
-          }
-        }
-      }
-      else {
-        this.needToLoad = true;
-      }
-    }
-  }
+//   async update() {
+//     if (this.mounted) {
+//       if (!this.loading) {
+//         this.loading = true;
+//         this.forceUpdate();
+//         let data = await this.props.source(this.state.value);
+//         if (this.mounted) {
+//           if (this.needToLoad) {
+//             this.loading = false;
+//             this.needToLoad = false;
+//             await this.update();
+//           }
+//           else {
+//             this.loading = false;
+//             this.state.data = data;
+//             this.forceUpdate();
+//           }
+//         }
+//       }
+//       else {
+//         this.needToLoad = true;
+//       }
+//     }
+//   }
 
-  render() {
-    const {
-      className,
-      placeholder,
-      size,
-      icon,
-      addon,
-      disabled,
-      error,
-      loading,
-      init,
-      filter,
-      source,
-      rows,
-      initOpen,
-      ...props
-    } = this.props;
+//   render() {
+//     const {
+//       className,
+//       placeholder,
+//       size,
+//       icon,
+//       addon,
+//       disabled,
+//       error,
+//       loading,
+//       init,
+//       filter,
+//       source,
+//       rows,
+//       initOpen,
+//       ...props
+//     } = this.props;
 
-    let rowsRender = this.props.rows(this.state.data, this.update.bind(this));
+//     let rowsRender = this.props.rows(this.state.data, this.update.bind(this));
 
-    let content = <div className={"item"}>Nothing to show</div>;
-    if (this.loading) content = <div className={"item loading"}>Loading...</div>;
-    if (rowsRender && rowsRender.length > 0) content = rowsRender;
+//     let content = <div className={"item"}>Nothing to show</div>;
+//     if (this.loading) content = <div className={"item loading"}>Loading...</div>;
+//     if (rowsRender && rowsRender.length > 0) content = rowsRender;
 
-    return (
-      <Popup {...props} activeClassName="form-row-parent-open" type="select" position="bottom center" isHidden={this.props.disabled} element={
-        <div className={"form-row pointer " + (this.props.className || '') + " form-row-" + this.props.size + (this.props.disabled ? ' disabled' : '') + (this.props.error ? ' error' : '')}>
-          {this.props.icon ? <Icon name={this.props.icon} className="item text subsub pl-3 pr-3" style={{width: '1px'}}/> : null}
-          <span className="selecting">
-            <span className="placeholder">{this.props.placeholder || ''}</span>
-            {this.props.children}
-          </span>
-          <span className="next"/>
-        </div>} openOnFocus openOnClick closeOnOutsideClick closeOnBlur onShow={() => {
-          if (this.props.initOpen) {
-            this.update();
-          }
-        }}>
-        <PopupInput help="Type to find" className={this.props.loading || this.loading ? ' loading' : ''} placeholder="Search" value={this.state.value || ''} onChange={e => {
-          this.state.value = e.target.value;
-          this.forceUpdate();
-          this.update();
-        }}/>
-        <PopupScroll>
-          {content}
-        </PopupScroll>
-      </Popup>
-    )
-  }
-}
+//     return (
+//       <Popup {...props} activeClassName="form-row-parent-open" type="select" position="bottom center" isHidden={this.props.disabled} element={
+//         <div className={"form-row pointer " + (this.props.className || '') + " form-row-" + this.props.size + (this.props.disabled ? ' disabled' : '') + (this.props.error ? ' error' : '')}>
+//           {this.props.icon ? <Icon name={this.props.icon} className="item text subsub pl-3 pr-3" style={{width: '1px'}}/> : null}
+//           <span className="selecting">
+//             <span className="placeholder">{this.props.placeholder || ''}</span>
+//             {this.props.children}
+//           </span>
+//           <span className="next"/>
+//         </div>} openOnFocus openOnClick closeOnOutsideClick closeOnBlur onShow={() => {
+//           if (this.props.initOpen) {
+//             this.update();
+//           }
+//         }}>
+//         <PopupInput help="Type to find" className={this.props.loading || this.loading ? ' loading' : ''} placeholder="Search" value={this.state.value || ''} onChange={e => {
+//           this.state.value = e.target.value;
+//           this.forceUpdate();
+//           this.update();
+//         }}/>
+//         <PopupScroll>
+//           {content}
+//         </PopupScroll>
+//       </Popup>
+//     )
+//   }
+// }

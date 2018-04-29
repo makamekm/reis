@@ -87,6 +87,8 @@ export function Route(path: string, render: (data: {
     route.render = render;
 
     Routes.push(route);
+
+    return target;
   }
 }
 

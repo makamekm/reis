@@ -4,6 +4,8 @@ import * as ApolloReact from 'react-apollo';
 import { Helmet as _Helmet } from "react-helmet";
 const Helmet: any = _Helmet;
 import * as StackTraceParser from 'stacktrace-parser';
+import { Context } from 'create-react-context';
+import * as createContext from 'create-react-context';
 
 import * as Translation from 'reiso/Modules/Translation';
 import * as Router from 'reiso/Modules/Router';
@@ -13,9 +15,26 @@ import { LanguageForEach, LanguageCode } from '~/Modules/Language/Enum/Language'
 import * as ModalComponent from '~/Components/Modal';
 import * as UserReducer from '~/Modules/Authentication/Reducer/User';
 import { Notification } from '~/Modules/Notification/View/Notification';
-import { ModalService } from '~/Modules/Notification/View/ModalService';
 
 import * as Header from '../Reducer/Header';
+
+export const { Provider, Consumer }: Context<{
+  client: any
+  store: any
+  auth: any
+  // modals: {
+  //   push: (modal: ModalComponent.ModalProps) => void
+  //   remove: (modal: ModalComponent.ModalProps) => void
+  //   update: (modal?: ModalComponent.ModalProps) => void
+  // }
+  forceUpdate: Function
+  language: Function
+  trans: (query: string, ...args: string[]) => string
+  getPath: Function
+  go: Function
+  isPath: Function
+  loadingTheme: Function
+}> = (createContext as any)(null);
 
 function createCookie(name, value, days) {
   var expires = "";
@@ -65,26 +84,29 @@ export class Html extends React.Component<StateProps & DispatchProps & {
 
   refs: any
 
-  static childContextTypes: React.ValidationMap<any> = {
-    client: PropTypes.object,
-    store: PropTypes.object,
-    auth: PropTypes.object,
-    application: PropTypes.object,
-    modals: PropTypes.object,
-    forceUpdate: PropTypes.func,
-    language: PropTypes.func,
-    trans: PropTypes.func,
-    getPath: PropTypes.func,
-    go: PropTypes.func,
-    isPath: PropTypes.func,
-    loadingTheme: PropTypes.func,
-  }
+  // static childContextTypes: React.ValidationMap<any> = {
+  //   client: PropTypes.object,
+  //   store: PropTypes.object,
+  //   auth: PropTypes.object,
+  //   modals: PropTypes.object,
+  //   forceUpdate: PropTypes.func,
+  //   language: PropTypes.func,
+  //   trans: PropTypes.func,
+  //   getPath: PropTypes.func,
+  //   go: PropTypes.func,
+  //   isPath: PropTypes.func,
+  //   loadingTheme: PropTypes.func,
+  // }
 
   state = {
     modals: []
   }
 
-  getChildContext() {
+  // getChildContext() {
+  //   return 
+  // }
+
+  getContext() {
     return {
       client: this.props.client,
       store: this.props.store,
@@ -209,20 +231,20 @@ export class Html extends React.Component<StateProps & DispatchProps & {
           return res;
         }
       },
-      modals: {
-        push: (modal: ModalComponent.ModalProps) => {
-          this.state.modals.push(modal);
-          this.refs.modalService && this.refs.modalService.update();
-        },
-        remove: (modal: ModalComponent.ModalProps) => {
-          this.state.modals.splice(this.state.modals.indexOf(modal), 1);
-          this.refs.modalService && this.refs.modalService.update();
-        },
-        update: (modal?: ModalComponent.ModalProps): void => {
-          if (modal) this.state.modals = this.state.modals.map(function(item) { return item.key == modal.key ? modal : item; });
-          this.refs.modalService && this.refs.modalService.update();
-        }
-      },
+      // modals: {
+      //   push: (modal: ModalComponent.ModalProps) => {
+      //     this.state.modals.push(modal);
+      //     this.refs.modalService && this.refs.modalService.update();
+      //   },
+      //   remove: (modal: ModalComponent.ModalProps) => {
+      //     this.state.modals.splice(this.state.modals.indexOf(modal), 1);
+      //     this.refs.modalService && this.refs.modalService.update();
+      //   },
+      //   update: (modal?: ModalComponent.ModalProps): void => {
+      //     if (modal) this.state.modals = this.state.modals.map(function(item) { return item.key == modal.key ? modal : item; });
+      //     this.refs.modalService && this.refs.modalService.update();
+      //   }
+      // },
       forceUpdate: () => this.forceUpdate(),
       language: () => process.env.MODE == "server" ? this.props.language : Translation.getLanguage(),
       trans: (query: string, ...args: string[]): string => {
@@ -340,84 +362,70 @@ export class Html extends React.Component<StateProps & DispatchProps & {
   }
 
   render() {
-    return [
-      (
-        <div style={{flex: '1 1 auto'}} key="routers">
-          {this.props.children}
-        </div>
-      ),
-      (
-        <div className="block block-2" style={{flex: '0 1 auto'}} key="footer">
-          <div className="row align-items-center" style={{maxWidth: '100%', width: '100%'}}>
-            <div className="col-12 col-md-3 text center mt-4">
-              <div className="text big sub">Cypto Board</div>
-              <div className="text subsubsub">We help you watch exchanges</div>
-            </div>
-            <div className="col-12 col-md-3 text center mt-4">
-              <div className="text sub">Links</div>
-              <div className="text subsub mt-2">
-                <div className="mt-1">
-                  <a href="/feedback" className="text link"><span className="fa fa-mail-forward mr-2"/>Feedback</a>
-                </div>
-                <div className="mt-1 mt-1">
-                  <a href="/advertising" className="text link"><span className="fa fa-shopping-cart mr-2"/>Advertising</a>
-                </div>
+    return <Provider value={this.getContext()}>
+      <div style={{flex: '1 1 auto'}} key="routers">
+        {this.props.children}
+      </div>
+      <div className="block block-2" style={{flex: '0 1 auto'}} key="footer">
+        <div className="row align-items-center" style={{maxWidth: '100%', width: '100%'}}>
+          <div className="col-12 col-md-3 text center mt-4">
+            <div className="text big sub">Cypto Board</div>
+            <div className="text subsubsub">We help you watch exchanges</div>
+          </div>
+          <div className="col-12 col-md-3 text center mt-4">
+            <div className="text sub">Links</div>
+            <div className="text subsub mt-2">
+              <div className="mt-1">
+                <a href="/feedback" className="text link"><span className="fa fa-mail-forward mr-2"/>Feedback</a>
               </div>
-            </div>
-            <div className="col-12 col-md-3 text center mt-4">
-              <div className="text sub"><span className="fa fa-heartbeat mr-2"/>Support us</div>
-              <div className="text subsub mt-2">
-                <div className="text wrap">BTC: 12XagkcShrC6hMG19R7UcxMtZZtpkJ5czz</div>
-                <div className="text wrap mt-1">ETH: 0xd7b66b3dd9859c6411b696991c9158d1398f77ec</div>
-                <div className="text wrap mt-1">Litecoin: LgBz4Y5oiNcdiNhjiFyWbkyWZcXxcJmfR3</div>
-              </div>
-            </div>
-            <div className="col-12 col-md-3 text center mt-4">
-              <div className="text sub">
-                Our contacts
-              </div>
-              <div className="text subsub mt-2">
-                <div className="mt-1">
-                  <a href="mailto:support@cryptoboard.com" className="text link"><span className="fa fa-inbox mr-2"/>Email</a>
-                </div>
-                <div className="mt-1">
-                  <a href="https://t.me/joinchat/DB-eGRBp2WrlojZbZssTjQ" className="text link"><span className="fa fa-telegram mr-2"/>Telegram</a>
-                </div>
-                <div className="mt-1">
-                  <a href="https://twitter.com/Strymexofficial" className="text link"><span className="fa fa-twitter mr-2"/>Twitter</a>
-                </div>
-                <div className="mt-1">
-                  <a href="https://www.facebook.com/Strymex/" className="text link"><span className="fa fa-facebook mr-2"/>Facebook</a>
-                </div>
+              <div className="mt-1 mt-1">
+                <a href="/advertising" className="text link"><span className="fa fa-shopping-cart mr-2"/>Advertising</a>
               </div>
             </div>
           </div>
-          <div className="block block-1 text subsub center mt-4 pt-2 pb-2">
-            Copyright 2017 by Karpov
+          <div className="col-12 col-md-3 text center mt-4">
+            <div className="text sub"><span className="fa fa-heartbeat mr-2"/>Support us</div>
+            <div className="text subsub mt-2">
+              <div className="text wrap">BTC: 12XagkcShrC6hMG19R7UcxMtZZtpkJ5czz</div>
+              <div className="text wrap mt-1">ETH: 0xd7b66b3dd9859c6411b696991c9158d1398f77ec</div>
+              <div className="text wrap mt-1">Litecoin: LgBz4Y5oiNcdiNhjiFyWbkyWZcXxcJmfR3</div>
+            </div>
+          </div>
+          <div className="col-12 col-md-3 text center mt-4">
+            <div className="text sub">
+              Our contacts
+            </div>
+            <div className="text subsub mt-2">
+              <div className="mt-1">
+                <a href="mailto:support@cryptoboard.com" className="text link"><span className="fa fa-inbox mr-2"/>Email</a>
+              </div>
+              <div className="mt-1">
+                <a href="https://t.me/joinchat/DB-eGRBp2WrlojZbZssTjQ" className="text link"><span className="fa fa-telegram mr-2"/>Telegram</a>
+              </div>
+              <div className="mt-1">
+                <a href="https://twitter.com/Strymexofficial" className="text link"><span className="fa fa-twitter mr-2"/>Twitter</a>
+              </div>
+              <div className="mt-1">
+                <a href="https://www.facebook.com/Strymex/" className="text link"><span className="fa fa-facebook mr-2"/>Facebook</a>
+              </div>
+            </div>
           </div>
         </div>
-      ),
-      (
-        <Helmet key="helmet">
-          <title>{this.props.title}</title>
-          {/* <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet"/> */}
-          <link href="/index.css" rel="stylesheet" media="screen"/>
-          {(this.loading && this.prevTheme) && <link href={'/' + this.prevTheme + '.css'} rel="stylesheet" media="screen"/>}
-          <link href={'/' + this.props.theme + '.css'} rel="stylesheet" media="screen"/>
-          <link rel="icon" href="/images/icon.svg" type="image/svg"/>
-          <link rel="shortcut" href="/images/icon.ico" type="image/x-icon"/>
-          <body/>
-        </Helmet>
-      ),
-      (
-        <Notification ref="notificationService" key="notifications"/>
-      ),
-      (
-        <ModalService ref="modalService" modals={this.state.modals} key="modals" removeModal={modal => {
-          this.state.modals.splice(this.state.modals.indexOf(modal), 1);
-          this.refs.modalService && this.refs.modalService.update();
-        }}/>
-      )
-    ]
+        <div className="block block-1 text subsub center mt-4 pt-2 pb-2">
+          Copyright 2017 by Karpov
+        </div>
+      </div>
+      <Helmet key="helmet">
+        <title>{this.props.title}</title>
+        {/* <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet"/> */}
+        <link href="/index.css" rel="stylesheet" media="screen"/>
+        {(this.loading && this.prevTheme) && <link href={'/' + this.prevTheme + '.css'} rel="stylesheet" media="screen"/>}
+        <link href={'/' + this.props.theme + '.css'} rel="stylesheet" media="screen"/>
+        <link rel="icon" href="/images/icon.svg" type="image/svg"/>
+        <link rel="shortcut" href="/images/icon.ico" type="image/x-icon"/>
+        <body/>
+      </Helmet>
+      <Notification ref="notificationService" key="notifications"/>
+    </Provider>
   }
 }

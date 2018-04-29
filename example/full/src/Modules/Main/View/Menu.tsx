@@ -11,18 +11,20 @@ import * as UserReducer from '~/Modules/Authentication/Reducer/User';
 import { Language, CodeFlag, LanguageForEach, LanguageStringify, LanguageCode, CodeLanguage } from '~/Modules/Language/Enum/Language';
 import { AdminRule } from '~/Modules/Authentication/Enum/AdminRule';
 import { Theme, ThemeStringify } from '~/Modules/Main/Enum/Theme';
-import { Modal } from '~/Components/Modal';
+import { Modal, Consumer as ModalConsumer } from '~/Components/Modal';
 import { Popup, PopupItem, PopupScroll, PopupInput, PopupLink, PopupHeader } from '~/Components/Popup';
 import { Icon } from '~/Components/Icon';
 import { Clickable } from '~/Components/Clickable';
 import { Button } from '~/Components/Button';
-import { InputForm } from '~/Components/Form';
+// import { InputForm } from '~/Components/Form';
 import { Img } from '~/Components/Img';
-import { Menu as MenuRaw, MenuSpace, MenuLink, MenuHeader, MenuItem, MenuDivider, MenuDrop, MenuGroup, MenuInput } from '~/Components/Menu';
+import { Menu as MenuRaw, MenuSpace, MenuLink, MenuHeader, MenuItem, MenuDivider, MenuGroup, MenuInput, MenuDrop } from '~/Components/Menu';
 
 import { LoginForm } from './Auth/LoginForm';
 import { RegistrationForm } from './Auth/RegistrationForm';
 import * as Header from '../Reducer/Header';
+
+import { Consumer } from './Html';
 
 export interface StateProps {
   isDesktop?: boolean
@@ -54,24 +56,7 @@ export class Menu extends React.Component<{
   match?: any
   user?: UserReducer.ConnectUserInterface
 } & StateProps & DispatchProps> {
-  context: {
-    auth: any
-    language: Function
-    trans: Function
-    loadingTheme: Function
-    go: Function
-  }
-
-  static contextTypes: React.ValidationMap<any> = {
-    auth: PropTypes.object.isRequired,
-    language: PropTypes.func.isRequired,
-    trans: PropTypes.func.isRequired,
-    loadingTheme: PropTypes.func.isRequired,
-    go: PropTypes.func.isRequired,
-  }
-
   searching: boolean = false
-
   isSticky: boolean = false
   event: any
 
@@ -165,115 +150,115 @@ export class Menu extends React.Component<{
   }
 
   render() {
-    let langItems = Translation.getLanguages().map(code => {
-      let active = this.context.language() == code;
+    return <Consumer>
+      {context => {
+        let langItems = Translation.getLanguages().map(code => {
+          let active = context.language() == code;
 
-      return (
-        <PopupItem key={code} active={active} type="a" href={this.getLanguageUrl(code)} onClick={e => {
-          this.setLanguage(code);
-        }}>
-          {LanguageStringify(CodeLanguage(code))}
-        </PopupItem>
-      )
-    });
-
-    let themes = [
-      (
-        <PopupItem key={'dark'} active={this.props.theme == 'dark'} onClick={e => {
-          this.props.setTheme('dark');
-        }}>
-          {this.context.trans("Main.Theme." + ThemeStringify('dark'))}
-        </PopupItem>
-      ),
-      (
-        <PopupItem key={'light'} active={this.props.theme == 'light'} onClick={e => {
-          this.props.setTheme('light');
-        }}>
-          {this.context.trans("Main.Theme." + ThemeStringify('light'))}
-        </PopupItem>
-      )
-    ];
-
-    return (
-      <MenuRaw sticky={this.props.sticky}>
-        {/* <MenuHeader id="logoHeader" image={(this.isSticky || !this.props.sticky) ? burdSvg : null}/> */}
-        {<MenuLink icon="home" to="/screener" relative>
-          Screener
-        </MenuLink>}
-        {<MenuLink icon="home" to="/table" relative>
-          Table
-        </MenuLink>}
-        {this.props.isDesktop && this.props.user.entity && <MenuLink icon="home" to="/desks">
-          Desks
-        </MenuLink>}
-        {this.props.isDesktop && this.props.user.entity && <MenuLink icon="home" to="/feedback">
-          Feedback
-        </MenuLink>}
-        {this.props.isDesktop && this.searching && <MenuInput className="space"/>}
-        {this.props.isDesktop && !this.searching &&
-        <MenuItem icon="search" onClick={async e => {
-          this.searching = true;
-          this.forceUpdate();
-          setTimeout(() => {
-            $('#searching').focus();
-          }, 50);
-        }}>
-          Search
-        </MenuItem>}
-        {this.props.isDesktop && <MenuSpace/>}
-        {!this.props.user.entity && <MenuDrop flag={CodeFlag(this.context.language())}>
-          {langItems}
-        </MenuDrop>}
-        {this.props.isDesktop && !this.props.user.entity && <MenuDrop className={this.context.loadingTheme() ? 'loading' : ''} text={this.context.trans("Main.Theme." + ThemeStringify(this.props.theme))}>
-          {themes}
-        </MenuDrop>}
-        {!this.props.user.entity && <Modal size="small" element={
-          <MenuItem icon="sign-in">
-            Sign in
-          </MenuItem>
-        } closeOnEsc openOnClick closeOnOutsideClick>
-          <LoginForm/>
-        </Modal>}
-        {!this.props.user.entity && <Modal size="medium" element={
-          <MenuItem icon="user-plus">
-            Sign up
-          </MenuItem>
-        } closeOnEsc openOnClick>
-          <RegistrationForm/>
-        </Modal>}
-        {!!this.props.user.entity && <MenuGroup>
-          {this.props.isDesktop && <MenuDrop className={this.context.loadingTheme() ? 'loading' : ''} text={this.context.trans("Main.Theme." + ThemeStringify(this.props.theme))}>
-            {themes}
-          </MenuDrop>}
-          {this.props.isDesktop && <MenuDivider/>}
-          {<MenuDrop flag={CodeFlag(this.context.language())}>
-            {langItems}
-          </MenuDrop>}
-          {<MenuDivider/>}
-          {this.props.isDesktop && false && <MenuItem icon="commenting"/>}
-          {this.props.isDesktop && <MenuDivider/>}
-          <MenuDrop minWidth="10rem" icon="user" position="bottom left">
-            <PopupHeader>
-              <span>
-                <Img className="profile-img nano ml-2" url={this.props.user.entity.avatar}src="/images/avatar-empty.png"/>
-                <span className="ml-2">{this.props.user.entity.username}</span>
-              </span>
-            </PopupHeader>
-            <PopupLink icon="user" to="/profile">
-              Profile
-            </PopupLink>
-            <PopupItem icon="sign-out" onClick={async e => {
-                try {
-                  await this.context.auth.logout();
-                  location.href = location.href;
-                }
-                catch (e) {}
-              }}>
-              Logout
+          return (
+            <PopupItem key={code} active={active} type="a" href={this.getLanguageUrl(code)} onClick={e => {
+              this.setLanguage(code);
+            }}>
+              {LanguageStringify(CodeLanguage(code))}
             </PopupItem>
-          </MenuDrop>
-        </MenuGroup>}
-      </MenuRaw>
-    )
+          )
+        });
+
+        let themes = [
+          (
+            <PopupItem key={'dark'} active={this.props.theme == 'dark'} onClick={e => {
+              this.props.setTheme('dark');
+            }}>
+              {context.trans("Main.Theme." + ThemeStringify('dark'))}
+            </PopupItem>
+          ),
+          (
+            <PopupItem key={'light'} active={this.props.theme == 'light'} onClick={e => {
+              this.props.setTheme('light');
+            }}>
+              {context.trans("Main.Theme." + ThemeStringify('light'))}
+            </PopupItem>
+          )
+        ];
+
+        return (
+          <MenuRaw sticky={this.props.sticky}>
+            {/* <MenuHeader id="logoHeader" image={(this.isSticky || !this.props.sticky) ? burdSvg : null}/> */}
+            {<MenuLink icon="home" to="/screener" relative>
+              Screener
+            </MenuLink>}
+            {<MenuLink icon="home" to="/table" relative>
+              Table
+            </MenuLink>}
+            {this.props.isDesktop && this.props.user.entity && <MenuLink icon="home" to="/desks">
+              Desks
+            </MenuLink>}
+            {this.props.isDesktop && this.props.user.entity && <MenuLink icon="home" to="/feedback">
+              Feedback
+            </MenuLink>}
+            {this.props.isDesktop && this.searching && <MenuInput className="space"/>}
+            {this.props.isDesktop && !this.searching &&
+            <MenuItem icon="search" onClick={async e => {
+              this.searching = true;
+              this.forceUpdate();
+              setTimeout(() => {
+                $('#searching').focus();
+              }, 50);
+            }}>
+              Search
+            </MenuItem>}
+            {this.props.isDesktop && <MenuSpace/>}
+            {!this.props.user.entity && <MenuDrop text={CodeFlag(context.language()).toUpperCase()}>
+              {langItems}
+            </MenuDrop>}
+            {this.props.isDesktop && !this.props.user.entity && <MenuDrop className={context.loadingTheme() ? 'loading' : ''} text={context.trans("Main.Theme." + ThemeStringify(this.props.theme))}>
+              {themes}
+            </MenuDrop>}
+            {!this.props.user.entity && <LoginForm>
+              {modal => <MenuItem icon="sign-in" onClick={async () => modal.open()}>
+                Sign in
+              </MenuItem>}
+            </LoginForm>}
+            {!this.props.user.entity && <RegistrationForm>
+              {modal => <MenuItem icon="user-plus" onClick={async () => modal.open()}>
+                Sign up
+              </MenuItem>}
+            </RegistrationForm>}
+            {!!this.props.user.entity && <MenuGroup>
+              {this.props.isDesktop && <MenuDrop className={context.loadingTheme() ? 'loading' : ''} text={context.trans("Main.Theme." + ThemeStringify(this.props.theme))}>
+                {themes}
+              </MenuDrop>}
+              {this.props.isDesktop && <MenuDivider/>}
+              {<MenuDrop flag={CodeFlag(context.language())}>
+                {langItems}
+              </MenuDrop>}
+              {<MenuDivider/>}
+              {this.props.isDesktop && false && <MenuItem icon="commenting"/>}
+              {this.props.isDesktop && <MenuDivider/>}
+              <MenuDrop minWidth="10rem" icon="user" position="bottom left">
+                <PopupHeader>
+                  <span>
+                    <Img className="profile-img nano ml-2" url={this.props.user.entity.avatar}src="/images/avatar-empty.png"/>
+                    <span className="ml-2">{this.props.user.entity.username}</span>
+                  </span>
+                </PopupHeader>
+                <PopupLink icon="user" to="/profile">
+                  Profile
+                </PopupLink>
+                <PopupItem icon="sign-out" onClick={async e => {
+                    try {
+                      await context.auth.logout();
+                      location.href = location.href;
+                    }
+                    catch (e) {}
+                  }}>
+                  Logout
+                </PopupItem>
+              </MenuDrop>
+            </MenuGroup>}
+          </MenuRaw>
+        )
+      }}
+    </Consumer>
   }
 }

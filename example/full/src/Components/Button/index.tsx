@@ -11,7 +11,7 @@ export class Button extends React.Component<{
     type?: ButtonType
     disabled?: boolean
     unactive?: boolean
-    onClick?(e?: React.MouseEvent<HTMLDivElement>): (Promise<void> | void)
+    onClick?(e?: React.MouseEvent<HTMLDivElement>): Promise<void> | void
     elementType?: any
     style?: React.CSSProperties
 } & ClickableProps, {}> {

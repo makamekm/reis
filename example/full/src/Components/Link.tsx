@@ -1,9 +1,10 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 
+import { Consumer } from '~/Modules/Main/View/Html';
 import { Button } from './Button';
 
-export class Link extends React.Component<{
+export const Link = (props: {
   to: string
   activeClassName?: string
   className?: string
@@ -12,43 +13,33 @@ export class Link extends React.Component<{
   children?: any
   relative?: boolean
   style?: React.CSSProperties
-}> {
-  context: {
-    getPath: Function
-    go: Function
-    isPath: Function
-  }
+}) => {
+  return <Consumer>
+    {context => {
+      let active = context.isPath(props.to, props.relative);
 
-  static contextTypes: React.ValidationMap<any> = {
-    getPath: PropTypes.func.isRequired,
-    go: PropTypes.func.isRequired,
-    isPath: PropTypes.func.isRequired
-  }
+      if (props.component == 'Button') {
+        return (
+          <Button elementType="a" style={props.style} href={context.getPath(props.to)} disabled={active} className={props.className + (active ? (' ' + props.activeClassName) : '')} onClick={async e => {
+            e.preventDefault();
+            context.go(props.to);
+          }}>
+            {props.children}
+          </Button>
+        )
+      }
+      else {
+        const Component = props.component || 'a';
 
-  render() {
-    let active = this.context.isPath(this.props.to, this.props.relative);
-
-    if (this.props.component == 'Button') {
-      return (
-        <Button elementType="a" style={this.props.style} href={this.context.getPath(this.props.to)} disabled={active} className={this.props.className + (active ? (' ' + this.props.activeClassName) : '')} onClick={async e => {
-          e.preventDefault();
-          this.context.go(this.props.to);
-        }}>
-          {this.props.children}
-        </Button>
-      )
-    }
-    else {
-      const Component = this.props.component || 'a';
-
-      return (
-        <Component href={this.context.getPath(this.props.to)} style={this.props.style} className={active ? (this.props.className + ' ' + this.props.activeClassName) : this.props.className} onClick={e => {
-          e.preventDefault()
-          this.context.go(this.props.to);
-        }}>
-          {this.props.children}
-        </Component>
-      )
-    }
-  }
+        return (
+          <Component href={context.getPath(props.to)} style={props.style} className={active ? (props.className + ' ' + props.activeClassName) : props.className} onClick={e => {
+            e.preventDefault()
+            context.go(props.to);
+          }}>
+            {props.children}
+          </Component>
+        )
+      }
+    }}
+  </Consumer>
 }
