@@ -5,7 +5,7 @@ import { Context } from 'create-react-context';
 import * as createContext from 'create-react-context';
 
 import { Transition } from '../Animation';
-import { Portal } from '../Private/Portal';
+import { Portal, Consumer as PortalConsumer } from '../Private/Portal';
 import { Clickable } from '../Clickable';
 import { Icon } from '../Icon';
 import { Link } from '../Link';
@@ -110,6 +110,11 @@ export class PopupProps {
   onOpen?: (node: HTMLElement) => void
   onClose?: (node: HTMLElement, callback: () => void) => void
 
+  openOnOverMove?: boolean
+  closeOnOutMove?: boolean
+  closeOnOutClick?: boolean
+  closeOnEsc?: boolean
+
   element: (popup: ConsumerType) => any
   padding_window?: number = 10
   offset?: number = 5
@@ -124,92 +129,82 @@ export class PopupProps {
 
 export class Popup extends React.Component<PopupProps> {
 
-  // mounted: boolean = false
-
-  // refs: {
-  //   [key: string]: any;
-  //   popup: HTMLElement;
-  // }
-
   public static defaultProps = new PopupProps()
   scrollEvent: any
   timeout: any
   hideTimeout: any
   open: boolean = false
   mounted: boolean = false
-  toObserve = {childList: true, attributes: true, subtree: true, attributeOldValue: true, attributeFilter: ['class', 'style']}
-  mutationObserver: MutationObserver
 
   popup: Element
   element: Element
 
   componentDidMount() {
     this.mounted = true;
+
+    this.handleOutMouseClick = this.handleOutMouseClick.bind(this);
+    this.handleKeydown = this.handleKeydown.bind(this);
+    this.onResize = this.onResize.bind(this);
+    this.onScroll = this.onScroll.bind(this);
+
+    if (this.props.closeOnEsc) {
+      document.addEventListener('keydown', this.handleKeydown);
+    }
+
+    if (this.props.closeOnOutClick) {
+      document.addEventListener('mousedown', this.handleOutMouseClick);
+      document.addEventListener('touchstart', this.handleOutMouseClick);
+    }
+
+    $(window).on('resize', this.onResize);
+    window.addEventListener("scroll", this.onScroll);
   }
 
   componentWillUnmount() {
     this.mounted = false;
+
+    if (this.props.closeOnEsc) {
+      document.removeEventListener('keydown', this.handleKeydown);
+    }
+
+    if (this.props.closeOnOutClick) {
+      document.removeEventListener('mousedown', this.handleOutMouseClick);
+      document.removeEventListener('touchstart', this.handleOutMouseClick);
+    }
+
+    $(window).off('resize', this.onResize);
+    window.removeEventListener("scroll", this.onScroll);
   }
 
-  // onScroll(e) {
-  //   // if (this.element && this.elementOrParentIsFixed(this.element)) {
-  //     this.reposition();
-  //   // }
-  // }
+  onResize(e) {
+    this.reposition();
+  }
 
-  // componentWillMount() {
-  //   if (process.env.MODE == "client") this.mutationObserver = new MutationObserver((mutationRecords) => {
-  //     $.each(mutationRecords, (index, mutationRecord) => {
-  //       if (mutationRecord.type === 'childList') {
-  //         if (mutationRecord.addedNodes.length > 0) {
-  //           //DOM node added, do something
-  //           this.reposition();
-  //         }
-  //         else if (mutationRecord.removedNodes.length > 0) {
-  //           //DOM node removed, do something
-  //           this.reposition();
-  //         }
-  //       }
-  //       else if (mutationRecord.type === 'attributes') {
-  //         if (mutationRecord.attributeName === 'class') {
-  //           //class changed, do something
-  //           this.reposition();
-  //         }
-  //       }
-  //     });
-  //   });
-  // }
+  handleKeydown(e) {
+    if (e.keyCode === 27) {
+      if (!this.open) return;
+      if (this.popup === e.target || $(this.popup).find(e.target)[0]) return;
+      if ($(e.target).parents().index(this.popup.parentElement.parentElement) < 0 && this.popup.parentElement.parentElement === $(document.body).children().filter('div').last()[0]) {
+        this.open = false;
+        this.forceUpdate();
+      }
+    }
+  }
 
-  // closePortal() {
-  //   if (this.refs.portal) {
-  //     this.refs.portal.closePortal();
-  //   }
-  // }
+  handleOutMouseClick(e) {
+    if (!this.open) return;
+    if (this.popup === e.target || $(this.popup).find(e.target)[0]) return;
+    if ($(e.target).parents().index(this.popup.parentElement.parentElement) < 0 && this.popup.parentElement.parentElement === $(document.body).children().filter('div').last()[0]) {
+      this.open = false;
+      this.forceUpdate();
+    }
+  }
 
-  // openPortal() {
-  //   if (this.refs.portal) {
-  //     this.refs.portal.openPortal();
-  //   }
-  // }
-
-  // lock = false
-  // prevW: number = 0
-  // prevH: number = 0
-
-  // didUpdate(popupNode, elementNode) {
-    // if (this.mutationObserver && this.popup) {
-    //   this.mutationObserver.disconnect();
-    // }
-
-    // this.popup = ReactDOM.findDOMNode(this.refs.popup) as Element;
-    // this.element = elementNode;
-
-    // this.reposition();
-
-    // if (this.mutationObserver && this.popup) {
-    //   this.mutationObserver.observe(this.popup, this.toObserve)
-    // }
-  // }
+  onScroll(e) {
+    if (this.element && this.elementOrParentIsFixed(this.element)) {
+      this.reposition();
+    }
+  }
 
   elementOrParentIsFixed(element) {
     var $element = $(element);
@@ -225,11 +220,7 @@ export class Popup extends React.Component<PopupProps> {
   }
 
   reposition() {
-    // if (this.lock) return;
-
-    if (!this.mounted || !this.popup || !this.element) {
-      return;
-    }
+    if (!this.open || !this.mounted || !this.popup || !this.element) return;
 
     let doc = document.documentElement;
     let scrollLeft = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
@@ -431,176 +422,48 @@ export class Popup extends React.Component<PopupProps> {
     $(this.popup).css('min-width', this.props.minWidth || this_width);
     this.props.maxWidth && $(this.popup).css('max-width', this.props.maxWidth);
 
-    // if ((Math.abs(popup_height - this.prevH) > 1 || Math.abs(popup_width - this.prevW) > 1) && this.mounted) {
-    //   setTimeout(this.reposition.bind(this), 1);
-    // }
-    // else {
-    //   if (!this.show) {
-    //     this.show = true;
-
-    //     // this.popup.velocity({ translateY: [0, '-0.5rem'] }, { duration: 200, complete: () => {
-    //     //   this.lock = false;
-    //     // }, begin: () => {
-    //     //   this.lock = true;
-    //     // } });
-    //   }
-    //   $(this.popup).addClass('show');
-    // }
-
     $(this.popup).offset({top: top, left: left});
     $(this.popup).addClass('show');
-
-    // this.prevH = popup_height;
-    // this.prevW = popup_width;
   }
 
-  // handleWrapperInput(e) {
-  //   if (!this.mounted) return;
+  handleWrapperOver() {
+    if (this.props.closeOnOutMove) {
+      window.clearTimeout(this.timeout);
+      this.timeout = null;
+    }
 
-  //   if (this.props.openOnInput && !this.refs.portal.state.active && !this.refs.portal.props.isHidden) {
-  //     // e.preventDefault();
-  //     // e.stopPropagation();
-  //     window.clearTimeout(this.state.timer);
-  //     this.state.timer = window.setTimeout(() => {
-  //       if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.openPortal();
-  //     }, this.props.delay);
-  //   }
-  //   else if (this.props.closeOnInput && this.refs.portal.state.active) {
-  //     // e.preventDefault();
-  //     // e.stopPropagation();
-  //     window.clearTimeout(this.state.timer);
-  //     this.state.timer = window.setTimeout(() => {
-  //       if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.closePortal();
-  //     }, this.props.timeout);
-  //   }
-  // }
-
-  // handleWrapperClick(e) {
-  //   if (!this.mounted) return;
-
-  //   if (this.props.toggleOnClick && !this.refs.portal.props.isHidden) {
-  //     // e.preventDefault();
-  //     // e.stopPropagation();
-  //     window.clearTimeout(this.state.timer);
-  //     this.state.timer = window.setTimeout(() => {
-  //       if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.togglePortal();
-  //     }, this.props.delay);
-  //   }
-  //   else if (this.props.openOnClick && !this.refs.portal.state.active && !this.refs.portal.props.isHidden) {
-  //     // e.preventDefault();
-  //     // e.stopPropagation();
-  //     window.clearTimeout(this.state.timer);
-  //     this.state.timer = window.setTimeout(() => {
-  //       if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.openPortal();
-  //     }, this.props.delay);
-  //   }
-  //   else if (this.props.closeOnClick && this.refs.portal.state.active) {
-  //     // e.preventDefault();
-  //     // e.stopPropagation();
-  //     window.clearTimeout(this.state.timer);
-  //     this.state.timer = window.setTimeout(() => {
-  //       if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.closePortal();
-  //     }, this.props.timeout);
-  //   }
-  // }
-
-  // handleWrapperContextMenu(e) {
-  //   if (!this.mounted) return;
-
-  //   if (this.props.toggleOnContextMenu) {
-  //     e.preventDefault();
-  //     e.stopPropagation();
-  //     window.clearTimeout(this.state.timer);
-  //     this.state.timer = window.setTimeout(() => {
-  //       if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.togglePortal();
-  //     }, this.props.delay);
-  //   }
-  //   else if (this.props.openOnContextMenu && !this.refs.portal.state.active) {
-  //     e.preventDefault();
-  //     e.stopPropagation();
-  //     window.clearTimeout(this.state.timer);
-  //     this.state.timer = window.setTimeout(() => {
-  //       if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.openPortal();
-  //     }, this.props.delay);
-  //   }
-  //   else if (this.props.closeOnContextMenu && this.refs.portal.state.active) {
-  //     e.preventDefault();
-  //     e.stopPropagation();
-  //     window.clearTimeout(this.state.timer);
-  //     this.state.timer = window.setTimeout(() => {
-  //       if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.closePortal();
-  //     }, this.props.timeout);
-  //   }
-  // }
-
-  handleWrapperOver(e) {
-    // if (!this.mounted) return;
-
-    // if (this.props.closeOnOutMove) {
-    //   window.clearTimeout(this.state.timer);
-    //   this.state.timer = null;
-    // }
-
-    // if (this.props.openOnOverMove && !this.refs.portal.state.active) {
-    //   window.clearTimeout(this.state.timer);
-    //   this.state.timer = window.setTimeout(() => {
-    //     if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.openPortal();
-    //   }, this.props.delay);
-    // }
+    if (this.props.openOnOverMove) {
+      window.clearTimeout(this.timeout);
+      this.timeout = window.setTimeout(() => {
+        this.open = true;
+        if (this.mounted) this.forceUpdate();
+      }, this.props.delay);
+    }
   }
 
-  handleWrapperOut(e) {
-    // if (!this.mounted) return;
+  handleWrapperOut() {
+    if (this.props.openOnOverMove) {
+      window.clearTimeout(this.timeout);
+      this.timeout = null;
+    }
 
-    // if (this.props.openOnOverMove) {
-    //   window.clearTimeout(this.state.timer);
-    //   this.state.timer = null;
-    // }
-
-    // if (this.props.closeOnOutMove && this.refs.portal.state.active) {
-    //   window.clearTimeout(this.state.timer);
-    //   this.state.timer = window.setTimeout(() => {
-    //     if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.closePortal();
-    //   }, this.props.timeout);
-    // }
+    if (this.props.closeOnOutMove) {
+      window.clearTimeout(this.timeout);
+      this.timeout = window.setTimeout(() => {
+        this.open = false;
+        if (this.mounted) this.forceUpdate();
+      }, this.props.timeout);
+    }
   }
 
-  // handleWrapperFocus(e) {
-  //   if (!this.mounted) return;
-
-  //   if (this.props.openOnFocus && !this.refs.portal.state.active) {
-  //     window.clearTimeout(this.state.timer);
-  //     this.state.timer = window.setTimeout(() => {
-  //       if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.openPortal();
-  //     }, this.props.delay);
-  //   }
-  // }
-
-  // handleWrapperBlur(e) {
-  //   if (!this.mounted) return;
-
-  //   if (this.props.closeOnBlur && this.refs.portal.state.active) {
-  //     window.clearTimeout(this.state.timer);
-  //     this.state.timer = window.setTimeout(() => {
-  //       if (this.refs.portal && this.refs.portal.mounted) this.refs.portal.closePortal();
-  //     }, this.props.delay);
-  //   }
-  // }
-
-  handleOutsideClick(e) {
-    // if (!this.mounted) return;
-
-    // if (this.props.closeOnOutsideClick && this.refs.portal.state.active) {
-    //   // e.preventDefault();
-    //   // e.stopPropagation();
-    //   window.clearTimeout(this.state.timer);
-    //   this.state.timer = window.setTimeout(() => {
-    //     this.refs.portal.closePortal();
-    //   }, this.props.timeout);
-    // }
-    // else if (this.props.onOutsideClick) {
-    //   this.props.onOutsideClick(e)
-    // }
+  handleOutsideClick() {
+    if (this.props.closeOnOutClick) {
+      window.clearTimeout(this.timeout);
+      this.timeout = window.setTimeout(() => {
+        this.open = false;
+        if (this.mounted) this.forceUpdate();
+      }, this.props.timeout);
+    }
   }
 
   componentDidUpdate() {
@@ -608,16 +471,30 @@ export class Popup extends React.Component<PopupProps> {
   }
 
   render() {
-    var modifedActiveClassName = this.props.activeClassName + ' open';
-
     const consumer = {
       close: () => {
-        this.open = false;
-        if (this.mounted) this.forceUpdate();
+        if (this.props.timeout) {
+          window.clearTimeout(this.timeout);
+          this.timeout = window.setTimeout(() => {
+            this.open = false;
+            if (this.mounted) this.forceUpdate();
+          }, this.props.timeout);
+        } else {
+          this.open = false;
+          if (this.mounted) this.forceUpdate();
+        }
       },
       open: () => {
-        this.open = true;
-        if (this.mounted) this.forceUpdate();
+        window.clearTimeout(this.timeout);
+        if (this.props.delay) {
+          this.timeout = window.setTimeout(() => {
+            this.open = true;
+            if (this.mounted) this.forceUpdate();
+          }, this.props.delay);
+        } else {
+          this.open = true;
+          if (this.mounted) this.forceUpdate();
+        }
       },
       reposition: () => {
         this.reposition();
@@ -628,40 +505,19 @@ export class Popup extends React.Component<PopupProps> {
     }
 
     return <Provider value={consumer}>
-      {this.props.element(consumer)}
-      <Portal isOpen={this.open} onOpen={node => {
-          {/* console.log($(node).find('.popup')); */}
-          {/* $(node).velocity("stop");
-          $(node).children().velocity("stop"); */}
-          if (this.hideTimeout) clearTimeout(this.hideTimeout);
-
-          // this.scrollEvent = this.onScroll.bind(this);
-          // window.addEventListener("scroll", this.scrollEvent);
-          
+      <Portal element={this.props.element(consumer)} isOpen={this.open} onOpen={node => {
+          if (this.hideTimeout) clearTimeout(this.hideTimeout);          
           this.reposition();
-          $(node).find('.popup').addClass('show').velocity({ translateY: [0, "-0.5rem"] }, { duration: 200 });
-
-          // $(node).velocity({ opacity: [1.0, 0] }, { duration: 200 });
-          // $(node).find('.popup');
+          $(node).find('.popup').addClass('show');
+          // .velocity({ translateY: [0, "-0.5rem"] }, { duration: 200 });
         }}
         onClose={(node, callback) => {
-          // self.props.onClose();
-          {/* $(node).children().velocity("stop"); */}
-          {/* $(node).velocity("stop"); */}
-          $(node).find('.popup').removeClass('show').velocity({ translateY: "-0.5rem" }, { duration: 300 });
-
+          $(node).find('.popup').removeClass('show');
+          // .velocity({ translateY: "-0.5rem" }, { duration: 300 });
           if (this.hideTimeout) clearTimeout(this.hideTimeout);
           this.hideTimeout = setTimeout(() => {
             callback();
           }, 300);
-
-          // if (this.scrollEvent) {
-          //   window.removeEventListener("scroll", this.scrollEvent);
-          // }
-
-          {/* $(node).velocity({ opacity: 0.0 }, { duration: 200, complete: _ => {
-            callback();
-          }}); */}
         }}>
         <div className="popup-back">
           <div ref={ref => this.popup = ReactDOM.findDOMNode(ref) as Element} className={"popup " + (this.props.type || '')} onMouseOver={this.handleWrapperOver.bind(this)} onMouseOut={this.handleWrapperOut.bind(this)}>

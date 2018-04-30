@@ -5,21 +5,19 @@ import { Context } from 'create-react-context';
 import * as createContext from 'create-react-context';
 import * as ReactTransition from 'react-transition-group';
 
-export const { Provider, Consumer }: Context<{
+export type ConsumerType = {
   level: number
   isActive: () => boolean
   isShow: () => boolean
   getNode: () => HTMLDivElement
-}> = (createContext as any)({
+}
+
+export const { Provider, Consumer }: Context<ConsumerType> = (createContext as any)({
   level: -1,
   isActive: () => false,
   isShow: () => false,
   getNode: () => null
 });
-
-const KEYCODES = {
-  ESCAPE: 27,
-};
 
 export class PortalProps {
   level?: number = 0
@@ -30,6 +28,7 @@ export class PortalProps {
   onOpen?: (node: HTMLElement) => void
   onClose?: (node: HTMLElement, callback: () => void) => void
   children: any
+  element?: any
 }
 
 export class MountControlled extends React.Component<{
@@ -60,50 +59,55 @@ export class Portal extends React.Component<PortalProps> {
     return <Consumer>{parent => {
       const isShow = this.props.isOpen && !this.props.isHide;
 
+      let consumer = {
+        level: this.props.isGhost ? parent.level + 1 : parent.level,
+        isActive: () => this.node === $(document.body).children().filter('div').last()[0],
+        isShow: () => isShow,
+        getNode: () => this.node
+      }
+
+      let body;
+
       if (isShow) {
         if (!this.node) {
           this.node = document.createElement('div');
           document.body.appendChild(this.node);
         }
 
-        return <Provider value={{
-          level: this.props.isGhost ? parent.level + 1 : parent.level,
-          isActive: () => this.node !== $(document.body).children().filter('div').last()[0] && isShow,
-          isShow: () => isShow,
-          getNode: () => this.node
-        }}>
-          {ReactDOM.createPortal(
-            <MountControlled onMount={() => {
+        body = ReactDOM.createPortal(
+          <MountControlled onMount={() => {
+            if (this.props.isFixedBody) {
+              document.body.style.overflow = "hidden";
+              // document.body.scroll = 'no';
+            }
+            if (this.props.onOpen) {
+              setImmediate(() => this.props.onOpen(this.node));
+            }
+          }} onUnmount={() => {
+            let callback = () => {
+              this.node.parentNode.removeChild(this.node);
+              this.node = null;
               if (this.props.isFixedBody) {
-                document.body.style.overflow = "hidden";
-                // document.body.scroll = 'no';
+                document.body.style.overflow = null;
+                // document.body.scroll = 'yes';
               }
-              if (this.props.onOpen) {
-                setImmediate(() => this.props.onOpen(this.node));
-              }
-            }} onUnmount={() => {
-              let callback = () => {
-                this.node.parentNode.removeChild(this.node);
-                this.node = null;
-                if (this.props.isFixedBody) {
-                  document.body.style.overflow = null;
-                  // document.body.scroll = 'yes';
-                }
-              }
-              if (this.props.onClose) {
-                let cloned = $(this.node).children().clone()[0];
-                this.node.appendChild(cloned);
-                setImmediate(() => this.props.onClose(this.node, callback));
-              } else {
-                callback();
-              }
-            }}>{this.props.children}</MountControlled>,
-            this.node
-          )}
-        </Provider>
-      } else {
-        return null;
+            }
+            if (this.props.onClose) {
+              let cloned = $(this.node).children().clone()[0];
+              this.node.appendChild(cloned);
+              setImmediate(() => this.props.onClose(this.node, callback));
+            } else {
+              callback();
+            }
+          }}>{this.props.children}</MountControlled>,
+          this.node
+        );
       }
+
+      return <Provider value={consumer}>
+        {this.props.element}
+        {body}
+      </Provider>
     }}</Consumer>
   }
 }
