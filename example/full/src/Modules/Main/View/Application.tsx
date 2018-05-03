@@ -7,7 +7,7 @@ import * as Reducer from 'reiso/Modules/Reducer';
 
 import * as UserReducer from '~/Modules/Authentication/Reducer/User';
 import { Menu } from '~/Modules/Main/View/Menu';
-import { Transition } from '~/Components/Animation';
+import { PageTransition } from '~/Components/Animation';
 
 import * as Header from '../Reducer/Header';
 
@@ -43,9 +43,9 @@ export class Application extends React.Component<Props> {
         return (
             <div>
                 <Menu/>
-                <Transition appear id={this.props.location.pathname}>
+                <PageTransition appear id={this.props.location.pathname}>
                     {this.props.children}
-                </Transition>
+                </PageTransition>
             </div>
         )
     }

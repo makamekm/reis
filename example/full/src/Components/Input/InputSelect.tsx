@@ -27,10 +27,11 @@ export class InputSelect extends React.Component<{
         get(): string
     }
     onKeyUpEnter?: (e) => void
-    onFocus: (e) => void
-    onBlur: (e) => void
-    onMouseEnter: (e) => void
-    onMouseLeave: (e) => void
+    onFocus?: (e) => void
+    onBlur?: (e) => void
+    onMouseEnter?: (e) => void
+    onMouseLeave?: (e) => void
+    testing?: boolean
 }, {
         data: any[]
     }> {
@@ -105,7 +106,7 @@ export class InputSelect extends React.Component<{
         if (this.loading) content = <div className={"item loading"}>Loading...</div>;
         if (rowsRender && rowsRender.length > 0) content = rowsRender;
 
-        return <Popup type="select" position="bottom center" element={
+        return <Popup type="select" position="bottom center" testing={this.props.testing} element={
             popup => <div ref={ref => popup.ref(ref)} onBlur={this.props.onBlur} onFocus={this.props.onFocus} onMouseEnter={this.props.onMouseEnter} onMouseLeave={this.props.onMouseLeave} className={"form-row " + (this.props.className || '') + " form-row-" + (this.props.size || 'md') + (this.props.disabled ? ' disabled' : '') + (this.props.error ? ' error' : '') + (this.props.loading || this.loading ? ' loading' : '')}>
                 {this.props.icon ? <Icon name={this.props.icon} className="item text subsub pl-3 pr-3" style={{ width: '1px' }} /> : null}
                 <input type={this.props.type || "text"} placeholder={this.props.placeholder || ''} value={this.props.linkValue.get() || ''} onKeyUp={e => {

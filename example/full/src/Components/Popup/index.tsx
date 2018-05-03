@@ -116,6 +116,7 @@ export class PopupProps {
   closeOnOutClick?: boolean
   closeOnEsc?: boolean
   isHidden?: boolean
+  testing?: boolean
 
   element: (popup: ConsumerType) => any
   padding_window?: number = 10
@@ -474,9 +475,14 @@ export class Popup extends React.Component<PopupProps> {
   }
 
   render() {
+    const isOpen = (this.open && !this.props.isHidden) || this.props.testing;
+
     const consumer = {
       close: () => {
-        if (this.props.timeout) {
+        if (this.props.testing) {
+          this.open = false;
+          if (this.mounted) this.forceUpdate();
+        } else if (this.props.timeout) {
           window.clearTimeout(this.timeout);
           this.timeout = window.setTimeout(() => {
             this.open = false;
@@ -489,7 +495,10 @@ export class Popup extends React.Component<PopupProps> {
       },
       open: () => {
         window.clearTimeout(this.timeout);
-        if (this.props.delay) {
+        if (this.props.testing) {
+          this.open = true;
+          if (this.mounted) this.forceUpdate();
+        } else if (this.props.delay) {
           this.timeout = window.setTimeout(() => {
             this.open = true;
             if (this.mounted) this.forceUpdate();
@@ -505,11 +514,11 @@ export class Popup extends React.Component<PopupProps> {
       ref: (ref) => {
         this.element = ReactDOM.findDOMNode(ref) as Element;
       },
-      isOpen: () => this.open
+      isOpen: () => isOpen
     }
 
     return <Provider value={consumer}>
-      <Portal element={this.props.element(consumer)} isOpen={this.open && !this.props.isHidden} onOpen={node => {
+      <Portal testing={this.props.testing} element={this.props.element(consumer)} isOpen={isOpen} onOpen={node => {
           if (this.hideTimeout) clearTimeout(this.hideTimeout);
           this.reposition();
           $(node).find('.popup').addClass('show');

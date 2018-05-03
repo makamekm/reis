@@ -29,6 +29,7 @@ export class PortalProps {
   onClose?: (node: HTMLElement, callback: () => void) => void
   children: any
   element?: any
+  testing?: boolean
 }
 
 export class MountControlled extends React.Component<{
@@ -81,7 +82,11 @@ export class Portal extends React.Component<PortalProps> {
               // document.body.scroll = 'no';
             }
             if (this.props.onOpen) {
-              setImmediate(() => this.props.onOpen(this.node));
+              if (this.props.testing) {
+                this.props.onOpen(this.node);
+              } else {
+                setImmediate(() => this.props.onOpen(this.node));
+              }
             }
           }} onUnmount={() => {
             let callback = () => {
@@ -93,9 +98,14 @@ export class Portal extends React.Component<PortalProps> {
               }
             }
             if (this.props.onClose) {
-              let cloned = $(this.node).children().clone()[0];
-              if (cloned) this.node.appendChild(cloned);
-              setImmediate(() => this.props.onClose(this.node, callback));
+              if (this.props.testing) {
+                this.props.onClose(this.node, () => {});
+                callback();
+              } else {
+                let cloned = $(this.node).children().clone()[0];
+                if (cloned) this.node.appendChild(cloned);
+                setImmediate(() => this.props.onClose(this.node, callback));
+              }
             } else {
               callback();
             }

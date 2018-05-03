@@ -3,20 +3,22 @@ import * as ReactTransition from 'react-transition-group';
 
 import * as Router from 'reiso/Modules/Router';
 
-export const Transition = Router.withRouter(({ location, className, children, appear, exit, id, type, ...props }) => (
-    <ReactTransition.TransitionGroup className={className}>
+export const Transition = props => (
+    <ReactTransition.TransitionGroup className={props.className}>
         <ReactTransition.CSSTransition
-            key={id}
+            key={props.id}
             in={props.in}
-            appear={appear}
-            exit={exit}
-            classNames={type || 'fadenslide'}
+            appear={props.appear}
+            exit={props.exit}
+            classNames={props.type || 'fadenslide'}
             timeout={{
                 enter: 200,
-                exit: exit ? 200 : 0
+                exit: props.exit ? 200 : 0
             }}
         >
-            {children}
+            {props.children}
         </ReactTransition.CSSTransition>
     </ReactTransition.TransitionGroup>
-));
+);
+
+export const PageTransition = Router.withRouter(Transition);

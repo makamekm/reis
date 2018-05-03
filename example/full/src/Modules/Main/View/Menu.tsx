@@ -24,7 +24,7 @@ import { LoginForm } from './Auth/LoginForm';
 import { RegistrationForm } from './Auth/RegistrationForm';
 import * as Header from '../Reducer/Header';
 
-import { Consumer } from './Html';
+import { Consumer, ConsumerType } from './Html';
 
 export interface StateProps {
   isDesktop?: boolean
@@ -35,7 +35,6 @@ export interface DispatchProps {
   setTheme?: (theme: Header.Model['theme']) => void
 }
 
-@Router.withRouter
 @UserReducer.DecorateConnectUser
 @Reducer.Connect<StateProps, DispatchProps>(state => ({
   isDesktop: state.browser.mediaType == 'large' || state.browser.mediaType == 'infinity',
@@ -125,8 +124,8 @@ export class Menu extends React.Component<{
     }
   }
 
-  getLanguageUrl(languageCode: string): string {
-    let pathname: string = this.props.history.location.pathname;
+  getLanguageUrl(context: ConsumerType, languageCode: string): string {
+    let pathname: string = context.history.location.pathname;
 
     let currentLang: string = Translation.getLanguages().find(code => pathname.indexOf('/' + code + '/') == 0);
 
@@ -137,15 +136,15 @@ export class Menu extends React.Component<{
     }
   }
 
-  setLanguage(languageCode: string) {
-    let pathname: string = this.props.history.location.pathname;
+  setLanguage(context: ConsumerType, languageCode: string) {
+    let pathname: string = context.history.location.pathname;
 
     let currentLang: string = Translation.getLanguages().find(code => pathname.indexOf('/' + code + '/') == 0);
 
     if (currentLang) {
-      this.props.history.push(pathname.replace('/' + currentLang + '/', '/' + languageCode + '/'));
+      context.history.push(pathname.replace('/' + currentLang + '/', '/' + languageCode + '/'));
     } else {
-      this.props.history.push('/' + languageCode + pathname);
+      context.history.push('/' + languageCode + pathname);
     }
   }
 
@@ -156,8 +155,8 @@ export class Menu extends React.Component<{
           let active = context.language() == code;
 
           return (
-            <PopupItem key={code} active={active} type="a" href={this.getLanguageUrl(code)} onClick={e => {
-              this.setLanguage(code);
+            <PopupItem key={code} active={active} type="a" href={this.getLanguageUrl(context, code)} onClick={e => {
+              this.setLanguage(context, code);
             }}>
               {LanguageStringify(CodeLanguage(code))}
             </PopupItem>

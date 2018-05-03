@@ -11,7 +11,6 @@ import { Modal, Consumer as ModalConsumer, ConsumerType as ModalConsumerType } f
 import { Consumer, ConsumerType } from '../Html';
 import * as Header from '~/Modules/Main/Reducer/Header';
 
-@Router.withRouter
 export class LoginForm extends React.Component<{
   children: (modal: ModalConsumerType) => any
 }> {
