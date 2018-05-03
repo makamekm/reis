@@ -10,20 +10,22 @@ import { Clickable } from '../Clickable';
 import { Icon } from '../Icon';
 import { Link } from '../Link';
 
-// export * from './PopupSelect';
+export * from './PopupSelect';
 
 export type ConsumerType = {
   close: () => void
   open: () => void
   reposition: () => void
   ref: (r: any) => void
+  isOpen: () => boolean
 }
 
 export const { Provider, Consumer }: Context<ConsumerType> = (createContext as any)({
   close: () => {},
   open: () => {},
   reposition: () => {},
-  ref: (r) => {}
+  ref: (r) => {},
+  isOpen: () => false
 });
 
 export function PopupLink(props: {
@@ -76,7 +78,6 @@ export const PopupItem = (props: PopupItemProps & {
         {props.children}
       </Clickable>
     </Transition>
-
   }</Consumer>
 }
 
@@ -107,13 +108,14 @@ export function PopupInput(props: {
 }
 
 export class PopupProps {
-  onOpen?: (node: HTMLElement) => void
-  onClose?: (node: HTMLElement, callback: () => void) => void
+  onOpen?: () => void
+  onClose?: () => void
 
   openOnOverMove?: boolean
   closeOnOutMove?: boolean
   closeOnOutClick?: boolean
   closeOnEsc?: boolean
+  isHidden?: boolean
 
   element: (popup: ConsumerType) => any
   padding_window?: number = 10
@@ -193,6 +195,7 @@ export class Popup extends React.Component<PopupProps> {
 
   handleOutMouseClick(e) {
     if (!this.open) return;
+    if (!this.popup) return;
     if (this.popup === e.target || $(this.popup).find(e.target)[0]) return;
     if ($(e.target).parents().index(this.popup.parentElement.parentElement) < 0 && this.popup.parentElement.parentElement === $(document.body).children().filter('div').last()[0]) {
       this.open = false;
@@ -220,7 +223,7 @@ export class Popup extends React.Component<PopupProps> {
   }
 
   reposition() {
-    if (!this.open || !this.mounted || !this.popup || !this.element) return;
+    if (!this.open || this.props.isHidden || !this.mounted || !this.popup || !this.element) return;
 
     let doc = document.documentElement;
     let scrollLeft = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
@@ -501,21 +504,24 @@ export class Popup extends React.Component<PopupProps> {
       },
       ref: (ref) => {
         this.element = ReactDOM.findDOMNode(ref) as Element;
-      }
+      },
+      isOpen: () => this.open
     }
 
     return <Provider value={consumer}>
-      <Portal element={this.props.element(consumer)} isOpen={this.open} onOpen={node => {
-          if (this.hideTimeout) clearTimeout(this.hideTimeout);          
+      <Portal element={this.props.element(consumer)} isOpen={this.open && !this.props.isHidden} onOpen={node => {
+          if (this.hideTimeout) clearTimeout(this.hideTimeout);
           this.reposition();
           $(node).find('.popup').addClass('show');
           // .velocity({ translateY: [0, "-0.5rem"] }, { duration: 200 });
+          this.props.onOpen && this.props.onOpen();
         }}
         onClose={(node, callback) => {
           $(node).find('.popup').removeClass('show');
           // .velocity({ translateY: "-0.5rem" }, { duration: 300 });
           if (this.hideTimeout) clearTimeout(this.hideTimeout);
           this.hideTimeout = setTimeout(() => {
+            this.props.onClose && this.props.onClose();
             callback();
           }, 300);
         }}>

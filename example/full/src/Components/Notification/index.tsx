@@ -7,7 +7,6 @@ import { Button } from '../Button';
 export type NotificationType = "error"
 
 export class NotificationProps {
-  level?: number = -2
   timeout?: number = 2000
   type: NotificationType
   title?: string
@@ -21,25 +20,15 @@ export class Notification extends React.Component<NotificationProps, {}> {
   public static defaultProps = new NotificationProps()
 
   public timeout: any = null
-  public hover: boolean = false
-
-  handleOver() {
-    this.hover = true;
-    this.stopTimer();
-  }
-
-  handleLeave() {
-    this.hover = false;
-    this.startTimer();
-  }
+  public open: boolean = true
+  mounted: boolean = false
 
   startTimer() {
-    if (!this.hover) {
-      this.stopTimer();
-      this.timeout = setTimeout(() => {
-        // this.close();
-      }, this.props.timeout);
-    }
+    this.stopTimer();
+    this.timeout = setTimeout(() => {
+      this.open = false;
+      if (this.mounted) this.forceUpdate();
+    }, this.props.timeout);
   }
 
   stopTimer() {
@@ -47,8 +36,6 @@ export class Notification extends React.Component<NotificationProps, {}> {
       clearTimeout(this.timeout);
     }
   }
-
-  mounted: boolean = false
 
   componentDidMount() {
     this.mounted = true;
@@ -59,11 +46,20 @@ export class Notification extends React.Component<NotificationProps, {}> {
   }
 
   render() {
-    let content = null;
-
-    if (this.props.type == "error") {
-      content = (
-        <div className="notification" onMouseOver={() => this.handleOver()} onMouseLeave={() => this.handleLeave()}>
+    return <Portal isOpen={this.open}
+      onOpen={(node) => {
+        $(node).find('.notification-container').addClass('show');
+        this.startTimer();
+      }}
+      onClose={(node, callback) => {
+        $(node).children().removeClass('show');
+        setTimeout(() => {
+          callback();
+          this.props.onClose();
+        }, 400);
+      }}>
+      <div className="notification-container std">
+        <div className="notification" onMouseEnter={() => this.stopTimer()} onMouseLeave={() => this.startTimer()}>
           <div className="block error">
             <div className="row justify-content-between align-items-center">
               <div className="col-auto py-2 px-3">
@@ -72,7 +68,10 @@ export class Notification extends React.Component<NotificationProps, {}> {
                 </span>
               </div>
               <div className="col text right py-2">
-                {/* <Button className="mr-1" size="sm" onClick={async () => this.close()}><span className="fa fa-close"></span></Button> */}
+                <Button className="mr-1" size="sm" onClick={async () => {
+                  this.open = false;
+                  this.forceUpdate();
+                  }}><span className="fa fa-close"></span></Button>
               </div>
             </div>
           </div>
@@ -80,27 +79,7 @@ export class Notification extends React.Component<NotificationProps, {}> {
             {this.props.message}
           </div>
         </div>
-      )
-    }
-
-    return null
-    // return (
-    //   <Portal ref="portal" level={this.props.level} className="notification-container std" isModal={false}
-    //     onOpen={(node, elem) => {
-    //       setTimeout(() => {
-    //         $(node).children().addClass('show');
-    //         this.startTimer();
-    //       }, 0);
-    //     }}
-    //     beforeClose={(node, callback) => {
-    //       $(node).children().removeClass('show');
-    //       setTimeout(callback, 400);
-    //     }}
-    //     onClose={() => {
-    //       this.props.onClose();
-    //     }}>
-    //     {content}
-    //   </Portal>
-    // )
+      </div>
+    </Portal>
   }
 }

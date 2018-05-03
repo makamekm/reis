@@ -18,15 +18,11 @@ import { Notification } from '~/Modules/Notification/View/Notification';
 
 import * as Header from '../Reducer/Header';
 
-export const { Provider, Consumer }: Context<{
+export type ConsumerType = {
   client: any
   store: any
   auth: any
-  // modals: {
-  //   push: (modal: ModalComponent.ModalProps) => void
-  //   remove: (modal: ModalComponent.ModalProps) => void
-  //   update: (modal?: ModalComponent.ModalProps) => void
-  // }
+  history: any
   forceUpdate: Function
   language: Function
   trans: (query: string, ...args: string[]) => string
@@ -34,7 +30,10 @@ export const { Provider, Consumer }: Context<{
   go: Function
   isPath: Function
   loadingTheme: Function
-}> = (createContext as any)(null);
+  setNotification: (title, message, type?) => void
+}
+
+export const { Provider, Consumer }: Context<ConsumerType> = (createContext as any)(null);
 
 function createCookie(name, value, days) {
   var expires = "";
@@ -57,6 +56,7 @@ export interface StateProps {
 
 export interface DispatchProps {
   setTitle?: (name: string) => void
+  setNotification?: (title, message, type?) => void
 }
 
 @Router.DeclareHtml()
@@ -68,9 +68,16 @@ export interface DispatchProps {
   }
 }, (dispatch, props) => {
   return {
-      setTitle: (name: string) => {
-        dispatch(Header.setTitle(name));
-      }
+    setTitle: (name: string) => {
+      dispatch(Header.setTitle(name));
+    },
+    setNotification: (title, message, type?) => {
+      dispatch(Header.setNotification({
+        message,
+        title,
+        type: type || 'error'
+      }));
+    }
   }
 })
 export class Html extends React.Component<StateProps & DispatchProps & {
@@ -292,7 +299,9 @@ export class Html extends React.Component<StateProps & DispatchProps & {
         if (relative) return localPath.indexOf(path) === 0;
         else return localPath === path;
       },
-      loadingTheme: () => this.loading
+      loadingTheme: () => this.loading,
+      setNotification: (title, message, type?) => this.props.setNotification(message, title, type),
+      history: this.props.history
     }
   }
 

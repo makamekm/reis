@@ -4,7 +4,7 @@ import * as PropTypes from 'prop-types';
 import * as Reducer from 'reiso/Modules/Reducer';
 
 import { Popup } from '../Popup';
-// import { InputForm } from '../Form';
+import { InputForm } from '../Form';
 import { Button } from '../Button';
 
 @Reducer.Connect(state => ({
@@ -64,22 +64,22 @@ export class Pagination extends React.Component<{
                 paginations.push(<span onClick={() => this.props.setPage(1)} key={'nextfirst'} className="item" tabIndex={0}>2</span>);
             }
 
-            // if (currentPage > 2) {
-            //     paginations.push(<Popup key={'disabledfirst'} activeClassName="active" type="select" position="top center" element={<span className="item">...</span>} openOnClick closeOnOutsideClick>
-            //         <div className="p-2">
-            //             <InputForm size="xs" errors={this.canGoToPage() ? null : [this.context.trans("Component.Pagination.PageDoesnExist")]} onEnterKey={async e => this.tryGoToPage()} label="Enter the page number" placeholder={this.context.trans("Component.Pagination.Number")} linkValue={{
-            //                 get: () => this.toPage,
-            //                 set: value => {
-            //                     this.toPage = value;
-            //                     this.forceUpdate();
-            //                 }
-            //             }}/>
-            //             <div className="text center width-full pt-3">
-            //                 <Button onClick={async e => this.tryGoToPage()} type="primary" size="sm">{this.context.trans("Component.Pagination.Go")}</Button>
-            //             </div>
-            //         </div>
-            //     </Popup>);
-            // }
+            if (currentPage > 2) {
+                paginations.push(<Popup key={'disabledfirst'} activeClassName="active" type="select" position="top center" element={popup => <span className="item" onClick={() => popup.open()}>...</span>} closeOnOutClick>
+                    <div className="p-2">
+                        <InputForm size="xs" errors={this.canGoToPage() ? null : [this.context.trans("Component.Pagination.PageDoesnExist")]} onEnterKey={async e => this.tryGoToPage()} label="Enter the page number" placeholder={this.context.trans("Component.Pagination.Number")} linkValue={{
+                            get: () => this.toPage,
+                            set: value => {
+                                this.toPage = value;
+                                this.forceUpdate();
+                            }
+                        }}/>
+                        <div className="text center width-full pt-3">
+                            <Button onClick={async e => this.tryGoToPage()} type="primary" size="sm">{this.context.trans("Component.Pagination.Go")}</Button>
+                        </div>
+                    </div>
+                </Popup>);
+            }
 
             if (currentPage > 2) {
                 paginations.push(<span onClick={() => this.props.setPage(currentPage - 1)} key={currentPage - 1} className="item" tabIndex={0}>{currentPage}</span>);
@@ -93,22 +93,22 @@ export class Pagination extends React.Component<{
                 paginations.push(<span onClick={() => this.props.setPage(currentPage + 1)} key={currentPage + 1} className="item" tabIndex={0}>{currentPage + 2}</span>);
             }
 
-            // if (maxPage - currentPage > 2) {
-            //     paginations.push(<Popup key={'disabledlast'} activeClassName="active" type="select" position="top center" element={<span className="item">...</span>} openOnClick closeOnOutsideClick>
-            //         <div className="p-2">
-            //             <InputForm size="xs" errors={this.canGoToPage() ? null : [this.context.trans("Component.Pagination.PageDoesnExist")]} onEnterKey={async e => this.tryGoToPage()} label="Enter the page number" placeholder={this.context.trans("Component.Pagination.Number")} linkValue={{
-            //                 get: () => this.toPage,
-            //                 set: value => {
-            //                     this.toPage = value;
-            //                     this.forceUpdate();
-            //                 }
-            //             }}/>
-            //             <div className="text center width-full pt-1">
-            //                 <Button onClick={async e => this.tryGoToPage()} type="primary" size="sm">{this.context.trans("Component.Pagination.Go")}</Button>
-            //             </div>
-            //         </div>
-            //     </Popup>);
-            // }
+            if (maxPage - currentPage > 2) {
+                paginations.push(<Popup key={'disabledlast'} activeClassName="active" type="select" position="top center" element={popup => <span className="item" onClick={() => popup.open()}>...</span>} closeOnOutClick>
+                    <div className="p-2">
+                        <InputForm size="xs" errors={this.canGoToPage() ? null : [this.context.trans("Component.Pagination.PageDoesnExist")]} onEnterKey={async e => this.tryGoToPage()} label="Enter the page number" placeholder={this.context.trans("Component.Pagination.Number")} linkValue={{
+                            get: () => this.toPage,
+                            set: value => {
+                                this.toPage = value;
+                                this.forceUpdate();
+                            }
+                        }}/>
+                        <div className="text center width-full pt-1">
+                            <Button onClick={async e => this.tryGoToPage()} type="primary" size="sm">{this.context.trans("Component.Pagination.Go")}</Button>
+                        </div>
+                    </div>
+                </Popup>);
+            }
 
             if (maxPage - currentPage > 1) {
                 paginations.push(<span onClick={() => this.props.setPage(maxPage - 1)} key={'prevlast'} className="item" tabIndex={0}>{maxPage}</span>);

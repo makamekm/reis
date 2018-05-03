@@ -20,6 +20,8 @@ export interface SelectFileProps {
         set(value: File): void
         get(): File
     }
+    onMouseEnter: (e) => void
+    onMouseLeave: (e) => void
 }
 
 export class SelectFile extends React.Component<SelectFileProps, {}> {
@@ -37,11 +39,12 @@ export class SelectFile extends React.Component<SelectFileProps, {}> {
             error,
             loading,
             linkValue,
-            ...props
+            onMouseEnter,
+            onMouseLeave
         } = this.props;
 
         return (
-            <div className={"form-row " + (this.props.className || '') + " form-row-" + this.props.size + (this.props.disabled ? ' disabled' : '') + (this.props.error ? ' error' : '')}>
+            <div onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} className={"form-row " + (this.props.className || '') + " form-row-" + this.props.size + (this.props.disabled ? ' disabled' : '') + (this.props.error ? ' error' : '')}>
                 {this.props.icon ? <Icon name={this.props.icon} className="item text subsub pl-3 pr-3" style={{width: '1px'}}/> : null}
                 {this.props.addon ? <span className="item text subsub pl-3 pr-3" style={{width: '1px'}}>{this.props.addon}</span> : null}
                 <label className="file">

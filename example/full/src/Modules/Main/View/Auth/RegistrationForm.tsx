@@ -5,28 +5,17 @@ import * as Router from 'reiso/Modules/Router';
 import * as Reducer from 'reiso/Modules/Reducer';
 
 import * as UserReducer from '~/Modules/Authentication/Reducer/User';
-// import { InputForm } from '~/Components/Form';
+import { InputForm } from '~/Components/Form';
 import { Clickable } from '~/Components/Clickable';
 import { Button } from '~/Components/Button';
 import { Popup, PopupItem, PopupScroll, PopupInput, PopupLink, PopupHeader } from '~/Components/Popup';
 import { Img } from '~/Components/Img';
 import { Modal, Consumer as ModalConsumer, ConsumerType as ModalConsumerType } from '~/Components/Modal';
-import { Consumer } from '../Html';
+import { Consumer, ConsumerType } from '../Html';
 import * as Header from '~/Modules/Main/Reducer/Header';
 
 @Router.withRouter
-@Reducer.Connect<{}, {}, Header.StateModel>(state => ({}), (dispatch, props) => ({
-  setNotification: (title, message, type) => {
-    dispatch(Header.setNotification({
-      message,
-      title,
-      type: type || 'error'
-    }));
-  }
-}))
 export class RegistrationForm extends React.Component<{
-  history?: any
-  setNotification?: Function
   children: (modal: ModalConsumerType) => any
 }> {
   state: {
@@ -66,21 +55,21 @@ export class RegistrationForm extends React.Component<{
                   </div>
                 </div>
                 <div className="block default px-1 pb-2 pt-3 text center">
-                  {/* <Popup type="error" position="top center" isHide={!(this.state.errors && this.state.errors.avatar)} element={
-                    <label>
+                  <Popup type="error" position="top center" isHidden={!(this.state.errors && this.state.errors.avatar)} element={
+                    popup => <label onFocus={() => popup.open()} onBlur={() => popup.close()} onMouseEnter={() => popup.open()} onMouseLeave={() => popup.close()}>
                       <Img className="profile-img file big" file={this.state.avatar_file} src="/images/avatar-empty.png"/>
                       <input accept={'image/jpeg,image/png'} type="file" onChange={({ target }) => {
                         this.setState({ avatar_file: target.files[0] });
                       }}/>
                     </label>
-                  } openOnFocus openOnOverMove closeOnOutsideClick closeOnBlur closeOnOutMove closeOnOutMovePop timeout={300}>
+                  } openOnOverMove closeOnOutMove closeOnOutClick timeout={300}>
                     {this.state.errors && this.state.errors.avatar && this.state.errors.avatar.map((message, i) => (
                       <div key={i}>{message}</div>
                     ))}
-                  </Popup> */}
+                  </Popup>
                   <div className="text sub center mini mt-2">Select your avatar, if you want</div>
                   <div className="row around-xs mt-3 mx-2">
-                    {/* <InputForm className="col-6 mt-3 px-2" label="Username:" placeholder="Username" icon="user" errors={this.state.errors && this.state.errors.username} linkValue={{
+                    <InputForm className="col-6 mt-3 px-2" label="Username:" placeholder="Username" icon="user" errors={this.state.errors && this.state.errors.username} linkValue={{
                       set: (value) => {
                         this.setState({username: value})
                       },
@@ -103,7 +92,7 @@ export class RegistrationForm extends React.Component<{
                         this.setState({password2: value})
                       },
                       get: () => this.state.password2
-                    }}/> */}
+                    }}/>
                   </div>
                 </div>
                 <div className="block default text right pt-3 px-3 pb-3">
@@ -127,12 +116,12 @@ export class RegistrationForm extends React.Component<{
                       let state;
 
                       if (Array.isArray(e)) for (let err of e) {
-                        this.props.setNotification('Error', err.message);
+                        context.setNotification('Error', err.message);
                         if (err.state) {
                           state = state ? { ...state, ...err.state } : err.state;
                         }
                       } else {
-                        this.props.setNotification('Error', e.message);
+                        context.setNotification('Error', e.message);
                         if (e.state) {
                           state = e.state;
                         }

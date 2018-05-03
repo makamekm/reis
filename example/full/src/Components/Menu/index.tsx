@@ -80,7 +80,7 @@ export function MenuDrop(props: {
   className?: string
 }) {
   return <Popup type="select" minWidth={props.minWidth} maxWidth={props.maxWidth} position={props.position || "bottom center"} timeout={300} element={
-    popup => <div onClick={() => popup.open()} ref={ref => popup.ref(ref)} className={"item" + (!props.text ? ' image' : '') + (props.className ? (' ' + props.className) : '')}>
+    popup => <div onClick={() => popup.open()} onMouseEnter={() => popup.open()} onMouseLeave={() => popup.close()} ref={ref => popup.ref(ref)} className={"item" + (!props.text ? ' image' : '') + (props.className ? (' ' + props.className) : '')}>
       {props.flag && <Flag name={props.flag}/>}
       {props.icon && <Icon name={props.icon}/>}
       {props.text && <span>{props.text}</span>}

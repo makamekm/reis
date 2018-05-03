@@ -5,28 +5,14 @@ import * as Router from 'reiso/Modules/Router';
 import * as Reducer from 'reiso/Modules/Reducer';
 
 import * as UserReducer from '~/Modules/Authentication/Reducer/User';
-// import { InputForm } from '~/Components/Form';
-import { Clickable } from '~/Components/Clickable';
+import { InputForm } from '~/Components/Form';
 import { Button } from '~/Components/Button';
-import { Popup, PopupItem, PopupScroll, PopupInput, PopupLink, PopupHeader } from '~/Components/Popup';
-import { Img } from '~/Components/Img';
 import { Modal, Consumer as ModalConsumer, ConsumerType as ModalConsumerType } from '~/Components/Modal';
-import { Consumer } from '../Html';
+import { Consumer, ConsumerType } from '../Html';
 import * as Header from '~/Modules/Main/Reducer/Header';
 
 @Router.withRouter
-@Reducer.Connect<{}, {}, Header.StateModel>(state => ({}), (dispatch, props) => ({
-  setNotification: (title, message, type) => {
-    dispatch(Header.setNotification({
-      message,
-      title,
-      type: type || 'error'
-    }));
-  }
-}))
 export class LoginForm extends React.Component<{
-  history?: any
-  setNotification?: Function
   children: (modal: ModalConsumerType) => any
 }> {
   state: {
@@ -34,14 +20,14 @@ export class LoginForm extends React.Component<{
     password: string
     errors: { [name: string]: string[] }
   } = {
-    username: '',
-    password: '',
-    errors: null
-  }
+      username: '',
+      password: '',
+      errors: null
+    }
 
   loading: boolean = false
 
-  async login(context) {
+  async login(context: ConsumerType) {
     this.loading = true;
     this.setState({ errors: {} });
     try {
@@ -56,12 +42,12 @@ export class LoginForm extends React.Component<{
       let state;
 
       if (Array.isArray(e)) for (let err of e) {
-        this.props.setNotification('Error', err.message);
+        context.setNotification('Error', err.message);
         if (err.state) {
           state = state ? { ...state, ...err.state } : err.state;
         }
       } else {
-        this.props.setNotification('Error', e.message);
+        context.setNotification('Error', e.message);
         if (e.state) {
           state = e.state;
         }
@@ -80,10 +66,10 @@ export class LoginForm extends React.Component<{
       <ModalConsumer>
         {modal => this.props.children(modal)}
       </ModalConsumer>}>
-        <Consumer>
+      <Consumer>
         {context =>
           <ModalConsumer>
-            {modalContext => 
+            {modalContext =>
               <div className="modal-content">
                 <div className="block">
                   <div className="row justify-content-between align-items-center">
@@ -97,26 +83,22 @@ export class LoginForm extends React.Component<{
                 </div>
                 <div className="block default px-1 pb-2 text center">
                   <div className="row around-xs mx-2">
-                    {/* <InputForm className="col-12 mt-1 px-2" label="Login:" placeholder="Username or Email" icon="at" errors={this.state.errors && this.state.errors.username} linkValue={{
-                      set: (value) => {
-                        this.setState({username: value})
-                      },
+                    <InputForm className="col-12 mt-1 px-2" label="Login:" placeholder="Username or Email" icon="at" errors={this.state.errors && this.state.errors.username} linkValue={{
+                      set: (value) => this.setState({ username: value }),
                       get: () => this.state.username
-                    }} onKeyUp={e => {
-                      if (e.keyCode == 13 && !this.loading) {
+                    }} onEnterKey={async () => {
+                      if (!this.loading) {
                         this.login(context);
                       }
                     }}/>
                     <InputForm className="col-12 mt-3 px-2" label="Password:" type="password" placeholder="Password" icon="key" errors={this.state.errors && this.state.errors.password} linkValue={{
-                      set: (value) => {
-                        this.setState({password: value})
-                      },
+                      set: (value) => this.setState({ password: value }),
                       get: () => this.state.password
-                    }} onKeyUp={e => {
-                      if (e.keyCode == 13 && !this.loading) {
+                    }} onEnterKey={async () => {
+                      if (!this.loading) {
                         this.login(context);
                       }
-                    }}/> */}
+                    }}/>
                   </div>
                 </div>
                 <div className="block default text right pt-3 px-3 pb-3">

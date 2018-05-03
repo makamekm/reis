@@ -94,7 +94,7 @@ export class Portal extends React.Component<PortalProps> {
             }
             if (this.props.onClose) {
               let cloned = $(this.node).children().clone()[0];
-              this.node.appendChild(cloned);
+              if (cloned) this.node.appendChild(cloned);
               setImmediate(() => this.props.onClose(this.node, callback));
             } else {
               callback();
