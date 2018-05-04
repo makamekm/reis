@@ -22,6 +22,7 @@ export class Notification extends React.Component<NotificationProps, {}> {
   public timeout: any = null
   public open: boolean = true
   mounted: boolean = false
+  container: Element
 
   startTimer() {
     this.stopTimer();
@@ -39,10 +40,42 @@ export class Notification extends React.Component<NotificationProps, {}> {
 
   componentDidMount() {
     this.mounted = true;
+
+    this.handleEscKeydown = this.handleEscKeydown.bind(this);
+    this.handleOutMouseClick = this.handleOutMouseClick.bind(this);
+
+    document.addEventListener('keydown', this.handleEscKeydown);
+    document.addEventListener('mousedown', this.handleOutMouseClick);
+    document.addEventListener('touchstart', this.handleOutMouseClick);
   }
 
   componentWillUnmount() {
     this.mounted = false;
+
+    document.removeEventListener('keydown', this.handleEscKeydown);
+    document.removeEventListener('mousedown', this.handleOutMouseClick);
+    document.removeEventListener('touchstart', this.handleOutMouseClick);
+  }
+
+  handleEscKeydown(e) {
+    if (e.keyCode === 27) {
+      if (!this.open) return;      
+      if (this.container.parentElement === $(document.body).children().filter('div').last()[0]) {
+        e.preventDefault();
+        this.open = false;
+        this.forceUpdate();
+      }
+    }
+  }
+
+  handleOutMouseClick(e) {
+    if (!this.open) return;
+    if (!this.container) return;
+    if (this.container === e.target || $(this.container).find(e.target)[0]) return;
+    if ($(e.container).parents().index(this.container.parentElement) < 0 && this.container.parentElement === $(document.body).children().filter('div').last()[0]) {
+      this.open = false;
+      this.forceUpdate();
+    }
   }
 
   render() {
@@ -58,7 +91,7 @@ export class Notification extends React.Component<NotificationProps, {}> {
           this.props.onClose();
         }, 400);
       }}>
-      <div className="notification-container std">
+      <div ref={ref => this.container = ReactDOM.findDOMNode(ref) as Element} className="notification-container std">
         <div className="notification" onMouseEnter={() => this.stopTimer()} onMouseLeave={() => this.startTimer()}>
           <div className="block error">
             <div className="row justify-content-between align-items-center">
