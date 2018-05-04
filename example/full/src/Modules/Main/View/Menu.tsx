@@ -237,7 +237,7 @@ export class Menu extends React.Component<{
               <MenuDrop minWidth="10rem" icon="user" position="bottom left">
                 <PopupHeader>
                   <span>
-                    <Img className="profile-img nano ml-2" url={this.props.user.entity.avatar}src="/images/avatar-empty.png"/>
+                    <Img className="profile-img nano ml-2" url={this.props.user.entity.avatar} src="/images/avatar-empty.png"/>
                     <span className="ml-2">{this.props.user.entity.username}</span>
                   </span>
                 </PopupHeader>

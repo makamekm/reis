@@ -47,7 +47,7 @@ export class Modal extends React.Component<ModalProps> {
         this.forceUpdate();
       }
     }}>
-      <Portal isFixedBody isOpen={this.open} onOpen={node => {
+      <Portal isFixedBody isFocusable isOpen={this.open} onOpen={node => {
           $(node).find('.modal-container').addClass('show');
           let elem = $(node).find('.modal');
 

@@ -3,7 +3,8 @@ import { configure, shallow, mount } from 'enzyme';
 // import jasmineEnzyme from 'jasmine-enzyme';
 import * as Adapter from 'enzyme-adapter-react-16';
 
-import { Input, InputSelect, Select, SelectItem } from '~/Components/Input';
+import { PopupItem } from '~/Components/Popup';
+import { Input, InputSelect, Select } from '~/Components/Input';
 
 describe("<Input/>", () => {
   configure({ adapter: new Adapter() });
@@ -57,7 +58,7 @@ describe("<InputSelect/>", () => {
       <InputSelect testing linkValue={{
         get: () => value,
         set: v => value = v
-      }} initOpen source={async val => ['test']} rows={data => data.map(name => <SelectItem key={name}>{name}</SelectItem>)}/>
+      }} initOpen source={async val => ['test']} rows={data => data.map(name => <PopupItem key={name}>{name}</PopupItem>)}/>
     );
 
     const popup = $(document).find('.popup.select');
@@ -78,7 +79,7 @@ describe("<InputSelect/>", () => {
       <InputSelect testing linkValue={{
         get: () => value,
         set: v => value = v
-      }} source={async val => ['test']} rows={data => data.map(name => <SelectItem key={name}>{name}</SelectItem>)}/>
+      }} source={async val => ['test']} rows={data => data.map(name => <PopupItem key={name}>{name}</PopupItem>)}/>
     );
 
     const popup = $(document).find('.popup.select');

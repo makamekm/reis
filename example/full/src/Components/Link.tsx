@@ -16,14 +16,15 @@ export const Link = (props: {
 }) => {
   return <Consumer>
     {context => {
-      let active = context.isPath(props.to, props.relative);
+      const active = context.isPath(props.to, props.relative);
+      const doAction = e => {
+        e.preventDefault()
+        context.go(props.to);
+      }
 
       if (props.component == 'Button') {
         return (
-          <Button elementType="a" style={props.style} href={context.getPath(props.to)} disabled={active} className={props.className + (active ? (' ' + props.activeClassName) : '')} onClick={async e => {
-            e.preventDefault();
-            context.go(props.to);
-          }}>
+          <Button elementType="a" style={props.style} href={context.getPath(props.to)} disabled={active} className={props.className + (active ? (' ' + props.activeClassName) : '')} onClick={async e => doAction(e)}>
             {props.children}
           </Button>
         )
@@ -32,10 +33,11 @@ export const Link = (props: {
         const Component = props.component || 'a';
 
         return (
-          <Component href={context.getPath(props.to)} style={props.style} className={active ? (props.className + ' ' + props.activeClassName) : props.className} onClick={e => {
-            e.preventDefault()
-            context.go(props.to);
-          }}>
+          <Component tabIndex={0} href={context.getPath(props.to)} style={props.style} className={active ? (props.className + ' ' + props.activeClassName) : props.className} onKeyDown={e => {
+            if (e.keyCode == 13) {
+              doAction(e);
+            }
+          }} onClick={e => doAction(e)}>
             {props.children}
           </Component>
         )

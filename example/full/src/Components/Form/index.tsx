@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { SliderPicker, CirclePicker } from 'react-color';
 
-import { Input, InputProps, InputSize, InputType, Select, InputSelect, SelectSize, SelectItem, InputSelectType, InputSelectSize, SelectFile, SelectFileSize } from '../Input';
+import { Input, InputProps, InputSize, InputType, Select, InputSelect, SelectSize, InputSelectSize, SelectFile, SelectFileSize } from '../Input';
 import { Popup } from '../Popup';
 import { Icon } from '../Icon';
 

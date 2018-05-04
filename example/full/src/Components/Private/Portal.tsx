@@ -25,6 +25,7 @@ export class PortalProps {
   isOpen?: boolean
   isHide?: boolean
   isFixedBody?: boolean
+  isFocusable?: boolean
   onOpen?: (node: HTMLElement) => void
   onClose?: (node: HTMLElement, callback: () => void) => void
   children: any
@@ -55,14 +56,41 @@ export class MountControlled extends React.Component<{
 export class Portal extends React.Component<PortalProps> {
   public static defaultProps: PortalProps = new PortalProps()
   node: HTMLDivElement
+
+  isActive() {
+    return this.node === $(document.body).children().filter('div').last()[0];
+  }
+
+  isShow() {
+    return this.props.isOpen && !this.props.isHide;
+  }
+
+  setTabIndexes() {
+    if (this.props.isFocusable && this.isActive()) {
+      $(document.body).children().filter((i, el) => el !== this.node).find('[tabindex]').attr('tabindex', "-1");
+      $(this.node).find('[tabindex]').attr('tabindex', "0");
+    }
+  }
+
+  unsetTabIndexes() {
+    if (this.props.isFocusable && this.isActive()) {
+      let nodes = $(document.body).children().filter((i, el) => el !== this.node);
+      let nodesSingleFocusable = nodes.filter('.data-single-focsable');
+      if (nodesSingleFocusable.length > 0) {
+        $(nodesSingleFocusable[nodesSingleFocusable.length - 1]).find('[tabindex]').attr('tabindex', "0");
+      } else {
+        nodes.find('[tabindex]').attr('tabindex', "0");
+      }
+    }
+  }
   
   render() {
     return <Consumer>{parent => {
-      const isShow = this.props.isOpen && !this.props.isHide;
+      const isShow = this.isShow();
 
       let consumer = {
         level: this.props.isGhost ? parent.level + 1 : parent.level,
-        isActive: () => this.node === $(document.body).children().filter('div').last()[0],
+        isActive: () => this.isActive(),
         isShow: () => isShow,
         getNode: () => this.node
       }
@@ -73,6 +101,7 @@ export class Portal extends React.Component<PortalProps> {
         if (!this.node) {
           this.node = document.createElement('div');
           document.body.appendChild(this.node);
+          if (this.props.isFocusable) $(this.node).addClass('.data-single-focsable');
         }
 
         body = ReactDOM.createPortal(
@@ -81,6 +110,7 @@ export class Portal extends React.Component<PortalProps> {
               document.body.style.overflow = "hidden";
               // document.body.scroll = 'no';
             }
+            this.setTabIndexes();
             if (this.props.onOpen) {
               if (this.props.testing) {
                 this.props.onOpen(this.node);
@@ -90,6 +120,7 @@ export class Portal extends React.Component<PortalProps> {
             }
           }} onUnmount={() => {
             let callback = () => {
+              this.unsetTabIndexes();
               this.node.parentNode.removeChild(this.node);
               this.node = null;
               if (this.props.isFixedBody) {

@@ -7,8 +7,6 @@ import { Icon } from '../Icon';
 export type SelectSize = 'md' | 'xs' | 'lg' | 'sm';
 export type SelectType = 'text' | 'password' | 'email';
 
-export const SelectItem = PopupItem;
-
 export class Select extends React.Component<{
     className?: string
     placeholder?: string
