@@ -62,24 +62,21 @@ export function deleteUser(id: number): Action|Promise<Action> {
   };
 }
 
-export class Reduce {
+Reducer.Reducer('User', (state: Model = initialState, action: Action): Model => {
+  switch (action.type) {
+    case 'SET_USER':
+      return {
+        ...state,
+        entity: action.user
+      }
 
-  @Reducer.Reducer('User')
-  public Reducer(state: Model = initialState, action: Action): Model {
+    case 'DELETE_USER':
+      return {
+        ...state,
+        entity: null
+      };
 
-    switch (action.type) {
-      case 'SET_USER':
-        return Object.assign({}, state, {
-          entity: action.user
-        })
-
-      case 'DELETE_USER':
-        return Object.assign({}, state, {
-          entity: null,
-        })
-
-      default:
-        return state;
-    }
+    default:
+      return state;
   }
-}
+})

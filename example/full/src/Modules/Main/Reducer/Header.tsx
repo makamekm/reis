@@ -75,45 +75,44 @@ export function unsetNotification(notification: NotificationModel): Action {
   };
 }
 
-export class Reduce {
+Reducer.Reducer('Header', (state: Model = initialState, action: Action): Model => {
+  switch (action.type) {
 
-  @Reducer.Reducer('Header')
-  public Reducer(state: Model = initialState, action: Action): Model {
+    case 'SET_TITLE':
+      return {
+        ...state,
+        title: action.title
+      };
 
-    switch (action.type) {
+    case 'SET_THEME':
+      return {
+        ...state,
+        theme: action.theme
+      };
 
-      case 'SET_TITLE':
-        return Object.assign({}, state, {
-          title: action.title
-        });
-
-      case 'SET_THEME':
-        return Object.assign({}, state, {
-          theme: action.theme
-        });
-
-      case 'SET_NOTIFFICATION':
-        if (state.notifications.findIndex(i => i.id == action.notification.id) < 0) {
-          var notifications = [];
-          state.notifications.forEach(n => notifications.push(n));
-          notifications.push(action.notification);
-          return Object.assign({}, state, {
-            notifications: notifications
-          });
-        }
-        return state;
-
-      case 'UNSET_NOTIFFICATION':
+    case 'SET_NOTIFFICATION':
+      if (state.notifications.findIndex(i => i.id == action.notification.id) < 0) {
         var notifications = [];
-        state.notifications.forEach(n => {
-          if (n !== action.notification) notifications.push(n);
-        });
-        return Object.assign({}, state, {
+        state.notifications.forEach(n => notifications.push(n));
+        notifications.push(action.notification);
+        return {
+          ...state,
           notifications: notifications
-        });
+        };
+      }
+      return state;
 
-      default:
-        return state;
-    }
+    case 'UNSET_NOTIFFICATION':
+      var notifications = [];
+      state.notifications.forEach(n => {
+        if (n !== action.notification) notifications.push(n);
+      });
+      return {
+        ...state,
+        notifications: notifications
+      };
+
+    default:
+      return state;
   }
-}
+})

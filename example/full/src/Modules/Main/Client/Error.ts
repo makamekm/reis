@@ -5,7 +5,7 @@ import { RegisterHook } from 'reiso/Modules/ClientHook';
 import * as Header from '../Reducer/Header';
 
 RegisterHook(store => {
-  const linkError = onError(({ graphQLErrors, networkError, operation }) => {
+  const linkError = onError(({ graphQLErrors, networkError, operation }) => {    
     if (graphQLErrors) {
       graphQLErrors.map(({ message, locations, path }) => {
         // console.error(

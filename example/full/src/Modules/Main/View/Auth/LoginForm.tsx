@@ -41,10 +41,10 @@ export class LoginForm extends React.Component<{
       this.loading = false;
 
       let state;
-console.log(e);
 
       for (let err of e) {
-        context.setNotification(err.title, err.message, err.code);
+        if (err.title || err.message) context.setNotification(err.title, err.message, err.code);
+
         if (err.state) {
           state = state ? { ...state, ...err.state } : err.state;
         }

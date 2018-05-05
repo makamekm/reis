@@ -4,6 +4,7 @@ import * as http from 'http';
 import * as cookieParser from 'cookie-parser';
 import * as helmet from 'helmet';
 import * as graphqlHTTP from 'apollo-server-express';
+
 import * as graphql from 'graphql';
 import * as subscriptionServer from 'subscriptions-transport-ws';
 import * as multer from 'multer';
@@ -13,7 +14,6 @@ import * as compression from 'compression';
 import * as seaport from 'seaport';
 const ddos = require('ddos');
 
-// Config
 import { getConfig } from '../Modules/Config';
 import * as Translation from '../Modules/Translation';
 import * as Query from '../Modules/Query';
@@ -22,19 +22,18 @@ import * as WebHook from '../Modules/WebHook';
 import { getHooksGraphQL, getHooksWSonConnect, getHooksWSonMessage, getHooksWSonDisconnect } from '../Modules/ServerHook';
 import { Render } from '../Server/Render';
 
-// Catch errors
-export function parseError(error, type = 'graphql') {
-  Log.logError(error, { type });
+export function parseAndLogError(error, type = 'graphql') {
+  Log.logError(error.originalError || error, { type });
 
   let serialazed = {
     status: error.originalError && error.originalError.status,
     type: error.type ? error.type : (error.originalError ? error.originalError.constructor.name : error.constructor.name),
     state: error.originalError && error.originalError.state,
     message: error.message,
-    title: error.title,
-    code: error.code,
-    path: error.path,
-    errors: error.graphQLErrors ? error.graphQLErrors.map(e => parseError(e, type)) : []
+    title: error.originalError && error.originalError.title,
+    code: error.originalError && error.originalError.code,
+    path: error.originalError && error.originalError.path,
+    errors: error.graphQLErrors ? error.graphQLErrors.map(e => parseAndLogError(e, type)) : []
   };
 
   if (process.env.NODE_ENV == 'development') {
@@ -48,10 +47,8 @@ export function parseError(error, type = 'graphql') {
 export class Server {
   public app: express.Express;
   public server: http.Server;
-
   private api: express.Express;
   private webpackHotMiddleware: any;
-
   private subscriptionManager: Query.SubscriptionManager
 
   public async start() {
@@ -93,7 +90,6 @@ export class Server {
       next();
     });
     this.app.use(this.logErrors);
-
     this.app.use(express.static(getConfig().publicDir));
     this.app.use('/uploads', express.static(getConfig().uploadDir));
   }
@@ -106,8 +102,7 @@ export class Server {
   private logErrors(error, req, res, next) {
     if (error.status) res.status(error.status);
     else res.status(501);
-    Log.logError(error, { type: 'server' });
-    res.json(parseError(error, 'server'));
+    res.json(parseAndLogError(error, 'server'));
   }
 
   public setRender() {
@@ -180,7 +175,8 @@ export class Server {
       graphqlHTTP.graphqlExpress({
         schema: Query.getSchema(),
         context,
-        formatError: error => parseError(error),
+        formatError: error => parseAndLogError(error, 'graphql'),
+        debug: false,
       })(req, res, next);
     });
     this.app.get('/graphiql', graphqlHTTP.graphiqlExpress({ endpointURL: '/graphql' }));
@@ -265,7 +261,7 @@ export class Server {
               for (let hook of getHooksWSonDisconnect()) {
                 await hook(webSocket);
               }
-            }
+            },
           },
           {
             server: websocketServer,
