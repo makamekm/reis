@@ -11,6 +11,8 @@ import { Modal, Consumer as ModalConsumer, ConsumerType as ModalConsumerType } f
 import { Consumer, ConsumerType } from '../Html';
 import * as Header from '~/Modules/Main/Reducer/Header';
 
+import Id from '~/Export/Id';
+
 export class LoginForm extends React.Component<{
   children: (modal: ModalConsumerType) => any
 }> {
@@ -39,16 +41,12 @@ export class LoginForm extends React.Component<{
       this.loading = false;
 
       let state;
+console.log(e);
 
-      if (Array.isArray(e)) for (let err of e) {
-        context.setNotification('Error', err.message);
+      for (let err of e) {
+        context.setNotification(err.title, err.message, err.code);
         if (err.state) {
           state = state ? { ...state, ...err.state } : err.state;
-        }
-      } else {
-        context.setNotification('Error', e.message);
-        if (e.state) {
-          state = e.state;
         }
       }
 
@@ -82,7 +80,7 @@ export class LoginForm extends React.Component<{
                 </div>
                 <div className="block default px-1 pb-2 text center">
                   <div className="row around-xs mx-2">
-                    <InputForm className="col-12 mt-1 px-2" label="Login:" placeholder="Username or Email" icon="at" errors={this.state.errors && this.state.errors.username} linkValue={{
+                    <InputForm id={Id.loginUsernameInput} className="col-12 mt-1 px-2" label="Login:" placeholder="Username or Email" icon="at" errors={this.state.errors && this.state.errors.username} linkValue={{
                       set: (value) => this.setState({ username: value }),
                       get: () => this.state.username
                     }} onEnterKey={async () => {
@@ -90,7 +88,7 @@ export class LoginForm extends React.Component<{
                         this.login(context);
                       }
                     }}/>
-                    <InputForm className="col-12 mt-3 px-2" label="Password:" type="password" placeholder="Password" icon="key" errors={this.state.errors && this.state.errors.password} linkValue={{
+                    <InputForm id={Id.loginPasswordInput} className="col-12 mt-3 px-2" label="Password:" type="password" placeholder="Password" icon="key" errors={this.state.errors && this.state.errors.password} linkValue={{
                       set: (value) => this.setState({ password: value }),
                       get: () => this.state.password
                     }} onEnterKey={async () => {
@@ -101,11 +99,11 @@ export class LoginForm extends React.Component<{
                   </div>
                 </div>
                 <div className="block default text right pt-3 px-3 pb-3">
-                  <Button className="mr-3 mb-1" size="md" onClick={async () => modalContext.close()}>
+                  <Button id={Id.loginCancelBtn} className="mr-3 mb-1" size="md" onClick={async () => modalContext.close()}>
                     <span className="fa fa-ban"></span>
                     <span>Cancel</span>
                   </Button>
-                  <Button type="primary" size="md" className={"mr-1 mb-1" + (this.loading ? ' loading' : '')} onClick={async e => {
+                  <Button id={Id.loginLoginBtn} type="primary" size="md" className={"mr-1 mb-1" + (this.loading ? ' loading' : '')} onClick={async e => {
                     await this.login(context);
                   }}>
                     <span className="fa fa-bolt"></span>

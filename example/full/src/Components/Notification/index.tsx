@@ -1,12 +1,14 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom';
 
-import { Portal, PortalProps } from '../Private/Portal';
+import { Portal, PortalProps } from '../Portal';
 import { Button } from '../Button';
 
 export type NotificationType = "error"
 
 export class NotificationProps {
+  id?: string
+  code?: string
   timeout?: number = 2000
   type: NotificationType
   title?: string
@@ -91,25 +93,26 @@ export class Notification extends React.Component<NotificationProps, {}> {
           this.props.onClose();
         }, 400);
       }}>
-      <div ref={ref => this.container = ReactDOM.findDOMNode(ref) as Element} className="notification-container std">
+      <div id={this.props.id} data-code={this.props.code} ref={ref => this.container = ReactDOM.findDOMNode(ref) as Element} className="notification-container std">
         <div className="notification" onMouseEnter={() => this.stopTimer()} onMouseLeave={() => this.startTimer()}>
-          <div className="block error">
+          {this.props.title && <div className="block error">
             <div className="row justify-content-between align-items-center">
-              <div className="col-auto py-2 px-3">
+              <div className="col-auto pt-2 px-3">
                 <span className="text medium thin px-2">
-                  {this.props.title ? this.props.title : 'Error'}
+                  {this.props.title}
                 </span>
               </div>
-              <div className="col text right py-2">
+              <div className="col text right pt-2">
                 <Button className="mr-1" size="sm" onClick={async () => {
                   this.open = false;
                   this.forceUpdate();
-                  }}><span className="fa fa-close"></span></Button>
+                }}><span className="fa fa-close"></span></Button>
               </div>
             </div>
-          </div>
-          <div className="block error px-4 pb-3 thin">
+          </div>}
+          <div className="block error px-4 py-3 thin">
             {this.props.message}
+            {this.props.code && <div className="text small right">{this.props.code}</div>}
           </div>
         </div>
       </div>

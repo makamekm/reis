@@ -6,70 +6,61 @@ import { Flag } from '../Flag';
 import { Clickable } from '../Clickable';
 import { Link } from '../Link';
 
-export function MenuHeader(props) {
-  return <div id={props.id} className="header" dangerouslySetInnerHTML={{ __html: props.image }}>
-  </div>
-}
+export const MenuHeader = (props: { image: string, id?: string }) => <div id={props.id} className="header" dangerouslySetInnerHTML={{ __html: props.image }}></div>
 
-export function MenuSpace(props) {
-  return <div className="space"/>
-}
+export const MenuSpace = (props: { id?: string }) => <div id={props.id} className="space"/>
 
-export function MenuDivider(props) {
-  return <div className="divider"/>
-}
+export const MenuDivider = (props: { id?: string }) => <div id={props.id} className="divider"/>
 
 export function MenuInput(props: {
+  id?: string
   icon?: string
   placeholder?: string
   help?: string
   className?: string
 }) {
   return <div className={"input " + (props.className || "")}>
-    <input id="searching" type="text" placeholder={props.placeholder || "Search"}/>
+    <input id={this.props.id} type="text" placeholder={props.placeholder || "Search"}/>
     <Icon name={props.icon || "search"}/>
     <span className="right">{props.help || "Type to send"}</span>
   </div>
 }
 
-export class MenuItem extends React.Component<{
+export const MenuItem = (props: {
+  id?: string
   icon?: string
   flag?: string
   children?: any
   onClick?(e?: React.MouseEvent<HTMLDivElement>): Promise<void>
-}> {
-  render() {
-    return <Clickable className={"item " + (!this.props.children ? 'image' : '')} onClick={this.props.onClick}>
-      {this.props.flag && <Flag name={this.props.flag}/>}
-      {this.props.icon && <Icon name={this.props.icon}/>}
-      {this.props.children && <span>{this.props.children}</span>}
-    </Clickable>
-  }
-}
+}) => <Clickable id={props.id} className={"item " + (!props.children ? 'image' : '')} onClick={props.onClick}>
+  {props.flag && <Flag name={props.flag}/>}
+  {props.icon && <Icon name={props.icon}/>}
+  {props.children && <span>{props.children}</span>}
+</Clickable>
 
-export function MenuLink(props: {
+export const MenuLink = (props: {
+  id?: string
   icon?: string
   flag?: string
   children?: any
   to?: string
   relative?: boolean
-}) {
-  return <Link className={"item " + (!props.children ? 'image' : '')} to={props.to} activeClassName="active" relative={props.relative}>
-    {props.flag && <Flag name={props.flag}/>}
-    {props.icon && <Icon name={props.icon}/>}
-    {props.children && <span>{props.children}</span>}
-  </Link>
-}
+}) => <Link id={props.id} className={"item " + (!props.children ? 'image' : '')} to={props.to} activeClassName="active" relative={props.relative}>
+  {props.flag && <Flag name={props.flag}/>}
+  {props.icon && <Icon name={props.icon}/>}
+  {props.children && <span>{props.children}</span>}
+</Link>
 
-export function MenuGroup(props: {
+export const MenuGroup = (props: {
+  id?: string
   children: any
-}) {
-  return <div className="group">
-    {props.children}
-  </div>
-}
+}) => <div id={props.id} className="group">
+  {props.children}
+</div>
 
-export function MenuDrop(props: {
+export const MenuDrop = (props: {
+  id?: string
+  popupId?: string
   icon?: string
   flag?: string
   children: any
@@ -78,16 +69,14 @@ export function MenuDrop(props: {
   minWidth?: string
   maxWidth?: string
   className?: string
-}) {
-  return <Popup type="select" minWidth={props.minWidth} maxWidth={props.maxWidth} position={props.position || "bottom center"} timeout={300} element={
-    popup => <Clickable onClick={async () => popup.open()} onMouseLeave={() => popup.close()} ref={ref => popup.ref(ref)} className={"item" + (!props.text ? ' image' : '') + (props.className ? (' ' + props.className) : '')}>
-      {props.flag && <Flag name={props.flag}/>}
-      {props.icon && <Icon name={props.icon}/>}
-      {props.text && <span>{props.text}</span>}
-    </Clickable>} closeOnOutClick closeOnEsc closeOnOutMove focusOnClose isFocusable>
-    {props.children}
-  </Popup>
-}
+}) => <Popup id={props.popupId} type="select" minWidth={props.minWidth} maxWidth={props.maxWidth} position={props.position || "bottom center"} timeout={300} element={
+  popup => <Clickable id={props.id} onClick={async () => popup.open()} onMouseLeave={() => popup.close()} ref={ref => popup.ref(ref)} className={"item" + (!props.text ? ' image' : '') + (props.className ? (' ' + props.className) : '')}>
+    {props.flag && <Flag name={props.flag}/>}
+    {props.icon && <Icon name={props.icon}/>}
+    {props.text && <span>{props.text}</span>}
+  </Clickable>} closeOnOutClick closeOnEsc closeOnOutMove focusOnClose isFocusable>
+  {props.children}
+</Popup>
 
 export class Menu extends React.Component<{
   sticky?: boolean

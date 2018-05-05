@@ -10,7 +10,8 @@ module.exports = (config) => {
           require('karma-jasmine'),
           require('karma-webpack'),
           require('karma-jasmine-html-reporter'),
-          require('karma-phantomjs-launcher')
+          require('karma-phantomjs-launcher'),
+          require('karma-coverage')
         ],
 
         files: [
@@ -32,8 +33,13 @@ module.exports = (config) => {
         // ],
     
         preprocessors: {
-            '**/*.ts': [ 'webpack' ],
-            '**/*.tsx': [ 'webpack' ]
+            '**/*.ts': [ 'webpack', 'coverage' ],
+            '**/*.tsx': [ 'webpack', 'coverage' ]
+        },
+
+        // configure the reporter
+        coverageReporter: {
+          type: 'text'
         },
     
         webpack: {
@@ -110,7 +116,7 @@ module.exports = (config) => {
         // test results reporter to use
         // possible values: 'dots', 'progress'
         // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-        reporters: ['progress'],
+        reporters: ['progress', 'coverage'],
         // reporters: ['progress', 'kjhtml'],
         // colors: true,
 

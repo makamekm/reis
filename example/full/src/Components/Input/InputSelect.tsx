@@ -20,7 +20,8 @@ export class InputSelect extends React.Component<{
     initOpen?: boolean
     filter?: boolean
     source: (value: string) => Promise<any[]>
-    rows: (data: any[], update?: Function) => any
+    rows: (data: any[], update?: Function) => JSX.Element[]
+    onInit?: () => void
     linkValue: {
         set(value: string): void
         get(): string
@@ -42,6 +43,7 @@ export class InputSelect extends React.Component<{
     loading: boolean = false
     needToLoad: boolean = false
     mounted: boolean = false
+    inited: boolean = false
 
     componentDidMount() {
         this.mounted = true;
@@ -69,7 +71,12 @@ export class InputSelect extends React.Component<{
                     else {
                         this.loading = false;
                         this.state.data = data;
-                        this.forceUpdate();
+                        this.forceUpdate(() => {
+                            if (!this.inited) {
+                                this.inited = true;
+                                this.props.onInit && this.props.onInit();
+                            }
+                        });
                     }
                 }
             }
@@ -101,7 +108,7 @@ export class InputSelect extends React.Component<{
 
         let rowsRender = this.props.rows(this.state.data, this.update.bind(this));
 
-        let content = <div className={"item"}>Nothing to show</div>;
+        let content: JSX.Element | JSX.Element[] = <div className={"item"}>Nothing to show</div>;
         if (this.loading) content = <div className={"item loading"}>Loading...</div>;
         if (rowsRender && rowsRender.length > 0) content = rowsRender;
 

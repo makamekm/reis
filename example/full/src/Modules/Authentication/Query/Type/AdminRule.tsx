@@ -1,9 +1,9 @@
 import { GraphQLScalarType, Kind } from 'graphql';
 
-import * as Validator from 'reiso/Modules/Validator';
-import * as Error from 'reiso/Modules/Error';
 import * as GraphQL from 'reiso/Modules/Query';
 
+import Code from '~/Export/Code';
+import { InputError } from '~/Global/Error';
 import { AdminRule, AdminRuleForEach } from '~/Modules/Authentication/Enum/AdminRule';
 
 export const ruleAdminType = new GraphQLScalarType({
@@ -16,13 +16,13 @@ export const ruleAdminType = new GraphQLScalarType({
       if (value as any == rule) exist = true;
     });
 
-    if (!exist) throw new Error.UnexpectedInput('AdminRule is not defined: ' + value);
+    if (!exist) throw new InputError(null, 'AdminRule is not defined: ' + value, Code.AdminRuleInputWrong);
 
     return value;
   },
   parseLiteral: ast => {
     if (ast.kind !== Kind.INT) {
-      throw new Error.UnexpectedInput('AdminRule can only parse int got a: ' + ast.kind);
+      throw new InputError(null, 'AdminRule can only parse int got a: ' + ast.kind, Code.AdminRuleInputWrong);
     }
 
     let exist = false;
@@ -31,7 +31,7 @@ export const ruleAdminType = new GraphQLScalarType({
       if (ast.value as any == rule) exist = true;
     });
 
-    if (!exist) throw new Error.UnexpectedInput('AdminRule is not defined: ' + ast.value);
+    if (!exist) throw new InputError(null, 'AdminRule is not defined: ' + ast.value, Code.AdminRuleInputWrong);
 
     return ast.value;
   }

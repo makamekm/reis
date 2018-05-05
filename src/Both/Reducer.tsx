@@ -50,10 +50,8 @@ export let createStoreEnc: (enc: Redux.StoreEnhancer, initialState?: any) => Red
   return store;
 }
 
-export function Reducer(name) {
-  return (target: any, key: string, descriptor: TypedPropertyDescriptor<any>): any => {
-    Reducers[name ? name : key] = descriptor.value;
-  }
+export function Reducer(name: string, func) {
+  Reducers[name] = func;
 }
 
 export const Provider = ReactRedux.Provider;

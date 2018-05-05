@@ -1,5 +1,3 @@
-import $ = require('jquery');
-
 describe("A suite", async () => {
   it("contains spec with an expectation", async () => {
     const r: number = 25;

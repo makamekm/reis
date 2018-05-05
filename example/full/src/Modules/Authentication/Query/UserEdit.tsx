@@ -4,12 +4,14 @@ import * as path from 'path';
 const crypto = require('crypto');
 
 import { getConfig } from 'reiso/Modules/Config';
-import * as Validator from 'reiso/Modules/Validator';
-import * as Error from 'reiso/Modules/Error';
 import * as ORM from 'reiso/Modules/ORM';
 import * as GraphQL from 'reiso/Modules/Query';
 import * as Translation from 'reiso/Modules/Translation';
 
+import Code from '~/Export/Code';
+import { uploadType } from "~/Global/QueryType";
+import { stringValidator, emailValidator } from '~/Global/Validator';
+import { DenyError, ValidationError, InputError } from '~/Global/Error';
 import { Session } from '~/Modules/Authentication/Entity/Session';
 import { User } from '~/Modules/Authentication/Entity/User';
 import { UserAvatar } from '~/Modules/Authentication/Entity/UserAvatar';
@@ -17,7 +19,6 @@ import { Email } from '~/Modules/Authentication/Entity/Email';
 import { UserPrivate } from '~/Modules/Authentication/Entity/UserPrivate';
 import { AdminRule, HasAdminRule } from '~/Modules/Authentication/Enum/AdminRule';
 import { Language } from '~/Modules/Language/Enum/Language';
-
 import { emailType } from '~/Modules/Authentication/Query/Type/Email';
 import { usernameType, passwordType } from '~/Modules/Authentication/Query/Type/User';
 import { languageType } from '~/Modules/Authentication/Query/Type/Language';
@@ -35,7 +36,7 @@ export class UserEditDate {
   @GraphQL.InputField(type => emailType, { nullable: true })
   email?: string;
 
-  @GraphQL.InputField(type => GraphQL.uploadType, { nullable: true })
+  @GraphQL.InputField(type => uploadType, { nullable: true })
   avatar?: string;
 
   @GraphQL.InputField(type => languageType, { nullable: true })
@@ -57,7 +58,7 @@ export class UserEditMeDate {
   @GraphQL.InputField(type => emailType, { nullable: true })
   email?: string;
 
-  @GraphQL.InputField(type => GraphQL.uploadType, { nullable: true })
+  @GraphQL.InputField(type => uploadType, { nullable: true })
   avatar?: string;
 
   @GraphQL.InputField(type => languageType, { nullable: true })
@@ -77,27 +78,27 @@ export class UserEditMutation {
     ): Promise<boolean> {
 
     if (!context.session) {
-      throw new Error.DenyError(context.trans('Error.NotLogged'));
+      throw new DenyError(null, context.trans('Error.NotLogged'));
     }
 
     if (!HasAdminRule(context.session.user.rules, [AdminRule.Administator])) {
-      throw new Error.DenyError(context.trans('Error.HaventRule'));
+      throw new DenyError(null, context.trans('Error.HaventRule'));
     }
 
     let connection = await ORM.Manager().Connect();
     let userRepository = connection.getRepository(User);
 
     if (ids.find(id => id == context.session.user.id)) {
-      throw new Error.MissMatchError("You cannot delete yourself");
+      throw new DenyError(null, "You cannot delete yourself");
     }
 
     for (let id of ids) {
       let user = await userRepository.findOne(id);
 
-      if (!user) throw new Error.MissMatchError("The user hasn't been found by id: " + id);
+      if (!user) throw new DenyError(null, "The user hasn't been found by id: " + id);
 
       if (!HasAdminRule(context.session.user.rules, [AdminRule.Administator]) && HasAdminRule(user.rules, [AdminRule.Administator])) {
-        throw new Error.MissMatchError("You cannot delete Administator");
+        throw new DenyError(null, "You cannot delete Administator");
       }
 
       await userRepository.remove(user);
@@ -113,11 +114,11 @@ export class UserEditMutation {
     ): Promise<User> {
 
     if (!context.session) {
-      throw new Error.DenyError(context.trans('Error.NotLogged'));
+      throw new DenyError(null, context.trans('Error.NotLogged'));
     }
 
     if (!HasAdminRule(context.session.user.rules, [AdminRule.Administator])) {
-      throw new Error.DenyError(context.trans('Error.HaventAdminRule'));
+      throw new DenyError(null, context.trans('Error.HaventAdminRule'));
     }
 
     let connection = await ORM.Manager().Connect();
@@ -126,7 +127,7 @@ export class UserEditMutation {
     let emailRepository = connection.getRepository(Email);
     let userAvatarRepository = connection.getRepository(UserAvatar);
 
-    let errors = Validator.stringValidator(data.username, {
+    let errors = stringValidator(data.username, {
       min: 3,
       max: 20
     }).map(i => ({
@@ -141,7 +142,7 @@ export class UserEditMutation {
       });
     }
 
-    errors = errors.concat(Validator.stringValidator(data.password, {
+    errors = errors.concat(stringValidator(data.password, {
       min: 3,
       max: 20
     }).map(i => ({
@@ -149,7 +150,7 @@ export class UserEditMutation {
       message: i
     })));
 
-    errors = errors.concat(Validator.stringValidator(data.avatar, {
+    errors = errors.concat(stringValidator(data.avatar, {
       min: 3,
       max: 100,
       nullable: true
@@ -158,7 +159,7 @@ export class UserEditMutation {
       message: i
     })));
 
-    errors = errors.concat(Validator.emailValidator(data.email, {
+    errors = errors.concat(emailValidator(data.email, {
       nullable: true
     }).map(i => ({
       key: 'email',
@@ -189,7 +190,7 @@ export class UserEditMutation {
     }
 
     if (errors.length) {
-      throw new Error.ValidationError(errors);
+      throw new ValidationError(null, null, Code.CreateUserDataWrong, errors);
     }
 
     // ----------------
@@ -217,7 +218,7 @@ export class UserEditMutation {
       let file = context.files.find(f => f.fieldname == data.avatar);
 
       if (file) {
-        if (this.avatarType.indexOf(file.mimetype) < 0) throw new Error.FileFormat('The file has wrong format: ' + file.mimetype);
+        if (this.avatarType.indexOf(file.mimetype) < 0) throw new InputError(null, 'The file has wrong format: ' + file.mimetype, Code.FileInputWrong);
 
         let fileBase = Math.random().toString(36) + '-' + Date.now()
         let fileName = fileBase + path.extname(file.originalname)
@@ -291,10 +292,10 @@ export class UserEditMutation {
     ): Promise<User> {
 
     if (!context.session) {
-      throw new Error.DenyError(context.trans('Error.NotLogged'));
+      throw new DenyError(null, context.trans('Error.NotLogged'));
     }
     else if (!HasAdminRule(context.session.user.rules, [AdminRule.Administator])) {
-      throw new Error.DenyError(context.trans('Error.HaventAdminRule'));
+      throw new DenyError(null, context.trans('Error.HaventAdminRule'));
     }
 
     let connection = await ORM.Manager().Connect();
@@ -305,11 +306,11 @@ export class UserEditMutation {
 
     let user = await userRepository.findOne(id);
 
-    if (!user) throw new Error.MissMatchError("The user hasn't been found by id: " + id);
+    if (!user) throw new DenyError(null, "The user hasn't been found by id: " + id);
 
     // ----------------
 
-    let errors = Validator.stringValidator(data.username, {
+    let errors = stringValidator(data.username, {
       min: 3,
       max: 20
     }).map(i => ({
@@ -324,7 +325,7 @@ export class UserEditMutation {
       });
     }
 
-    errors = errors.concat(Validator.stringValidator(data.password, {
+    errors = errors.concat(stringValidator(data.password, {
       min: 3,
       max: 20,
       nullable: true
@@ -333,7 +334,7 @@ export class UserEditMutation {
       message: i
     })));
 
-    errors = errors.concat(Validator.stringValidator(data.avatar, {
+    errors = errors.concat(stringValidator(data.avatar, {
       min: 3,
       max: 100,
       nullable: true
@@ -342,7 +343,7 @@ export class UserEditMutation {
       message: i
     })));
 
-    errors = errors.concat(Validator.emailValidator(data.email, {
+    errors = errors.concat(emailValidator(data.email, {
       nullable: true
     }).map(i => ({
       key: 'email',
@@ -373,7 +374,7 @@ export class UserEditMutation {
     }
 
     if(errors.length) {
-      throw new Error.ValidationError(errors);
+      throw new ValidationError(null, null, Code.EditUserDataWrong, errors);
     }
 
     // ----------------
@@ -395,7 +396,7 @@ export class UserEditMutation {
       let file = context.files.find(f => f.fieldname == data.avatar);
 
       if (file) {
-        if (this.avatarType.indexOf(file.mimetype) < 0) throw new Error.FileFormat('The file has wrong format: ' + file.mimetype);
+        if (this.avatarType.indexOf(file.mimetype) < 0) throw new InputError(null, 'The file has wrong format: ' + file.mimetype, Code.FileInputWrong);
 
         let fileBase = Math.random().toString(36) + '-' + Date.now();
         let fileName = fileBase + path.extname(file.originalname)
@@ -502,7 +503,7 @@ export class UserEditMutation {
     ): Promise<User> {
 
     if (!context.session) {
-      throw new Error.DenyError(context.trans('Error.NotLogged'));
+      throw new DenyError(null, context.trans('Error.NotLogged'));
     }
 
     let connection = await ORM.Manager().Connect();
@@ -515,7 +516,7 @@ export class UserEditMutation {
 
     // ----------------
 
-    let errors = Validator.stringValidator(data.username, {
+    let errors = stringValidator(data.username, {
       min: 3,
       max: 20
     }).map(i => ({
@@ -530,7 +531,7 @@ export class UserEditMutation {
       });
     }
 
-    errors = errors.concat(Validator.stringValidator(data.password, {
+    errors = errors.concat(stringValidator(data.password, {
       min: 3,
       max: 20,
       nullable: true
@@ -539,7 +540,7 @@ export class UserEditMutation {
       message: i
     })));
 
-    errors = errors.concat(Validator.stringValidator(data.avatar, {
+    errors = errors.concat(stringValidator(data.avatar, {
       min: 3,
       max: 100,
       nullable: true
@@ -548,7 +549,7 @@ export class UserEditMutation {
       message: i
     })));
 
-    errors = errors.concat(Validator.emailValidator(data.email, {
+    errors = errors.concat(emailValidator(data.email, {
       nullable: true
     }).map(i => ({
       key: 'email',
@@ -572,7 +573,7 @@ export class UserEditMutation {
     }
 
     if(errors.length) {
-      throw new Error.ValidationError(errors);
+      throw new ValidationError(null, null, Code.EditUserDataWrong, errors);
     }
 
     // ----------------
@@ -594,7 +595,7 @@ export class UserEditMutation {
       let file = context.files.find(f => f.fieldname == data.avatar);
 
       if (file) {
-        if (this.avatarType.indexOf(file.mimetype) < 0) throw new Error.FileFormat('The file has wrong format: ' + file.mimetype);
+        if (this.avatarType.indexOf(file.mimetype) < 0) throw new InputError(null, 'The file has wrong format: ' + file.mimetype, Code.FileInputWrong);
 
         let fileBase = Math.random().toString(36) + '-' + Date.now();
         let fileName = fileBase + path.extname(file.originalname)

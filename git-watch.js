@@ -21,6 +21,7 @@ gw.result$.subscribe( (result) => {
   } else {
     if (result.changed) {
       execSync("npm i", { stdio: [0, 1, 2] });
+      execSync("rm -rf build", { stdio: [0, 1, 2] });
       execSync("npm run build", { stdio: [0, 1, 2] });
       execSync(`node publish ${username} ${password} ${email}`, { stdio: [0, 1, 2] });
     }

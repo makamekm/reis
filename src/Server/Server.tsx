@@ -26,21 +26,23 @@ import { Render } from '../Server/Render';
 export function parseError(error, type = 'graphql') {
   Log.logError(error, { type });
 
-  let result = {
+  let serialazed = {
     status: error.originalError && error.originalError.status,
     type: error.type ? error.type : (error.originalError ? error.originalError.constructor.name : error.constructor.name),
     state: error.originalError && error.originalError.state,
     message: error.message,
+    title: error.title,
+    code: error.code,
     path: error.path,
     errors: error.graphQLErrors ? error.graphQLErrors.map(e => parseError(e, type)) : []
   };
 
   if (process.env.NODE_ENV == 'development') {
-    result['locations'] = error.locations;
-    result['trace'] = error.trace ? error.trace : error.stack;
+    serialazed['locations'] = error.locations;
+    serialazed['trace'] = error.trace ? error.trace : error.stack;
   }
 
-  return result;
+  return serialazed;
 }
 
 export class Server {

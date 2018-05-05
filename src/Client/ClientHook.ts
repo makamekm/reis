@@ -9,8 +9,6 @@ let hooks: ((store) => {
 
 export const getHooks: any = () => hooks;
 
-export function RegisterHook() {
-  return (target: any, key: string, descriptor: TypedPropertyDescriptor<(store) => Promise<object> | object>): any => {
-    hooks.push(descriptor.value as any);
-  }
+export function RegisterHook(func) {
+  hooks.push(func);
 }

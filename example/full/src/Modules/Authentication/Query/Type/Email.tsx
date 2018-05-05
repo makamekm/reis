@@ -1,8 +1,9 @@
 import { GraphQLScalarType, Kind } from 'graphql';
-
-import * as Validator from 'reiso/Modules/Validator';
-import * as Error from 'reiso/Modules/Error';
 import * as GraphQL from 'reiso/Modules/Query';
+
+import Code from '~/Export/Code';
+import { emailValidator } from '~/Global/Validator';
+import { InputError, ValidationError } from '~/Global/Error';
 
 export const emailType = new GraphQLScalarType({
   name: 'Email',
@@ -14,15 +15,15 @@ export const emailType = new GraphQLScalarType({
   },
   parseLiteral: ast => {
     if (ast.kind !== Kind.STRING) {
-      throw new Error.UnexpectedInput('Email can only parse strings got a: ' + ast.kind);
+      throw new InputError(null, 'Email can only parse strings got a: ' + ast.kind, Code.EmailInputWrong);
     }
 
-    let errors = Validator.emailValidator(ast.value, {
+    let errors = emailValidator(ast.value, {
       nullable: true
     });
 
     if(errors.length) {
-      throw new Error.ValidationError(errors.map(i => ({
+      throw new ValidationError(null, null, Code.EmailInputWrong, errors.map(i => ({
         key: 'Email',
         message: i
       })));

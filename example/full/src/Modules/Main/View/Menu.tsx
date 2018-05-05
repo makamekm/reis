@@ -18,6 +18,7 @@ import { Clickable } from '~/Components/Clickable';
 import { Button } from '~/Components/Button';
 // import { InputForm } from '~/Components/Form';
 import { Img } from '~/Components/Img';
+import Id from '~/Export/Id';
 import { Menu as MenuRaw, MenuSpace, MenuLink, MenuHeader, MenuItem, MenuDivider, MenuGroup, MenuInput, MenuDrop } from '~/Components/Menu';
 
 import { LoginForm } from './Auth/LoginForm';
@@ -214,12 +215,12 @@ export class Menu extends React.Component<{
               {themes}
             </MenuDrop>}
             {!this.props.user.entity && <LoginForm>
-              {modal => <MenuItem icon="sign-in" onClick={async () => modal.open()}>
+              {modal => <MenuItem id={Id.menuSigninBtn} icon="sign-in" onClick={async () => modal.open()}>
                 Sign in
               </MenuItem>}
             </LoginForm>}
             {!this.props.user.entity && <RegistrationForm>
-              {modal => <MenuItem icon="user-plus" onClick={async () => modal.open()}>
+              {modal => <MenuItem id={Id.menuSignupBtn} icon="user-plus" onClick={async () => modal.open()}>
                 Sign up
               </MenuItem>}
             </RegistrationForm>}

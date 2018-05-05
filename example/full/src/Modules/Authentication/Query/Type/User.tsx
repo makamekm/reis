@@ -1,8 +1,9 @@
 import { GraphQLScalarType, Kind } from 'graphql';
-
-import * as Validator from 'reiso/Modules/Validator';
-import * as Error from 'reiso/Modules/Error';
 import * as GraphQL from 'reiso/Modules/Query';
+
+import Code from '~/Export/Code';
+import { stringValidator } from '~/Global/Validator';
+import { InputError, ValidationError } from '~/Global/Error';
 
 export const usernameType = new GraphQLScalarType({
   name: 'Username',
@@ -14,17 +15,17 @@ export const usernameType = new GraphQLScalarType({
   },
   parseLiteral: ast => {
     if (ast.kind !== Kind.STRING) {
-      throw new Error.UnexpectedInput('Username can only parse strings got a: ' + ast.kind);
+      throw new InputError(null, 'Username can only parse strings got a: ' + ast.kind, Code.UsernameInputWrong);
     }
 
-    let errors = Validator.stringValidator(ast.value, {
+    let errors = stringValidator(ast.value, {
       min: 3,
       max: 20,
       nullable: true
     });
 
     if (errors.length) {
-      throw new Error.ValidationError(errors.map(i => ({
+      throw new ValidationError(null, null, Code.UsernameInputWrong, errors.map(i => ({
         key: 'Username',
         message: i
       })));
@@ -44,17 +45,17 @@ export const passwordType = new GraphQLScalarType({
   },
   parseLiteral: ast => {
     if (ast.kind !== Kind.STRING) {
-      throw new Error.UnexpectedInput('Password can only parse strings got a: ' + ast.kind);
+      throw new InputError(null, 'Password can only parse strings got a: ' + ast.kind, Code.PasswordInputWrong);
     }
 
-    let errors = Validator.stringValidator(ast.value, {
+    let errors = stringValidator(ast.value, {
       min: 3,
       max: 20,
       nullable: true
     });
 
     if (errors.length) {
-      throw new Error.ValidationError(errors.map(i => ({
+      throw new ValidationError(null, null, Code.PasswordInputWrong, errors.map(i => ({
         key: 'Password',
         message: i
       })));

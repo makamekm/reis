@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 
-import { Consumer } from '~/Components/Modal';
+import { Consumer } from '../Modal';
 import { Button } from '../Button';
 
 export type ProveModalType = "default" | "empty" | "error";

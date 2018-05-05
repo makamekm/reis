@@ -1,9 +1,8 @@
 import { GraphQLEnumType, GraphQLScalarType, Kind } from 'graphql';
+import * as GraphQL from 'reiso/Modules/Query';
 
-export * from '../Server/Query';
-
-import * as GraphQL from './Query';
-import * as Error from './Error';
+import Code from '~/Export/Code';
+import { BaseError, ValidationError } from './Error';
 import * as Validator from './Validator';
 
 export let orderEnum = new GraphQLEnumType({
@@ -24,21 +23,21 @@ export const uploadType = new GraphQLScalarType({
   },
   parseLiteral: ast => {
     if (ast.kind !== Kind.STRING) {
-      throw new Error.UnexpectedInput('Upload can only parse strings got a: ' + ast.kind);
+      throw new BaseError(null, 'Upload can only parse strings got a: ' + ast.kind, Code.FileInputWrong, 422);
     }
 
-  let errors = Validator.stringValidator(ast.value, {
-    min: 3,
-    max: 100,
-    nullable: true
-  });
+    let errors = Validator.stringValidator(ast.value, {
+      min: 3,
+      max: 100,
+      nullable: true
+    });
 
-  if (errors.length) {
-    throw new Error.ValidationError(errors.map(i => ({
-      key: 'Upload',
-      message: i
-    })));
-  }
+    if (errors.length) {
+      throw new ValidationError(null, null, Code.FileInputWrong, errors.map(i => ({
+        key: 'Upload',
+        message: i
+      })));
+    }
 
     return ast.value;
   }
@@ -54,7 +53,7 @@ export const colorType = new GraphQLScalarType({
   },
   parseLiteral: ast => {
     if (ast.kind !== Kind.STRING) {
-      throw new Error.UnexpectedInput('Color can only parse strings got a: ' + ast.kind);
+      throw new BaseError(null, 'Color can only parse strings got a: ' + ast.kind, Code.ColorInputWrong, 422);
     }
 
   let errors = Validator.colorValidator(ast.value, {
@@ -62,7 +61,7 @@ export const colorType = new GraphQLScalarType({
   });
 
   if (errors.length) {
-    throw new Error.ValidationError(errors.map(i => ({
+    throw new ValidationError(null, null, Code.ColorInputWrong, errors.map(i => ({
       key: 'Color',
       message: i
     })));
@@ -83,7 +82,7 @@ export const dateType = new GraphQLScalarType({
 
   parseLiteral: ast => {
     if (ast.kind !== Kind.STRING) {
-      throw new Error.UnexpectedInput('Date can only parse strings got a: ' + ast.kind);
+      throw new BaseError(null, 'Date can only parse strings got a: ' + ast.kind, Code.DateInputWrong, 422);
     }
 
     let errors = Validator.dateValidator(ast.value, {
@@ -91,7 +90,7 @@ export const dateType = new GraphQLScalarType({
     });
 
     if (errors.length) {
-      throw new Error.ValidationError(errors.map(i => ({
+      throw new ValidationError(null, null, Code.DateInputWrong, errors.map(i => ({
         key: 'Date',
         message: i
       })));

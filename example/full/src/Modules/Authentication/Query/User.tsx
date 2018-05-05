@@ -1,12 +1,11 @@
 import { GraphQLEnumType } from 'graphql';
-
 import * as Subscriptions from 'graphql-subscriptions';
-
 import * as ORM from 'reiso/Modules/ORM';
-import * as Error from 'reiso/Modules/Error';
 import * as GraphQL from 'reiso/Modules/Query';
 import * as Translation from 'reiso/Modules/Translation';
 
+import { dateType, orderEnum } from '~/Global/QueryType';
+import { DenyError } from '~/Global/Error';
 import { Session } from '~/Modules/Authentication/Entity/Session';
 import { User } from '~/Modules/Authentication/Entity/User';
 import { AdminRule, HasAdminRule } from '~/Modules/Authentication/Enum/AdminRule';
@@ -26,10 +25,10 @@ export class UserFilter {
   @GraphQL.InputField('integer', { nullable: true, array: true })
   language?: Language[];
 
-  @GraphQL.InputField(type => GraphQL.dateType, { nullable: true })
+  @GraphQL.InputField(type => dateType, { nullable: true })
   dateFrom?: Date;
 
-  @GraphQL.InputField(type => GraphQL.dateType, { nullable: true })
+  @GraphQL.InputField(type => dateType, { nullable: true })
   dateTo?: Date;
 
   @GraphQL.InputField('string', { nullable: true })
@@ -62,7 +61,7 @@ export class UserOrder {
   @GraphQL.InputField(type => UserOrderEnum)
   name: string;
 
-  @GraphQL.InputField(type => GraphQL.orderEnum)
+  @GraphQL.InputField(type => orderEnum)
   type: 'DESC'|'ASC';
 }
 
@@ -80,11 +79,11 @@ export class UserQuery {
   ): Promise<UserListResult> {
 
     if (!context.session) {
-      throw new Error.DenyError(context.trans('Error.NotLogged'));
+      throw new DenyError(null, context.trans('Error.NotLogged'));
     }
 
     if (!(HasAdminRule(context.session.user.rules, [AdminRule.Administator]))) {
-      throw new Error.DenyError(context.trans('Error.HaventRule'));
+      throw new DenyError(null, context.trans('Error.HaventRule'));
     }
 
     let connection = await ORM.Manager().Connect();
@@ -138,7 +137,7 @@ export class UserQuery {
   public async me(context: { session: Session, trans: (query: string, ...args) => string }): Promise<User> {
 
     if (!context.session) {
-      throw new Error.DenyError(context.trans('Error.NotLogged'));
+      throw new DenyError(null, context.trans('Error.NotLogged'));
     }
 
     let connection = await ORM.Manager().Connect();

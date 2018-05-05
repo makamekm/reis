@@ -20,6 +20,7 @@ export interface InputProps {
         set(value: string): void
         get(): string
     }
+    id?: string
     // onKeyUp?: React.KeyboardEventHandler<HTMLInputElement>
     onEnterKey?: (e: React.KeyboardEvent<HTMLInputElement>) => Promise<void>
     onBlur?: (e) => void
@@ -56,7 +57,7 @@ export class Input extends React.Component<InputProps, {}> {
             <div onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} className={"form-row " + (this.props.className || '') + " form-row-" + this.props.size + (this.props.disabled ? ' disabled' : '') + (this.loading || this.props.loading ? ' loading' : '') + (this.props.error ? ' error' : '')}>
                 {this.props.icon ? <Icon name={this.props.icon} className="item text subsub pl-3 pr-3" style={{width: '1px'}}/> : null}
                 {this.props.addon ? <span className="item text subsub pl-3 pr-3" style={{width: '1px'}}>{this.props.addon}</span> : null}
-                <input onBlur={onBlur} onFocus={onFocus} disabled={this.props.disabled} type={this.props.type} placeholder={this.props.placeholder || ''} value={this.props.linkValue.get() || ''} onChange={e => !this.props.disabled && this.props.linkValue.set(e.target.value)} onKeyUp={async e => {
+                <input id={this.props.id} onBlur={onBlur} onFocus={onFocus} disabled={this.props.disabled} type={this.props.type} placeholder={this.props.placeholder || ''} value={this.props.linkValue.get() || ''} onChange={e => !this.props.disabled && this.props.linkValue.set(e.target.value)} onKeyUp={async e => {
                     if (onEnterKey && e.keyCode == 13 && !this.loading) {
                         this.loading = true;
                         this.forceUpdate();

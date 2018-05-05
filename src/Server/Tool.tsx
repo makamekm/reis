@@ -1,3 +1,4 @@
+import * as rl from 'readline';
 import { Command } from './Commander';
 
 export let commands: {
@@ -9,11 +10,9 @@ export interface Toolption {
   description: string
 }
 
-export function RegisterTool(opt: Toolption) {
-  return (target: any, key: string, descriptor: TypedPropertyDescriptor<any>): any => {
-    commands[opt.name || key] = {
-      description: opt.description,
-      action: descriptor.value
-    }
+export function RegisterTool(opt: Toolption, func: (read: rl.ReadLine, callback: Function) => void) {
+  commands[opt.name] = {
+    description: opt.description,
+    action: func
   }
 }

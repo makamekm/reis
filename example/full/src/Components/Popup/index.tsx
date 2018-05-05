@@ -5,7 +5,7 @@ import { Context } from 'create-react-context';
 import * as createContext from 'create-react-context';
 
 import { Transition } from '../Animation';
-import { Portal, Consumer as PortalConsumer } from '../Private/Portal';
+import { Portal, Consumer as PortalConsumer } from '../Portal';
 import { Clickable } from '../Clickable';
 import { Icon } from '../Icon';
 import { Link } from '../Link';
@@ -54,6 +54,7 @@ export const PopupHeader = (props: {
 </Transition>
 
 export type PopupItemProps = {
+  id?: string
   icon?: string
   children: any
   active?: boolean
@@ -78,7 +79,7 @@ export class PopupItem extends React.Component<PopupItemProps & {
   render() {
     return <Consumer>{context =>
       <Transition className="group" type="fade" appear>
-        <Clickable ref={ref => this.element = ReactDOM.findDOMNode(ref) as Element} onMount={() => {
+        <Clickable id={this.props.id} ref={ref => this.element = ReactDOM.findDOMNode(ref) as Element} onMount={() => {
           context.register(this.consumer);
         }} onUnmount={() => {
           context.unregister(this.consumer);
@@ -117,6 +118,7 @@ export const PopupInput = (props: {
 </Transition>
 
 export class PopupProps {
+  id?: string
   onOpen?: () => void
   onClose?: () => void
 
@@ -589,7 +591,7 @@ export class Popup extends React.Component<PopupProps> {
 
           document.removeEventListener('keydown', this.handleOpenKeydown);
         }}>
-        <div className="popup-back">
+        <div id={this.props.id} className="popup-back">
           <div ref={ref => this.popup = ReactDOM.findDOMNode(ref) as Element} className={"popup " + (this.props.type || '')} onMouseOver={this.handleWrapperOver.bind(this)} onMouseOut={this.handleWrapperOut.bind(this)}>
             {this.props.children}
           </div>

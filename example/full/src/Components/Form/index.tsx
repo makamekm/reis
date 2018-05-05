@@ -21,19 +21,18 @@ export const InputForm = (props: {
     size?: InputSize
     type?: InputType
     disabled?: boolean
+    id?: string
     onEnterKey?: (e: React.KeyboardEvent<HTMLInputElement>) => Promise<void>
-}) => {
-    return <div className={props.className || ''}>
-        {props.label && <div className="text left regular sub mb-2">
-            {props.label}
-        </div>}
-        <Popup type="error" position="top center" openOnOverMove closeOnOutClick closeOnOutMove timeout={300} isHidden={!props.errors || props.errors.length == 0} element={
-            popup => <Input ref={ref => popup.ref(ref)} onEnterKey={props.onEnterKey} onMouseEnter={() => popup.open()} onMouseLeave={() => popup.close()} onBlur={() => popup.close()} onFocus={() => popup.open()} size={props.size || "sm"} type={props.type || "text"} placeholder={props.placeholder} icon={props.icon} addon={props.addon} error={props.errors && props.errors.length > 0} linkValue={props.linkValue} disabled={props.disabled}/>
-        }>
-            {props.errors && props.errors.map((message, i) => <div key={i}>{message}</div>)}
-        </Popup>
-    </div>
-}
+}) => <div className={props.className || ''}>
+    {props.label && <div className="text left regular sub mb-2">
+        {props.label}
+    </div>}
+    <Popup type="error" position="top center" openOnOverMove closeOnOutClick closeOnOutMove timeout={300} isHidden={!props.errors || props.errors.length == 0} element={
+        popup => <Input id={props.id} ref={ref => popup.ref(ref)} onEnterKey={props.onEnterKey} onMouseEnter={() => popup.open()} onMouseLeave={() => popup.close()} onBlur={() => popup.close()} onFocus={() => popup.open()} size={props.size || "sm"} type={props.type || "text"} placeholder={props.placeholder} icon={props.icon} addon={props.addon} error={props.errors && props.errors.length > 0} linkValue={props.linkValue} disabled={props.disabled}/>
+    }>
+        {props.errors && props.errors.map((message, i) => <div key={i}>{message}</div>)}
+    </Popup>
+</div>
 
 export const CheckForm = (props: {
     errors?: string[]

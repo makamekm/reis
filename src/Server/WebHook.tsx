@@ -9,7 +9,7 @@ import { getHooksWebHook } from '../Modules/ServerHook';
 
 export interface WebHookInterface {
   path: string
-  func: (params: { [name: string]: string }, body: any, context: object) => Promise<object> | object
+  func: (params: { [name: string]: string }, body: any, context: object) => (Promise<object> | object)
   auth?: (username: string, password: string, params: { [name: string]: string }, body: any, context: object) => Promise<boolean> | boolean
   isAuth?: (params: { [name: string]: string }, body: any, context) => Promise<boolean> | boolean
 }
@@ -22,15 +22,13 @@ export interface WebHookOption {
   auth?: (username: string, password: string, params: { [name: string]: string }, body: any, context: object) => Promise<boolean> | boolean
 }
 
-export function RegisterWebHook(opt: WebHookOption) {
-  return (target: any, key: string, descriptor: TypedPropertyDescriptor<(params: { [name: string]: string }, body: any, context) => Promise<object> | object>): any => {
-    webHooks.push({
-      path: opt.path,
-      func: descriptor.value,
-      auth: opt.auth,
-      isAuth: opt.isAuth
-    });
-  }
+export function RegisterWebHook(opt: WebHookOption, func: (params: { [name: string]: string }, body: any, context: object) => (Promise<object> | object)) {
+  webHooks.push({
+    path: opt.path,
+    func: func,
+    auth: opt.auth,
+    isAuth: opt.isAuth
+  });
 }
 
 export const hook: any = async (webHook: WebHookInterface, req: REQ, res: RES, next: NextFunction, _language?: string) => {

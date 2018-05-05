@@ -56,14 +56,12 @@ export interface JobOption {
   count?: number
 }
 
-export function RegisterJob(opt: JobOption) {
-  return (target: any, key: string, descriptor: TypedPropertyDescriptor<any>): any => {
-    if (!scope[opt.scope || 'Main']) scope[opt.scope || 'Main'] = {};
-    scope[opt.scope || 'Main'][opt.name || key] = {
-      count: opt.count || 1,
-      description: opt.description,
-      process: descriptor.value
-    }
+export function RegisterJob(opt: JobOption, func: (job) => (Promise<any> | any)) {
+  if (!scope[opt.scope || 'Main']) scope[opt.scope || 'Main'] = {};
+  scope[opt.scope || 'Main'][opt.name] = {
+    count: opt.count || 1,
+    description: opt.description,
+    process: func
   }
 }
 

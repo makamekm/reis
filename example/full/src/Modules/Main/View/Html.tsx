@@ -30,7 +30,7 @@ export type ConsumerType = {
   go: Function
   isPath: Function
   loadingTheme: Function
-  setNotification: (title, message, type?) => void
+  setNotification: (title: string, message, code?: string, type?) => void
 }
 
 export const { Provider, Consumer }: Context<ConsumerType> = (createContext as any)(null);
@@ -56,7 +56,7 @@ export interface StateProps {
 
 export interface DispatchProps {
   setTitle?: (name: string) => void
-  setNotification?: (title, message, type?) => void
+  setNotification?: (title, message, code?, type?) => void
 }
 
 @Router.DeclareHtml()
@@ -71,10 +71,11 @@ export interface DispatchProps {
     setTitle: (name: string) => {
       dispatch(Header.setTitle(name));
     },
-    setNotification: (title, message, type?) => {
+    setNotification: (title, message, code?, type?) => {
       dispatch(Header.setNotification({
         message,
         title,
+        code,
         type: type || 'error'
       }));
     }
@@ -89,31 +90,12 @@ export class Html extends React.Component<StateProps & DispatchProps & {
   modals: ModalComponent.ModalProps[],
 }> {
 
-  refs: any
+  inited: boolean = false
+  prevTheme: Header.Model['theme']
+  checkLoadingInterval: number
+  loading: boolean = true;
 
-  // static childContextTypes: React.ValidationMap<any> = {
-  //   client: PropTypes.object,
-  //   store: PropTypes.object,
-  //   auth: PropTypes.object,
-  //   modals: PropTypes.object,
-  //   forceUpdate: PropTypes.func,
-  //   language: PropTypes.func,
-  //   trans: PropTypes.func,
-  //   getPath: PropTypes.func,
-  //   go: PropTypes.func,
-  //   isPath: PropTypes.func,
-  //   loadingTheme: PropTypes.func,
-  // }
-
-  state = {
-    modals: []
-  }
-
-  // getChildContext() {
-  //   return 
-  // }
-
-  getContext() {
+  getContext(): ConsumerType {
     return {
       client: this.props.client,
       store: this.props.store,
@@ -234,24 +216,9 @@ export class Html extends React.Component<StateProps & DispatchProps & {
               }`,
             variables: { message: error.message, stack: JSON.stringify(StackTraceParser.parse(error.stack)) }
           });
-
           return res;
         }
       },
-      // modals: {
-      //   push: (modal: ModalComponent.ModalProps) => {
-      //     this.state.modals.push(modal);
-      //     this.refs.modalService && this.refs.modalService.update();
-      //   },
-      //   remove: (modal: ModalComponent.ModalProps) => {
-      //     this.state.modals.splice(this.state.modals.indexOf(modal), 1);
-      //     this.refs.modalService && this.refs.modalService.update();
-      //   },
-      //   update: (modal?: ModalComponent.ModalProps): void => {
-      //     if (modal) this.state.modals = this.state.modals.map(function(item) { return item.key == modal.key ? modal : item; });
-      //     this.refs.modalService && this.refs.modalService.update();
-      //   }
-      // },
       forceUpdate: () => this.forceUpdate(),
       language: () => process.env.MODE == "server" ? this.props.language : Translation.getLanguage(),
       trans: (query: string, ...args: string[]): string => {
@@ -300,15 +267,10 @@ export class Html extends React.Component<StateProps & DispatchProps & {
         else return localPath === path;
       },
       loadingTheme: () => this.loading,
-      setNotification: (title, message, type?) => this.props.setNotification(message, title, type),
+      setNotification: (title, message, code?, type?) => this.props.setNotification(title, message, code, type),
       history: this.props.history
     }
   }
-
-  inited: boolean = false
-  prevTheme: Header.Model['theme']
-  checkLoadingInterval: number
-  loading: boolean = true;
 
   componentDidMount() {
     if (!this.inited && process.env.MODE == "client") {
@@ -335,7 +297,6 @@ export class Html extends React.Component<StateProps & DispatchProps & {
         this.loading = false;
         if (!this.inited) {
           this.inited = true;
-          // this.showUI();
         }
         this.forceUpdate();
       }
@@ -343,30 +304,18 @@ export class Html extends React.Component<StateProps & DispatchProps & {
   }
 
   isLoaded(path) {
-    // document.styleSheets holds the style sheets from LINK and STYLE elements
     for (var i = 0; i < document.styleSheets.length; i++) {
-
-      // Checking if there is a request for the css file
-      // We iterate the style sheets with href attribute that are created from LINK elements
-      // STYLE elements don't have href attribute, so we ignore them
-      // We also check if the href contains the css file name
       if (document.styleSheets[i].href && document.styleSheets[i].href.match(path)) {
-
-        // console.log("There is a request for the css file.");
         if ((document.styleSheets[i] as any).cssRules.length == 0) {
-          // console.log("Request for the css file failed.");
           return true;
         } else {
-          // console.log("Request for the css file is successful.");
           return true;
         }
       }
       else if (i == document.styleSheets.length - 1) {
-        // console.log("There is no request for the css file.");
         return false;
       }
     }
-
     return false;
   }
 

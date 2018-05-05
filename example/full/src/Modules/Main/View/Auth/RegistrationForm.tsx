@@ -114,15 +114,10 @@ export class RegistrationForm extends React.Component<{
                     catch (e) {
                       let state;
 
-                      if (Array.isArray(e)) for (let err of e) {
-                        context.setNotification('Error', err.message);
+                      for (let err of e) {
+                        context.setNotification(err.title, err.message, err.code);
                         if (err.state) {
                           state = state ? { ...state, ...err.state } : err.state;
-                        }
-                      } else {
-                        context.setNotification('Error', e.message);
-                        if (e.state) {
-                          state = e.state;
                         }
                       }
 

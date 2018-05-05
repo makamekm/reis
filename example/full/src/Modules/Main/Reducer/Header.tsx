@@ -15,6 +15,7 @@ export const Connect = Reducer.Connect<{}, ConnectProps, StateModel>(state => ({
 export interface NotificationModel {
   id?: any
   title?: string
+  code?: string
   type: "error" | "info"
   message: string
 }

@@ -21,6 +21,8 @@
     "api_watch": "nodemon --watch './src' -e gql bare/gen.api.js",
     "api": "node_modules/.bin/apollo-codegen introspect-schema http://127.0.0.1:3000/graphql --output schema.json && node_modules/.bin/apollo-codegen generate src/**/*.gql --schema schema.json --target typescript --output src/ApiType.ts",
     "schema": "gqlschema http://127.0.0.1:3000/graphql -t",
+    "wd": "./node_modules/protractor/bin/webdriver-manager update",
+    "test_integration": "protractor protractor.integration.js",
     "test_client": "karma start karma.js",
     "test_unit": "parallel-webpack -- --env.packages=test && jasmine dev/test.js",
     "test": "parallel-webpack -- --env.packages=test && jasmine dev/test.js && karma start karma.js"
@@ -89,7 +91,9 @@
     "enzyme": "3.3.0",
     "enzyme-adapter-react-16": "1.1.1",
     "jasmine-enzyme": "6.0.0",
-    "babel-preset-airbnb": "2.4.0"
+    "babel-preset-airbnb": "2.4.0",
+    "karma-coverage": "1.1.2",
+    "protractor": "5.3.1"
   },
   "dependencies": {
     "babel-polyfill": "6.26.0",

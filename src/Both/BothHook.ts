@@ -1,8 +1,7 @@
-let hooksRouter: ((data) => (Promise<void> | void))[] = [];
+export type HookType = (data) => (Promise<void> | void);
+let hooksRouter: HookType[] = [];
 export const getHooksRouter = () => hooksRouter;
 
-export const RegisterHookRouter: any = () => {
-  return (target: any, key: string, descriptor: TypedPropertyDescriptor<(data) => Promise<object> | object>): any => {
-    getHooksRouter().push(descriptor.value as any);
-  }
+export function RegisterHookRouter(func: HookType) {
+  getHooksRouter().push(func);
 }

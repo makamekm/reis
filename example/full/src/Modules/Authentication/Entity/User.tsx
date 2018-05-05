@@ -1,6 +1,7 @@
 import * as ORM from 'reiso/Modules/ORM';
 import * as GraphQL from 'reiso/Modules/Query';
 
+import { dateType } from "~/Global/QueryType";
 import { Email } from '~/Modules/Authentication/Entity/Email';
 import { UserAvatar } from '~/Modules/Authentication/Entity/UserAvatar';
 import { UserPrivate } from '~/Modules/Authentication/Entity/UserPrivate';
@@ -47,13 +48,13 @@ export class User {
     username: string;
 
     @ORM.CreateDateColumn()
-    @GraphQL.Field(type => GraphQL.dateType)
+    @GraphQL.Field(type => dateType)
     date: Date;
 
     @ORM.Column({
         nullable: true
     })
-    @GraphQL.Field(type => GraphQL.dateType)
+    @GraphQL.Field(type => dateType)
     dateOfBirth: Date;
 
     @ORM.OneToOne(type => UserAvatar, avatar => avatar.user)

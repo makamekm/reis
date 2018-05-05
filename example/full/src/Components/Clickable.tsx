@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 export type ClickableProps = {
+    id?: string
     className?: string
     disabled?: boolean
     style?: React.CSSProperties

@@ -4,7 +4,7 @@ import { Context } from 'create-react-context';
 import * as createContext from 'create-react-context';
 import * as ReactDOM from 'react-dom';
 
-import { Portal } from '~/Components/Private/Portal';
+import { Portal } from '../Portal';
 
 export * from './Prove';
 
@@ -22,6 +22,7 @@ export type ModalSize = "small" | "medium" | "large";
 export type ModalType = "std" | "empty" | "page";
 
 export class ModalProps {
+  id?: string
   closeOnEsc?: boolean
   closeOnOutClick?: boolean
   handleEscKeydown?: boolean
@@ -125,7 +126,7 @@ export class Modal extends React.Component<ModalProps> {
           $(node).find('.modal-container').removeClass("show");
           setTimeout(callback, 400);
         }}>
-        <div ref={ref => this.modalContainer = ReactDOM.findDOMNode(ref) as Element} className={"modal-container" + (this.props.type || " std")}>
+        <div id={this.props.id} ref={ref => this.modalContainer = ReactDOM.findDOMNode(ref) as Element} className={"modal-container" + (this.props.type || " std")}>
           <div className={"modal" + (this.props.size ? (" modal-" + this.props.size) : "")}>
             {this.props.children}
           </div>

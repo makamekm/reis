@@ -176,12 +176,15 @@ class LoggerManager {
   }
 }
 
-export const logError = (error: Error, data: LogType = {}) => {
+export const logError = (error: Error | any, data: LogType = {}) => {
   let stack = StackTraceParser.parse(error.stack);
 
   let line = {
     ...data,
     message: error.message,
+    code: error.code,
+    status: error.status,
+    title: error.title,
     stack
   };
 
