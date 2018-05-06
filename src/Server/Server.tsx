@@ -23,16 +23,18 @@ import { getHooksGraphQL, getHooksWSonConnect, getHooksWSonMessage, getHooksWSon
 import { Render } from '../Server/Render';
 
 export function parseAndLogError(error, type = 'graphql') {
-  Log.logError(error.originalError || error, { type });
+  let original = error.originalError || error;
+
+  Log.logError(original, { type, errorType: original.constructor.name });
 
   let serialazed = {
-    status: error.originalError && error.originalError.status,
-    type: error.type ? error.type : (error.originalError ? error.originalError.constructor.name : error.constructor.name),
-    state: error.originalError && error.originalError.state,
+    status: original.status,
+    type: error.type ? error.type : (original.constructor.name),
+    state: original.state,
     message: error.message,
-    title: error.originalError && error.originalError.title,
-    code: error.originalError && error.originalError.code,
-    path: error.originalError && error.originalError.path,
+    title: original.title,
+    code: original.code,
+    path: original.path,
     errors: error.graphQLErrors ? error.graphQLErrors.map(e => parseAndLogError(e, type)) : []
   };
 

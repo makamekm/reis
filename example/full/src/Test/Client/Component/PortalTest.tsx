@@ -2,53 +2,123 @@ import * as React from 'react';
 import { configure, shallow, mount } from 'enzyme';
 import * as Adapter from 'enzyme-adapter-react-16';
 
-import { Portal } from '~/Components/Portal';
+import { Portal, Consumer } from '~/Components/Portal';
 
-// describe("<Portal/>", () => {
-//   configure({ adapter: new Adapter() });
+describe("<Portal/>", () => {
+  configure({ adapter: new Adapter() });
 
-//   it("Render", async () => {
-//     let value = 'test';
+  const node = document.createElement('div');
+  document.body.appendChild(node);
 
-//     const wrapper = mount(
-//       <Portal testing>
-//         {value}
-//       </Portal>
-//     );
+  it("Render", async () => {
+    let isOpen = false;
+    let isCheckOpen = false;
 
-//     const popup = $(document).find('.popup.select');
+    const wrapper = mount(
+      <Portal testing isOpen={isOpen} element={<div id="inner-element">Test</div>} onOpen={() => isCheckOpen = true} onClose={() => isCheckOpen = false}>
+        <div id="portal-test">test</div>
+      </Portal>,
+      { attachTo: node }
+    );
 
-//     expect(popup.length).toBe(1);
-//     expect(popup.hasClass('show')).toBeTruthy();
-//     wrapper.unmount();
-//   });
+    expect($(document).find('#portal-test').length).toBe(0);
+    expect(isCheckOpen).toBeFalsy();
+    expect($(node).find('#inner-element').length).toBe(1);
 
-//   it("Data Loading => Item Click", async () => {
-//     let value = '';
-//     let resolveInit;
-//     let waitInit = new Promise(r => resolveInit = r);
+    isOpen = true;
+    wrapper.setProps({ isOpen });
 
-//     const wrapper = mount(
-//       <Portal testing>
-//         <div id="data-value-test">{value}</div>
-//       </Portal>
-//     );
+    expect($(document).find('#portal-test').length).toBe(1);
+    expect(isCheckOpen).toBeTruthy();
+    expect($(node).find('#inner-element').length).toBe(1);
+    
+    wrapper.unmount();
 
-//     const popup = $(document).find('.popup.select');
+    expect($(document).find('#portal-test').length).toBe(0);
+    expect(isCheckOpen).toBeFalsy();
+    expect($(node).find('#inner-element').length).toBe(0);
+  });
 
-//     expect(popup.find('.item.loading').length).toBe(1);
+  it("isFocusable", async () => {
+    let isOpen = false;
 
-//     await waitInit;
+    const wrapper = mount(
+      <Portal isFocusable testing isOpen={isOpen} element={<div id="inner-element" tabIndex={0}>Test</div>}>
+        <div id="portal-test" tabIndex={0}>test</div>
+      </Portal>,
+      { attachTo: node }
+    );
 
-//     let input = wrapper.find('input');
-//     let inputEl: any = input.get(0);
-//     let item = popup.find('#test');
+    expect($(document).find('#portal-test').length).toBe(0);
+    expect($(node).find('#inner-element').length).toBe(1);
+    expect($(node).find('#inner-element').attr('tabIndex')).toBe("0");
 
-//     item.trigger('click');    
+    isOpen = true;
+    wrapper.setProps({ isOpen });
 
-//     expect(value).toBe('test');
-//     expect(popup.length).toBe(1);
-//     expect(popup.hasClass('show')).toBeTruthy();
-//     wrapper.unmount();
-//   });
-// });
+    expect($(document).find('#portal-test').length).toBe(1);
+    expect($(node).find('#inner-element').length).toBe(1);
+    expect($(node).find('#inner-element').attr('tabIndex')).toBe("-1");
+    expect($(document).find('#portal-test').attr('tabIndex')).toBe("0");
+
+    wrapper.unmount();
+
+    expect($(document).find('#portal-test').length).toBe(0);
+    expect($(node).find('#inner-element').length).toBe(0);
+  });
+
+  it("isFixedBody", async () => {
+    let isOpen = false;
+
+    const wrapper = mount(
+      <Portal isFixedBody testing isOpen={isOpen}>
+        <div tabIndex={0}>test</div>
+      </Portal>,
+      { attachTo: node }
+    );
+
+    expect(document.body.style.overflow).toBe('');
+
+    isOpen = true;
+    wrapper.setProps({ isOpen });
+
+    expect(document.body.style.overflow).toBe("hidden");
+
+    wrapper.unmount();
+
+    expect(document.body.style.overflow).toBe('');
+  });
+
+  it("Context", async () => {
+    let isOpen = false;
+
+    let isActiveCheck;
+    let nodeCheck;
+    let isShow;
+
+    const wrapper = mount(
+      <Portal isFixedBody testing isOpen={isOpen}>
+        <Consumer>{portal => {
+            isActiveCheck = portal.isActive();
+            nodeCheck = portal.getNode();
+            isShow = portal.isShow();
+            return <div tabIndex={0}>test</div>
+        }}</Consumer>
+      </Portal>,
+      { attachTo: node }
+    );
+
+    expect(isActiveCheck).toBeFalsy();
+    expect($(nodeCheck).length).toBe(0);
+    expect(isShow).toBeFalsy();
+
+    isOpen = true;
+    wrapper.setProps({ isOpen });
+
+    expect(isActiveCheck).toBeTruthy();
+    expect($(nodeCheck).length).toBe(1);
+    expect(isShow).toBeTruthy();
+
+    wrapper.unmount();
+  });
+});

@@ -93,7 +93,8 @@
     "jasmine-enzyme": "6.0.0",
     "babel-preset-airbnb": "2.4.0",
     "karma-coverage": "1.1.2",
-    "protractor": "5.3.1"
+    "protractor": "5.3.1",
+    "enzyme-context-patch": "0.0.7"
   },
   "dependencies": {
     "babel-polyfill": "6.26.0",

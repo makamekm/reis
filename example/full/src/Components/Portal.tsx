@@ -29,7 +29,7 @@ export class PortalProps {
   onOpen?: (node: HTMLElement) => void
   onClose?: (node: HTMLElement, callback: () => void) => void
   children: any
-  element?: any
+  element?: JSX.Element
   testing?: boolean
 }
 
