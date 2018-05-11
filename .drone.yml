@@ -1,0 +1,4 @@
+  frontend:
+    image: node:9.3.0
+    commands:
+      - npm install
