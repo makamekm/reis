@@ -1,5 +1,13 @@
 pipeline:
-  frontend:
-    image: node:9.3.0
+  build:
+    image: golang
     commands:
-      - npm install
+      - go get
+      - go build
+      - go test
+
+services:
+  postgres:
+    image: postgres:9.4.5
+    environment:
+      - POSTGRES_USER=myapp
