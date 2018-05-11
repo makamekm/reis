@@ -1,3 +1,4 @@
+pipeline:
   frontend:
     image: node:9.3.0
     commands:
