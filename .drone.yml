@@ -1,19 +1,19 @@
 pipeline:
-  init:
-    image: node:9.3.0
-    commands:
-      - npm i
+  # init:
+  #   image: node:9.3.0
+  #   commands:
+  #     - npm i
 
-  build:
-    image: node:9.3.0
-    commands:
-      - rm -rf build
-      - npm run build
+  # build:
+  #   image: node:9.3.0
+  #   commands:
+  #     - rm -rf build
+  #     - npm run build
 
   publish:
     image: node:9.3.0
-    secrets: [ username, password, email ]
+    secrets: [ npm_username, npm_password, npm_email ]
     commands:
-      - node publish.js ${username} ${password} ${email}
+      - node publish.js ${npm_username} ${npm_password} ${npm_email}
     when:
       branch: [master]
