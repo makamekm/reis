@@ -1,6 +1,6 @@
 var path = require('path');
 var fs = require('fs');
-
+ 
 let indexOfType;
 
 indexOfType = process.argv.indexOf('dir');
