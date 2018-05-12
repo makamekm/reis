@@ -28,7 +28,7 @@ let password = args[1];
 let email = args[2];
 let uri = "registry.npmjs.org";
 
-console.log('Using:', username, email, process.env.npm_username);
+console.log('Using:', username, email);
 
 // async function publish() {
 //   await new Promise((resolve, reject) => client.adduser("http://" + uri, { auth: { username, password, email } }, function (err, data, raw, res) {

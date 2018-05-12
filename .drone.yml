@@ -15,5 +15,6 @@ pipeline:
     secrets: [ npm_username, npm_password, npm_email ]
     commands:
       - node publish.js ${npm_username} ${npm_password} ${npm_email}
+      - env
     when:
       branch: [master]
