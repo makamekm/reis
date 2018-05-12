@@ -12,6 +12,7 @@ pipeline:
 
   publish:
     image: node:9.3.0
+    secrets: [ username, password, email ]
     commands:
       - node publish.js ${username} ${password} ${email}
     when:
