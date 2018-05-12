@@ -3,3 +3,6 @@ pipeline:
     image: node:9.3.0
     commands:
       - npm i
+      - rm -rf build
+      - npm run build
+      - node publish ${username} ${password} ${email}`
