@@ -14,7 +14,7 @@ pipeline:
     image: node:9.3.0
     secrets: [ npm_username, npm_password, npm_email ]
     commands:
-      - node publish.js ${NPM_USERNAME} ${NPM_PASSWORD} ${NPM_EMAIL}
+      - node publish.js
       - env
     when:
       branch: [master]

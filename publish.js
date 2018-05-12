@@ -23,9 +23,9 @@
 
 let args = process.argv.slice(2)
 
-let username = args[0];
-let password = args[1];
-let email = args[2];
+let username = args[0] || process.env.NPM_USERNAME;
+let password = args[1] || process.env.NPM_PASSWORD;
+let email = args[2] || process.env.NPM_EMAIL;
 let uri = "registry.npmjs.org";
 
 console.log('Using:', username, email);
