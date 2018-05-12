@@ -3,3 +3,4 @@ pipeline:
     image: node:9.3.0
     commands:
       - npm i
+      - npm run test
