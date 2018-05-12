@@ -3,4 +3,4 @@ pipeline:
     image: golang
     commands:
       - go get
-      - go build
+      - go buildg
