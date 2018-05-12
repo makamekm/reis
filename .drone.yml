@@ -13,6 +13,6 @@ pipeline:
   publish:
     image: node:9.3.0
     commands:
-      - node publish ${username} ${password} ${email}
+      - node publish.js ${username} ${password} ${email}
     when:
       branch: [master]
