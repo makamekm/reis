@@ -1,8 +1,18 @@
 pipeline:
-  build:
+  init:
     image: node:9.3.0
     commands:
       - npm i
+
+  build:
+    image: node:9.3.0
+    commands:
       - rm -rf build
       - npm run build
-      - node publish ${username} ${password} ${email}`
+
+  publish:
+    image: node:9.3.0
+    commands:
+      - node publish ${username} ${password} ${email}
+    when:
+      branch: [master]
