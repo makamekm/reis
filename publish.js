@@ -21,7 +21,7 @@
 // let strReadme = fs.readFileSync(path.resolve(__dirname, 'README.md'));
 // fs.writeFileSync(path.resolve(__dirname, 'build', 'README.md'), strReadme);
 
-// let args = process.argv.slice(2)
+let args = process.argv.slice(2)
 
 let username = args[0];
 let password = args[1];
