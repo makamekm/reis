@@ -14,8 +14,6 @@ const username = process.env.USERNAME;
 const password = process.env.PASSWORD;
 const email = process.env.EMAIL;
 
-console.log('Using:', username, email);
-
 gw.result$.subscribe( (result) => {
   if (result.error) {
     gw.unwatch(result.config);
