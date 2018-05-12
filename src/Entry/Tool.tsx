@@ -7,50 +7,45 @@ import * as Tool from '../Modules/Tool';
 import { Commander } from '../Server/Commander';
 
 export const run = () => {
-  let commands = {
+  const commander = new Commander({
     db_sync: {
       description: "Sync DB",
-      action: async (read, callback) => {
+      action: async args => {
         console.log("DB syncing...");
         await ORM.Sync();
         console.log("DB has been successfully synced!");
-        callback();
       }
     },
     db_drop: {
       description: "Drop DB",
-      action: async (read, callback) => {
+      action: async args => {
         console.log("DB dropping");
         await ORM.Drop();
         console.log("DB has been successfully dropped!");
-        callback();
       }
     },
     db_test: {
       description: "Test DB",
-      action: async (read, callback) => {
+      action: async args => {
         console.log("DB testing...");
         await ORM.Test();
         console.log("DB has been successfully tested!");
-        callback();
       }
     },
     log_test: {
       description: "Test logging",
-      action: async (read, callback) => {
+      action: async args => {
         Log.logInfo({text: "test"})
-        callback();
       }
     },
     log_error_test: {
       description: "Test error logging",
-      action: async (read, callback) => {
+      action: async args => {
         Log.logError(new Error("test"), { type: "tool" });
-        callback();
       }
     },
     ...Tool.commands
-  }
-  const commander = new Commander(commands);
-  commander.cycle();
+  });
+  let args = process.argv.slice(2);
+  commander.run(args[0], args.slice(1));
 }

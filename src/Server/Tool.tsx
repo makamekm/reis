@@ -10,7 +10,7 @@ export interface Toolption {
   description: string
 }
 
-export function RegisterTool(opt: Toolption, func: (read: rl.ReadLine, callback: Function) => void) {
+export function RegisterTool(opt: Toolption, func: (args: string[], read: rl.ReadLine) => void) {
   commands[opt.name] = {
     description: opt.description,
     action: func

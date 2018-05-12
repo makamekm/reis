@@ -4,7 +4,7 @@ import * as Translation from '../Modules/Translation';
 
 export type Command = {
   description: string
-  action: (read: rl.ReadLine, callback: Function) => void
+  action: (args: string[], read: rl.ReadLine) => (Promise<void> | void)
 }
 
 export class Commander {
@@ -16,17 +16,9 @@ export class Commander {
   constructor(commands: { [name: string]: Command }) {
     this.commands = commands;
 
-    this.commands.q = {
-      description: Translation.transDefault('Commander.q.Description') || "Exit from the tools",
-      action: (read, callback) => {
-        read.close();
-        process.exit();
-      }
-    };
-
     this.commands.help = {
       description: Translation.transDefault('Commander.help.Description') || "Show all awalable commands",
-      action: (read, callback) => {
+      action: args => {
         console.log(Translation.transDefault('Commander.help.Inline.Commands') || "Commands:");
         console.log('');
 
@@ -35,8 +27,6 @@ export class Commander {
           console.log(Translation.transDefault('Commander.help.Inline.Description' || "    Description: $0$", commands[name].description));
           console.log('');
         }
-
-        callback();
       }
     };
 
@@ -46,15 +36,9 @@ export class Commander {
     });
   }
 
-  public cycle() {
-    this.read.question(Translation.transDefault('Commander.EnterCommand') || "Enter the command: ", (answer) => {
-      for (var name in this.commands) {
-        if (name == answer) {
-          this.commands[name].action(this.read, this.cycle.bind(this));
-          return;
-        }
-      }
-      this.cycle();
-    });
+  public async run(name: string, args: string[]) {
+    await this.commands[name].action(args, this.read);
+    this.read.close();
+    process.exit();
   }
 }
