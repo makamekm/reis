@@ -1,7 +1,5 @@
 pipeline:
   build:
-    image: golang
+    image: node:9.3.0
     commands:
-      - go get
-      - go build
-      - go test
+      - npm i
