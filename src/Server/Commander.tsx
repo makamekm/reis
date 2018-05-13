@@ -4,12 +4,10 @@ import * as Translation from '../Modules/Translation';
 
 export type Command = {
   description: string
-  action: (args: string[], read: rl.ReadLine) => (Promise<void> | void)
+  action: (args: string[], read: () => rl.ReadLine) => (Promise<void> | void)
 }
 
 export class Commander {
-
-  private read: rl.ReadLine
 
   private commands: { [name: string]: Command }
 
@@ -29,16 +27,13 @@ export class Commander {
         }
       }
     };
-
-    this.read = rl.createInterface({
-      input: process.stdin,
-      output: process.stdout
-    });
   }
 
   public async run(name: string, args: string[]) {
-    await this.commands[name].action(args, this.read);
-    this.read.close();
+    await this.commands[name].action(args, () => rl.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    }));
     process.exit();
   }
 }

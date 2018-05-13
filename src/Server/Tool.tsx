@@ -5,13 +5,13 @@ export let commands: {
   [name: string]: Command
 } = {}
 
-export interface Toolption {
+export interface ToolOption {
   name?: string
   description: string
 }
 
-export function RegisterTool(opt: Toolption, func: (args: string[], read: rl.ReadLine) => void) {
-  commands[opt.name] = {
+export function RegisterTool(opt: ToolOption, func: (args: string[], read: () => rl.ReadLine) => void) {
+   commands[opt.name] = {
     description: opt.description,
     action: func
   }
