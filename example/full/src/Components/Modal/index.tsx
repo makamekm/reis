@@ -32,6 +32,7 @@ export class ModalProps {
   type?: ModalType
   children?: any
   content?: any
+  testing?: boolean
 }
 
 export class Modal extends React.Component<ModalProps> {
@@ -96,7 +97,7 @@ export class Modal extends React.Component<ModalProps> {
         this.forceUpdate();
       }
     }}>
-      <Portal isFixedBody isFocusable isOpen={this.open} onOpen={node => {
+      <Portal testing={this.props.testing} isFixedBody isFocusable isOpen={this.open || this.props.testing} onOpen={node => {
           $(node).find('.modal-container').addClass('show');
           let elem = $(node).find('.modal');
 
@@ -124,7 +125,11 @@ export class Modal extends React.Component<ModalProps> {
         }}
         onClose={(node, callback) => {
           $(node).find('.modal-container').removeClass("show");
-          setTimeout(callback, 400);
+          if (this.props.testing) {
+            callback();
+          } else {
+            setTimeout(callback, 400);
+          }
         }}>
         <div id={this.props.id} ref={ref => this.modalContainer = ReactDOM.findDOMNode(ref) as Element} className={"modal-container" + (this.props.type || " std")}>
           <div className={"modal" + (this.props.size ? (" modal-" + this.props.size) : "")}>

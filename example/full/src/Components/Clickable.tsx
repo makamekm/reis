@@ -5,7 +5,7 @@ export type ClickableProps = {
     className?: string
     disabled?: boolean
     style?: React.CSSProperties
-    onClick?(e?: React.MouseEvent<HTMLElement>): Promise<void>
+    onClick?(e?: React.MouseEvent<HTMLElement>): (Promise<void> | void)
     type?: any
     href?: string
     onMount?(): void
