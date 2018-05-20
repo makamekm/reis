@@ -11,6 +11,7 @@ module.exports = (config) => {
           require('karma-webpack'),
           require('karma-jasmine-html-reporter'),
           require('karma-phantomjs-launcher'),
+          require('karma-chrome-launcher'),
           require('karma-coverage')
         ],
 
@@ -44,6 +45,22 @@ module.exports = (config) => {
     
         webpack: {
             mode: 'development',
+            output: {
+                devtoolModuleFilenameTemplate: info => {
+                    if (info.absoluteResourcePath.charAt(0) === '/') {
+                        return 'file://' + info.absoluteResourcePath;
+                    } else {
+                        return 'file:///' + info.absoluteResourcePath;
+                    }
+                },
+                devtoolFallbackModuleFilenameTemplate: info => {
+                    if (info.absoluteResourcePath.charAt(0) === '/') {
+                        return 'file://' + info.absoluteResourcePath + '?' + info.hash;
+                    } else {
+                        return 'file:///' + info.absoluteResourcePath + '?' + info.hash;
+                    }
+                }
+            },
             resolve: {
                 extensions: ['.ts', '.tsx', '.js'],
                 alias: {
@@ -57,7 +74,6 @@ module.exports = (config) => {
                 // ],
                 // mainFields: ['browser', 'main', 'module'],
             },
-            // target: 'web',
             module: {
                 rules: [
                     {
@@ -97,8 +113,8 @@ module.exports = (config) => {
                     'MODE': 'client'
                 }),
                 new webpack.SourceMapDevToolPlugin({
-                    filename: null, // if no value is provided the sourcemap is inlined
-                    test: /\.(ts|tsx|js)($|\?)/i, // process .js and .ts files only
+                    filename: null,
+                    test: /\.(ts|tsx|js)($|\?)/i,
                     exclude: [ /node_modules/ ]
                 })
             ]
@@ -110,8 +126,21 @@ module.exports = (config) => {
 
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-        browsers: ['PhantomJS'],
+        // browsers: ['PhantomJS'],
+        browsers: ['ChromeHeadless'],
         port: 9876,
+
+        customLaunchers: {
+            ChromeHeadless: {
+                base: 'Chrome',
+                flags: [
+                    '--headless',
+                    '--disable-gpu',
+                    '--no-sandbox',
+                    '--remote-debugging-port=9222'
+                ]
+            }
+        },
 
         // test results reporter to use
         // possible values: 'dots', 'progress'

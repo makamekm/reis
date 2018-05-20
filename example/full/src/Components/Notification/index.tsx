@@ -15,6 +15,7 @@ export class NotificationProps {
   message: string
   more?: string
   onClose: () => void
+  testing?: boolean
 }
 
 export class Notification extends React.Component<NotificationProps, {}> {
@@ -81,17 +82,22 @@ export class Notification extends React.Component<NotificationProps, {}> {
   }
 
   render() {
-    return <Portal isOpen={this.open}
+    return <Portal testing={this.props.testing} isOpen={this.open}
       onOpen={(node) => {
         $(node).find('.notification-container').addClass('show');
-        this.startTimer();
+        if (!this.props.testing) this.startTimer();
       }}
       onClose={(node, callback) => {
         $(node).children().removeClass('show');
-        setTimeout(() => {
+        if (this.props.testing) {
           callback();
           this.props.onClose();
-        }, 400);
+        } else {
+          setTimeout(() => {
+            callback();
+            this.props.onClose();
+          }, 400);
+        }
       }}>
       <div id={this.props.id} data-code={this.props.code} ref={ref => this.container = ReactDOM.findDOMNode(ref) as Element} className="notification-container std">
         <div className="notification" onMouseEnter={() => this.stopTimer()} onMouseLeave={() => this.startTimer()}>

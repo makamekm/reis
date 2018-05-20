@@ -22,7 +22,8 @@
       "reiso/*": ["../../../build/*"],
       "~/*": ["./*"]
     },
-    "sourceMap": true,
+    "inlineSourceMap": true,
+    "sourceMap": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowJs": true
