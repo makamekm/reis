@@ -47,5 +47,9 @@ export const run = () => {
     ...Tool.commands
   });
   let args = process.argv.slice(2);
-  commander.run(args[0], args.slice(1));
+  if (args[0]) {
+    commander.run(args[0], args.slice(1));
+  } else {
+    console.log("Type 'help' argument to get some help");
+  }
 }
