@@ -13,17 +13,21 @@
     "defaultLanguage": "en",
     "languages": ["en", "ru"],
     "logConsole": true,
+    "monitoring": {
+      "hosts": [
+        "http://localhost:9200"
+      ],
+      "index": "reiso_full",
+      "name": "reiso_full_server"
+    },
     "db": {
       "Main": {
         "database": "karpov",
-        "extra": {
-          "charset": "utf8_general_ci"
-        },
         "host": "localhost",
-        "password": "",
-        "port": 3306,
-        "type": "mysql",
-        "username": "root"
+        "port": 5432,
+        "type": "postgres",
+        "username": "root",
+        "password": "qwerty"
       }
     },
     "redisPubSub": {

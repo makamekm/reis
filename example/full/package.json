@@ -104,7 +104,7 @@
     "gm": "1.23.1",
     "jquery": "3.3.1",
     "moment": "2.21.0",
-    "mysql": "2.15.0",
+    "pg": "7.4.3",
     "node-fetch": "2.1.1",
     "react-color": "2.14.0",
     "react-transition-group": "2.2.1",

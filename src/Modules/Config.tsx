@@ -41,12 +41,10 @@ let config: any = {
     "logLogstash": null,
     "ddos": null,
     "proxyProtection": null,
+    "monitoring": null,
     "db": {
       "Main": {
         "database": "test",
-        "extra": {
-          "charset": "utf8_general_ci"
-        },
         "host": "localhost",
         "password": "",
         "port": 3306,

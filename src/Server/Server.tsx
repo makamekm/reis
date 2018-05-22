@@ -55,6 +55,7 @@ export class Server {
 
   public async start() {
     this.config();
+    this.setLogger();
     this.setFileUpload();
     this.setGraphQL();
     this.setWebHook();
@@ -145,6 +146,20 @@ export class Server {
         }
         next();
       });
+    });
+  }
+
+  public setLogger() {
+    this.app.all('/*', (req, res, next) => {
+      Log.logInfo({
+        message: 'request',
+        method: req.method,
+        path: req.path,
+        url: req.url,
+        host: req.host,
+        headers: req.headers,
+        ip: req.ip
+      })
     });
   }
 
