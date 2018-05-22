@@ -14,11 +14,8 @@
     "languages": ["en", "ru"],
     "logConsole": true,
     "monitoring": {
-      "hosts": [
-        "http://localhost:9200"
-      ],
-      "index": "reiso_full",
-      "name": "reiso_full_server"
+      "serverUrl": "http://localhost:8200",
+      "serviceName": "reiso_full_server"
     },
     "db": {
       "Main": {

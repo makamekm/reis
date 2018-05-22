@@ -158,7 +158,8 @@ export class Server {
         url: req.url,
         host: req.host,
         headers: req.headers,
-        ip: req.ip
+        ip: req.ip,
+        json: JSON.parse(JSON.stringify(req))
       })
     });
   }

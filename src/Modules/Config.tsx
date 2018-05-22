@@ -90,14 +90,22 @@ export function getConfig() {
   return config[scope];
 }
 
+export function parseEnv(str: string) {
+  let result: RegExpExecArray;
+  while (result = /\$\{(\w)\}/gi.exec(str)) {
+    str = str.replace("${" + result.groups[1] + "}", process.env[result.groups[1]]);
+  }
+  return str;
+}
+
 export function readConfig() {
   try {
-    if (fs.existsSync(configPath)) config = Object.assign(config, JSON.parse(fs.readFileSync(configPath, "utf8")));
+    if (fs.existsSync(configPath)) config = Object.assign(config, JSON.parse(parseEnv(fs.readFileSync(configPath, "utf8"))));
   }
   catch (e) {}
 
   try {
-    if (process.env.CONFIG) config = Object.assign(config[scope], JSON.parse(process.env.CONFIG));
+    if (process.env.CONFIG) config = Object.assign(config[scope], JSON.parse(parseEnv(process.env.CONFIG)));
   }
   catch (e) {}
 
