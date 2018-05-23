@@ -156,11 +156,11 @@ export class Server {
         method: req.method,
         path: req.path,
         url: req.url,
-        host: req.host,
+        hostname: req.hostname,
         headers: req.headers,
         ip: req.ip,
-        json: JSON.parse(JSON.stringify(req))
       })
+      next();
     });
   }
 
@@ -299,7 +299,7 @@ export class Server {
     } else {
       this.server.listen(this.app.get('port'), () => {
         Log.logInfo('Express server listening on port ' + this.app.get('port'));
-        if (process.env.NODE_ENV == 'development') fetch('http://localhost:3001/__browser_sync__?method=reload&args=index.js');
+        // if (process.env.NODE_ENV == 'development') fetch('http://localhost:3001/__browser_sync__?method=reload&args=index.js');
       });
     }
   }

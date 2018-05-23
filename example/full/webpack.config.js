@@ -41,6 +41,11 @@ module.exports = function(env) {
     .filter(x => includeModules.indexOf(x) === -1)
     .forEach(mod => nodeModules[mod] = `commonjs ${mod}`);
 
+    fs
+    .readdirSync(path.resolve(__dirname, '../../node_modules'))
+    .filter(x => includeModules.indexOf(x) === -1)
+    .forEach(mod => nodeModules[mod] = `commonjs ${mod}`);
+
     var arr = [];
 
     if (((packages && packages.indexOf('server') >= 0) || !packages)) arr.push(
