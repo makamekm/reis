@@ -12,7 +12,9 @@
     "translation": "./translation.json",
     "defaultLanguage": "en",
     "languages": ["en", "ru"],
-    "logConsole": true,
+    "logConsole": {
+      "level": "debug"
+    },
     "monitoring": {
       "serverUrl": "http://localhost:8200",
       "serviceName": "reiso_full_server"

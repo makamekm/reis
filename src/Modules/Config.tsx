@@ -37,7 +37,9 @@ let config: any = {
     "seaportHost": null,
     "seaportPort": null,
     "logPath": null,
-    "logConsole": null,
+    "logConsole": {
+      "lelel": "info"
+    },
     "logLogstash": null,
     "ddos": null,
     "proxyProtection": null,
