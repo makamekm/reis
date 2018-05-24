@@ -1,6 +1,7 @@
 import * as cluster from 'cluster';
 import * as os from 'os';
-import monitoring = require('elastic-apm-node');
+import apm = require('elastic-apm-node');
+// import apm from 'elastic-apm-node/start';
 
 const isMulticore: any = !!process.env.MULTI;
 
@@ -11,7 +12,9 @@ import * as Log from '../Server/Log';
 import * as Server from '../Server/Server';
 
 export function run() {
-  if (getConfig().monitoring) monitoring.start(getConfig().monitoring);
+  console.log(apm.start);
+  
+  if (getConfig().monitoring) apm.start(getConfig().monitoring);
 
   if (!isMulticore) {
     const app = new Server.Server();
