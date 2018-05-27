@@ -1,5 +1,7 @@
 import * as Arena from 'bull-arena';
 
+import { getConfig } from 'reiso/Modules/Config';
+import * as Log from 'reiso/Modules/Log';
 import * as Translation from 'reiso/Modules/Translation';
 import * as Handler from 'reiso/Modules/Handler';
 import { RegisterHookGraphQL, RegisterHookWSonConnect, RegisterHookWSonMessage, RegisterHookRender, RegisterHookWebHook } from 'reiso/Modules/ServerHook';
@@ -40,6 +42,12 @@ RegisterHookGraphQL(async (req, context) => {
   if (context.session && context.session.user) {
     context.language = context.session.user.getLanguageCode();
     context.trans = (query: string, ...args): string => Translation.trans(context.language, query, ...args);
+
+    getConfig().apm && Log.getApm().setUserContext({
+      id: context.session.user.id,
+      username: context.session.user.username,
+      email: context.session.user.email
+    });
   }
 })
 
@@ -128,6 +136,12 @@ RegisterHookRender(async (req, res, next, _language, store) => {
       avatar: user.avatar && user.avatar.thumb,
       rules: user.rules
     }));
+
+    getConfig().apm && Log.getApm().setUserContext({
+      id: user.id,
+      username: user.username,
+      email: user.email
+    });
   }
 
   if (req.path.indexOf('/admin/worker') == 0) {
@@ -167,6 +181,14 @@ RegisterHookWebHook(async (req, res, next, _language, context) => {
 
   if (!language && session && session.user) {
     language = session.user.getLanguageCode();
+  }
+
+  if (session.user) {
+    getConfig().apm && Log.getApm().setUserContext({
+      id: session.user.id,
+      username: session.user.username,
+      email: session.user.email
+    });
   }
 
   return {

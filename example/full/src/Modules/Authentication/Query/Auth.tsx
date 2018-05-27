@@ -12,20 +12,19 @@ import * as Log from 'reiso/Modules/Log';
 
 import { SessionStore } from '../Service/Session';
 
-import Code from '~/Export/Code';
-import { uploadType } from '~/Global/QueryType';
-import { stringValidator, emailValidator } from '~/Global/Validator';
-import { ValidationError, InputError, DenyError } from '~/Global/Error';
-import { Session } from '~/Modules/Authentication/Entity/Session';
-import { User } from '~/Modules/Authentication/Entity/User';
-import { UserAvatar } from '~/Modules/Authentication/Entity/UserAvatar';
-import { Email } from '~/Modules/Authentication/Entity/Email';
-import { UserPrivate } from '~/Modules/Authentication/Entity/UserPrivate';
-import { AdminRule } from '~/Modules/Authentication/Enum/AdminRule';
-import { CodeLanguage } from '~/Modules/Language/Enum/Language';
-
-import { emailType } from '~/Modules/Authentication/Query/Type/Email';
-import { usernameType, passwordType } from '~/Modules/Authentication/Query/Type/User';
+import Code from '../../../Export/Code';
+import { uploadType } from '../../../Global/QueryType';
+import { stringValidator, emailValidator } from '../../../Global/Validator';
+import { ValidationError, InputError, DenyError } from '../../../Global/Error';
+import { CodeLanguage } from '../../Language/Enum/Language';
+import { Session } from '../Entity/Session';
+import { User } from '../Entity/User';
+import { UserAvatar } from '../Entity/UserAvatar';
+import { Email } from '../Entity/Email';
+import { UserPrivate } from '../Entity/UserPrivate';
+import { AdminRule } from '../Enum/AdminRule';
+import { emailType } from '../Query/Type/Email';
+import { usernameType, passwordType } from '../Query/Type/User';
 
 // export const pubsub: Subscriptions.PubSub = new Subscriptions.PubSub();
 

@@ -1,3 +1,10 @@
+require("fetch-everywhere");
+
+(global as any).process = global.process || {};
+global.process.env = global.process.env || {};
+
+global.process.env.MODE = 'client';
+
 import * as React from 'react';
 import * as ReactDOM from "react-dom";
 import { BrowserRouter } from 'react-router-dom';
@@ -17,7 +24,7 @@ import * as Router from '../Modules/Router';
 import * as Reducer from '../Modules/Reducer';
 import { getHooks } from '../Modules/ClientHook';
 
-// import * as Header from '~/Header';
+// import * as Header from '../../../Header';
 
 class Main {
 

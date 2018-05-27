@@ -1,9 +1,10 @@
+require("source-map-support").install();
+require("fetch-everywhere");
+
+process.env.MODE = 'server';
+
 import * as cluster from 'cluster';
 import * as os from 'os';
-import apm = require('elastic-apm-node');
-// import apm from 'elastic-apm-node/start';
-
-const isMulticore: any = !!process.env.MULTI;
 
 import { getConfig, readConfig } from '../Modules/Config';
 readConfig();
@@ -12,23 +13,19 @@ import * as Log from '../Server/Log';
 import * as Server from '../Server/Server';
 
 export function run() {
-  console.log(apm.start);
-  
-  if (getConfig().monitoring) apm.start(getConfig().monitoring);
-
-  if (!isMulticore) {
+  if (!getConfig().cores) {
     const app = new Server.Server();
     app.start();
   } else {
     if (cluster.isMaster) {
-      const numCPUs = os.cpus().length;
+      const numCPUs = getConfig().cores == 'auto' ? os.cpus().length : getConfig().cores;
 
       for (let i = 0; i < numCPUs; i++) {
         cluster.fork();
       }
 
       cluster.on('exit', function(worker, code, signal) {
-        Log.logInfo('Thread ' + worker.process.pid + ' died.');
+        Log.logWarn('Thread ' + worker.process.pid + ' died.');
         cluster.fork();
       });
 

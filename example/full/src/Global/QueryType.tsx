@@ -1,7 +1,7 @@
 import { GraphQLEnumType, GraphQLScalarType, Kind } from 'graphql';
 import * as GraphQL from 'reiso/Modules/Query';
 
-import Code from '~/Export/Code';
+import Code from '../Export/Code';
 import { BaseError, ValidationError } from './Error';
 import * as Validator from './Validator';
 

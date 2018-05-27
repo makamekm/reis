@@ -2,7 +2,7 @@ import * as React from 'react';
 import { configure, shallow, mount } from 'enzyme';
 import * as Adapter from 'enzyme-adapter-react-16';
 
-import { Clickable } from '~/Components/Clickable';
+import { Clickable } from '../../../Components/Clickable';
 
 describe("<Clickable/>", () => {
   configure({ adapter: new Adapter() });

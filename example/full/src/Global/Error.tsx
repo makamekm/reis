@@ -1,6 +1,6 @@
 import * as graphql from 'graphql';
 
-import Code from '~/Export/Code';
+import Code from '../Export/Code';
 
 export class BaseError extends Error {
   public status: number;

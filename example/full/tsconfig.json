@@ -17,10 +17,10 @@
     "skipLibCheck": true,
     "noLib": false,
     "baseUrl": "./src",
+    "outDir": "./dev",
     "allowSyntheticDefaultImports": true,
     "paths": {
-      "reiso/*": ["../../../build/*"],
-      "~/*": ["./*"]
+      "reiso/*": ["../../../build/*"]
     },
     "inlineSourceMap": true,
     "sourceMap": false,
@@ -38,8 +38,6 @@
     "dev",
     "server.js",
     "tool.js",
-    "worker.js",
-    "applicationBack.js",
-    "applicationFront.js"
+    "worker.js"
   ]
 }

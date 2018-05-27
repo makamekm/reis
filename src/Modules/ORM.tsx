@@ -10,31 +10,27 @@ import * as Log from './Log';
 class Logger implements TypeORM.Logger {
 
     logMigration(message: string, queryRunner?: TypeORM.QueryRunner) {
-        const date = new Date();
-        Log.logVerbose("[" + date.toISOString() + "] ORM migration: " + message);
+        Log.logInfo({ message, type: "typeorm", orm: 'migration' });
     }
 
     logQuery(query: string, parameters?: any[], queryRunner?: TypeORM.QueryRunner) {
-        const date = new Date();
-        Log.logVerbose("[" + date.toISOString() + "] ORM Query: " + query + ' With parameters: ' + JSON.stringify(parameters));
+        Log.logVerbose({ type: "typeorm", parameters, orm: 'log', query });
     }
 
     logQueryError(error: string, query: string, parameters?: any[], queryRunner?: TypeORM.QueryRunner) {
-        Log.logError(new Error('Error: ' + error + ' Query: ' + query + ' With parameters: ' + JSON.stringify(parameters)), { type: "typeorm" });
+        Log.logError(new Error(error), { type: "typeorm", parameters, orm: 'error', query });
     }
 
     logQuerySlow(time: number, query: string, parameters?: any[], queryRunner?: TypeORM.QueryRunner) {
-        Log.logError(new Error('Slow: ' + time + ' Query: ' + query + ' With parameters: ' + JSON.stringify(parameters)), { type: "typeorm" });
+        Log.logWarn({ query, type: "typeorm", orm: 'slow', time, parameters });
     }
 
     logSchemaBuild(message: string, queryRunner?: TypeORM.QueryRunner) {
-        const date = new Date();
-        Log.logVerbose("[" + date.toISOString() + "] Schema: " + message);
+        Log.logInfo({ message, type: "typeorm", orm: 'schema_build' });
     }
 
     log(level: "log" | "info" | "warn", message: any, queryRunner?: TypeORM.QueryRunner) {
-        const date = new Date();
-        Log.logVerbose("[" + date.toISOString() + "] ORM Level: " + level + " Message: " + message);
+        Log.log(level, { message, type: "typeorm" });
     }
 }
 
@@ -44,13 +40,8 @@ function initialize(scope: string = 'Main') {
     const config = JSON.parse(JSON.stringify(getConfig().db[scope]));
     config.autoSchemaSync = false;
     config.entities = ORM.Manager.getEntity();
-    if (process.env.VERBOSE) {
-        config.logging = "all";
-        config.logger = new Logger();
-    } else {
-        config.logging = ["error"];
-        config.logger = new Logger();
-    }
+    config.logging = "all";
+    config.logger = new Logger();
     return new ORM.Manager(config);
 }
 

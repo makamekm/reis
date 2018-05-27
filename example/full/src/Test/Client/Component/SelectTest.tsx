@@ -2,8 +2,8 @@ import * as React from 'react';
 import { configure, shallow, mount } from 'enzyme';
 import * as Adapter from 'enzyme-adapter-react-16';
 
-import { PopupItem } from '~/Components/Popup';
-import { Select } from '~/Components/Input';
+import { PopupItem } from '../../../Components/Popup';
+import { Select } from '../../../Components/Input';
 
 describe("<Select/>", () => {
   configure({ adapter: new Adapter() });

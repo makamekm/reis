@@ -2,9 +2,9 @@ import { GraphQLScalarType, Kind } from 'graphql';
 
 import * as GraphQL from 'reiso/Modules/Query';
 
-import Code from '~/Export/Code';
-import { InputError } from '~/Global/Error';
-import { AdminRule, AdminRuleForEach } from '~/Modules/Authentication/Enum/AdminRule';
+import Code from '../../../../Export/Code';
+import { InputError } from '../../../../Global/Error';
+import { AdminRule, AdminRuleForEach } from '../../Enum/AdminRule';
 
 export const ruleAdminType = new GraphQLScalarType({
   name: 'AdminRule',

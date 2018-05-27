@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 
-import { Consumer } from '~/Modules/Main/View/Html';
+import { Consumer } from '../Modules/Main/View/Html';
 import { Button } from './Button';
 
 export const Link = (props: {

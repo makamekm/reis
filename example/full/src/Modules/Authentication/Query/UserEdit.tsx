@@ -8,21 +8,21 @@ import * as ORM from 'reiso/Modules/ORM';
 import * as GraphQL from 'reiso/Modules/Query';
 import * as Translation from 'reiso/Modules/Translation';
 
-import Code from '~/Export/Code';
-import { uploadType } from "~/Global/QueryType";
-import { stringValidator, emailValidator } from '~/Global/Validator';
-import { DenyError, ValidationError, InputError } from '~/Global/Error';
-import { Session } from '~/Modules/Authentication/Entity/Session';
-import { User } from '~/Modules/Authentication/Entity/User';
-import { UserAvatar } from '~/Modules/Authentication/Entity/UserAvatar';
-import { Email } from '~/Modules/Authentication/Entity/Email';
-import { UserPrivate } from '~/Modules/Authentication/Entity/UserPrivate';
-import { AdminRule, HasAdminRule } from '~/Modules/Authentication/Enum/AdminRule';
-import { Language } from '~/Modules/Language/Enum/Language';
-import { emailType } from '~/Modules/Authentication/Query/Type/Email';
-import { usernameType, passwordType } from '~/Modules/Authentication/Query/Type/User';
-import { languageType } from '~/Modules/Authentication/Query/Type/Language';
-import { ruleAdminType } from '~/Modules/Authentication/Query/Type/AdminRule';
+import Code from '../../../Export/Code';
+import { uploadType } from "../../../Global/QueryType";
+import { stringValidator, emailValidator } from '../../../Global/Validator';
+import { DenyError, ValidationError, InputError } from '../../../Global/Error';
+import { Language } from '../../Language/Enum/Language';
+import { Session } from '../Entity/Session';
+import { User } from '../Entity/User';
+import { UserAvatar } from '../Entity/UserAvatar';
+import { Email } from '../Entity/Email';
+import { UserPrivate } from '../Entity/UserPrivate';
+import { AdminRule, HasAdminRule } from '../Enum/AdminRule';
+import { emailType } from '../Query/Type/Email';
+import { usernameType, passwordType } from '../Query/Type/User';
+import { languageType } from '../Query/Type/Language';
+import { ruleAdminType } from '../Query/Type/AdminRule';
 
 @GraphQL.Input('UserEditDate')
 export class UserEditDate {

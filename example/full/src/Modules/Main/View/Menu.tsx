@@ -6,20 +6,19 @@ import * as Router from 'reiso/Modules/Router';
 import * as Reducer from 'reiso/Modules/Reducer';
 import * as Translation from 'reiso/Modules/Translation';
 
-import * as UserReducer from '~/Modules/Authentication/Reducer/User';
-
-import { Language, CodeFlag, LanguageForEach, LanguageStringify, LanguageCode, CodeLanguage } from '~/Modules/Language/Enum/Language';
-import { AdminRule } from '~/Modules/Authentication/Enum/AdminRule';
-import { Theme, ThemeStringify } from '~/Modules/Main/Enum/Theme';
-import { Modal, Consumer as ModalConsumer } from '~/Components/Modal';
-import { Popup, PopupItem, PopupScroll, PopupInput, PopupLink, PopupHeader } from '~/Components/Popup';
-import { Icon } from '~/Components/Icon';
-import { Clickable } from '~/Components/Clickable';
-import { Button } from '~/Components/Button';
-// import { InputForm } from '~/Components/Form';
-import { Img } from '~/Components/Img';
-import Id from '~/Export/Id';
-import { Menu as MenuRaw, MenuSpace, MenuLink, MenuHeader, MenuItem, MenuDivider, MenuGroup, MenuInput, MenuDrop } from '~/Components/Menu';
+import { Modal, Consumer as ModalConsumer } from '../../../Components/Modal';
+import { Popup, PopupItem, PopupScroll, PopupInput, PopupLink, PopupHeader } from '../../../Components/Popup';
+import { Icon } from '../../../Components/Icon';
+import { Clickable } from '../../../Components/Clickable';
+import { Button } from '../../../Components/Button';
+// import { InputForm } from '../../../Components/Form';
+import { Img } from '../../../Components/Img';
+import Id from '../../../Export/Id';
+import { Menu as MenuRaw, MenuSpace, MenuLink, MenuHeader, MenuItem, MenuDivider, MenuGroup, MenuInput, MenuDrop } from '../../../Components/Menu';
+import * as UserReducer from '../../Authentication/Reducer/User';
+import { Language, CodeFlag, LanguageForEach, LanguageStringify, LanguageCode, CodeLanguage } from '../../Language/Enum/Language';
+import { AdminRule } from '../../Authentication/Enum/AdminRule';
+import { Theme, ThemeStringify } from '../Enum/Theme';
 
 import { LoginForm } from './Auth/LoginForm';
 import { RegistrationForm } from './Auth/RegistrationForm';

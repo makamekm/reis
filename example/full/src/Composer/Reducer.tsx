@@ -1,1 +1,1 @@
-import * as _0 from "~/Modules/Authentication/Reducer/User.tsx";export module Authentication { export const User = _0; }import * as _1 from "~/Modules/Main/Reducer/Header.tsx";export module Main { export const Header = _1; }
+import * as _0 from "../Modules/Authentication/Reducer/User";export module Authentication { export const User = _0; }import * as _1 from "../Modules/Main/Reducer/Header";export module Main { export const Header = _1; }

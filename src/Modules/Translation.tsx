@@ -36,7 +36,7 @@ function evaluate(obj: any, queries: string[], path: string): string {
   let name = queries.shift();
 
   if (queries.length > 0) {
-    return evaluate(obj[name], queries, path);
+    return obj[name] ? evaluate(obj[name], queries, path) : '';
   }
   else {
     return obj[name] || '';
@@ -46,7 +46,7 @@ function evaluate(obj: any, queries: string[], path: string): string {
 export function trans(lang: string, query: string, ...args: string[]): string {
   if (!lang) lang = language;
 
-  let str = evaluate(translation[lang], query.split('.'), query);
+  let str = evaluate(translation[lang] || {}, query.split('.'), query);
 
   for (var i in args) {
     str = str.replace('$' + i + '$', args[i]);
@@ -57,7 +57,7 @@ export function trans(lang: string, query: string, ...args: string[]): string {
 
 export function transDefault(query: string, ...args: string[]): string {
 
-  let str = evaluate(translation[language], query.split('.'), query);
+  let str = evaluate(translation[language] || {}, query.split('.'), query);
 
   for (var i in args) {
     str = str.replace('$' + i + '$', args[i]);

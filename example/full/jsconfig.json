@@ -3,10 +3,9 @@
     "target": "es6",
     "module": "commonjs",
     "allowSyntheticDefaultImports": true,
-    "baseUrl": "./",
+    "baseUrl": "./src",
     "paths": {
-      "reiso/*": ["../../../build/*"],
-      "~/*": ["./*"]
+      "reiso/*": ["../../../build/*"]
     }
   },
   "exclude": [

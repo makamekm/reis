@@ -16,21 +16,28 @@
     "stripInternal": true,
     "skipLibCheck": true,
     "noLib": false,
-    "declaration": true,
     "baseUrl": "./src",
-    "outDir": "./build",
+    "outDir": "./dev",
     "allowSyntheticDefaultImports": true,
-    "sourceMap": true,
+    "paths": {
+      "reiso/*": ["../../../build/*"]
+    },
+    "inlineSourceMap": true,
+    "sourceMap": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "allowJs": false
+    "allowJs": true
   },
+  "types": ["jasmine"],
   "compileOnSave": false,
   "suppressImplicitAnyIndexErrors": true,
   "exclude": [
     "node_modules",
-    "build",
-    "composer.js",
-    "example"
+    "public",
+    "dist",
+    "dev",
+    "server.js",
+    "tool.js",
+    "worker.js"
   ]
 }

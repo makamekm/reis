@@ -2,7 +2,7 @@ import * as Redux from 'redux';
 
 import * as Reducer from 'reiso/Modules/Reducer';
 
-import { AdminRule, HasAdminRule, AdminRuleStringify, AdminRuleForEach } from '~/Modules/Authentication/Enum/AdminRule';
+import { AdminRule, HasAdminRule, AdminRuleStringify, AdminRuleForEach } from '../Enum/AdminRule';
 
 export interface ConnectUserStateInterface {
   user?: ConnectUserInterface

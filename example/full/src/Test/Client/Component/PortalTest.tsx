@@ -2,7 +2,7 @@ import * as React from 'react';
 import { configure, shallow, mount } from 'enzyme';
 import * as Adapter from 'enzyme-adapter-react-16';
 
-import { Portal, Consumer } from '~/Components/Portal';
+import { Portal, Consumer } from '../../../Components/Portal';
 
 describe("<Portal/>", () => {
   configure({ adapter: new Adapter() });

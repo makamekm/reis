@@ -1,9 +1,9 @@
 import { GraphQLScalarType, Kind } from 'graphql';
 import * as GraphQL from 'reiso/Modules/Query';
 
-import Code from '~/Export/Code';
-import { emailValidator } from '~/Global/Validator';
-import { InputError, ValidationError } from '~/Global/Error';
+import Code from '../../../../Export/Code';
+import { emailValidator } from '../../../../Global/Validator';
+import { InputError, ValidationError } from '../../../../Global/Error';
 
 export const emailType = new GraphQLScalarType({
   name: 'Email',

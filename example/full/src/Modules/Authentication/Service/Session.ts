@@ -2,8 +2,8 @@ const util = require('util');
 
 import * as ORM from 'reiso/Modules/ORM';
 
-import { User } from '~/Modules/Authentication/Entity/User';
-import { Session } from '~/Modules/Authentication/Entity/Session';
+import { User } from '../Entity/User';
+import { Session } from '../Entity/Session';
 
 export class SessionStore {
 

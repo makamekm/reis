@@ -3,7 +3,7 @@
     "secretKey": "secretps4",
     "maxFileSize": 50,
     "uploadDir": "./dev/uploads/",
-    "publicDir": "./dev/public",
+    "publicDir": "./dev/public/",
     "port": 3000,
     "portWS": 5000,
     "host": "127.0.0.1",
@@ -12,12 +12,19 @@
     "translation": "./translation.json",
     "defaultLanguage": "en",
     "languages": ["en", "ru"],
-    "logConsole": {
-      "level": "debug"
-    },
-    "monitoring": {
+    "graphiql": true,
+    "apm": {
       "serverUrl": "http://localhost:8200",
-      "serviceName": "reiso_full_server"
+      "serviceName": "reiso_full_server",
+      "secretToken": "qwerty",
+      "instrument": true,
+      "errorOnAbortedRequests": true,
+      "captureErrorLogStackTraces": "always",
+      "active": true,
+      "transactionSampleRate": 0.5,
+      "filterHttpHeaders": false,
+      "asyncHooks": true,
+      "level": "debug"
     },
     "db": {
       "Main": {

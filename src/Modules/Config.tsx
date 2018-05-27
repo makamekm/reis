@@ -36,7 +36,9 @@ let config: any = {
     "globalPortWS": 5000,
     "seaportHost": null,
     "seaportPort": null,
-    "logPath": null,
+    "seaportName": null,
+    "graphiql": null,
+    "cores": null,
     "logConsole": {
       "lelel": "info"
     },
@@ -44,6 +46,7 @@ let config: any = {
     "ddos": null,
     "proxyProtection": null,
     "monitoring": null,
+    "logAdditional": {},
     "db": {
       "Main": {
         "database": "test",
@@ -103,11 +106,6 @@ export function parseEnv(str: string) {
 export function readConfig() {
   try {
     if (fs.existsSync(configPath)) config = Object.assign(config, JSON.parse(parseEnv(fs.readFileSync(configPath, "utf8"))));
-  }
-  catch (e) {}
-
-  try {
-    if (process.env.CONFIG) config = Object.assign(config[scope], JSON.parse(parseEnv(process.env.CONFIG)));
   }
   catch (e) {}
 

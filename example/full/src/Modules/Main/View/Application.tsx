@@ -5,10 +5,9 @@ import * as ApolloReact from 'react-apollo';
 import * as Router from 'reiso/Modules/Router';
 import * as Reducer from 'reiso/Modules/Reducer';
 
-import * as UserReducer from '~/Modules/Authentication/Reducer/User';
-import { Menu } from '~/Modules/Main/View/Menu';
-import { PageTransition } from '~/Components/Animation';
-
+import { PageTransition } from '../../../Components/Animation';
+import * as UserReducer from '../../Authentication/Reducer/User';
+import { Menu } from '../View/Menu';
 import * as Header from '../Reducer/Header';
 
 export interface StateProps {

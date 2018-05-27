@@ -4,12 +4,12 @@ import * as ORM from 'reiso/Modules/ORM';
 import * as GraphQL from 'reiso/Modules/Query';
 import * as Translation from 'reiso/Modules/Translation';
 
-import { dateType, orderEnum } from '~/Global/QueryType';
-import { DenyError } from '~/Global/Error';
-import { Session } from '~/Modules/Authentication/Entity/Session';
-import { User } from '~/Modules/Authentication/Entity/User';
-import { AdminRule, HasAdminRule } from '~/Modules/Authentication/Enum/AdminRule';
-import { Language } from '~/Modules/Language/Enum/Language';
+import { dateType, orderEnum } from '../../../Global/QueryType';
+import { DenyError } from '../../../Global/Error';
+import { Language } from '../../Language/Enum/Language';
+import { Session } from '../Entity/Session';
+import { User } from '../Entity/User';
+import { AdminRule, HasAdminRule } from '../Enum/AdminRule';
 
 // export const pubsub: Subscriptions.PubSub = new Subscriptions.PubSub();
 
@@ -45,7 +45,7 @@ export class UserListResult {
   count: number;
 }
 
-let UserOrderEnum = new GraphQLEnumType({
+const UserOrderEnum = new GraphQLEnumType({
   name: 'UserOrderEnum',
   values: {
     username: { value: 'username' },

@@ -1,3 +1,8 @@
+require("source-map-support").install();
+require("fetch-everywhere");
+
+process.env.MODE = 'server';
+
 import { getConfig, readConfig } from '../Modules/Config';
 readConfig();
 

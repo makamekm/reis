@@ -7,9 +7,30 @@ import { isString } from 'util';
 const net = require('net');
 const sender = require('os').hostname();
 
-let logFile = getConfig().logFile && path.resolve(getConfig().logFile);
-let logConsole = getConfig().logConsole;
-let logLogstash = getConfig().logLogstash;
+const logFile = getConfig().logFile && path.resolve(getConfig().logFile);
+const logConsole = getConfig().logConsole;
+const logLogstash = getConfig().logLogstash;
+const apmConfig = getConfig().apm;
+
+import apm = require('elastic-apm-node');
+apmConfig && apm.start(apmConfig);
+
+export function getApm() {
+  return apm;
+}
+
+function getLevelNumber(level: string) {
+  if (level == 'debug') return 3;
+  if (level == 'info') return 2;
+  if (level == 'warn') return 1;
+  if (level == 'error') return 0;
+
+  return 0;
+}
+
+function isWritableLevel(levelFrom: string, levelTo: string) {
+  return getLevelNumber(levelFrom) <= getLevelNumber(levelTo);
+}
 
 type LogstashI = { log: Function, connection: any };
 
@@ -25,8 +46,7 @@ class Logstash {
       "@tags": tags,
       "@fields": fields,
       "@metadata": metadata,
-      "level": level,
-      "version": process.env.VERSION
+      "level": level
     }) + "\n";
   }
 
@@ -114,7 +134,7 @@ class Logstash {
   }
 }
 
-export type LogType = { [name: string]: string | string[] | LogType };
+export type LogType = { [name: string]: (string | string[] | boolean | number | LogType) };
 
 interface LoggerI {
   log(level, line: LogType): void
@@ -141,16 +161,20 @@ class LogstashLogger implements LoggerI {
 
   public log(level: string, line: LogType) {
     const fields = {
-      'sender': process.env.LOG_SENDER || logLogstash.sender || sender,
+      'sender': logLogstash.sender || sender,
       ...(typeof line['@fields'] == 'object' ? (line['@fields'] as any) : {})
     };
     const metadata = {
-      'beat': process.env.LOG_BEAT || logLogstash.beat || 'reiso',
-      'type': process.env.LOG_TYPE || logLogstash.type || 'reiso',
+      'beat': logLogstash.beat || 'reiso',
+      'type': logLogstash.type || 'reiso',
       ...(typeof line['@metadata'] == 'object' ? (line['@metadata'] as any) : {})
     };
-
-    let tags = process.env.TAGS ? process.env.TAGS.split(',') : [];
+    let tags = [];
+    if (logLogstash.tags && Array.isArray(logLogstash.tags)) {
+      tags = logLogstash.tags.concat(tags);
+    } else if (logLogstash.tags) {
+      tags = logLogstash.tags.split(',');
+    }
     tags = logLogstash.tags ? logLogstash.tags.concat(tags) : tags;
     tags = (line.tags && Array.isArray(line.tags)) ? line.tags.concat(tags) : tags;
     tags = this.distinct(tags);
@@ -163,11 +187,16 @@ class LoggerManager {
   static loggers: { [type: string]: LoggerI } = {}
 
   public static log(level: string, line: LogType) {
-    if (logConsole) {
+    if (getConfig().logAdditional) line = {
+      ...getConfig().logAdditional,
+      ...line
+    };
+
+    if (logConsole && isWritableLevel(level, logConsole.level || 'error')) {
       console.log(level, line);
     }
 
-    if (logLogstash) {
+    if (logLogstash && isWritableLevel(level, logLogstash.level || 'error')) {
       if (!this.loggers.logstash) {
         this.loggers.logstash = new LogstashLogger();
       }
@@ -179,20 +208,39 @@ class LoggerManager {
 export const logError = (error: Error | any, data: LogType = {}) => {
   let stack = StackTraceParser.parse(error.stack);
 
+  let response = data.response;
+  delete data.response;
+  let request = data.request;
+  delete data.request;
+  let message = data.message;
+  delete data.message;
+
   let line = {
     ...data,
     message: error.message,
     code: error.code,
     status: error.status,
     title: error.title,
+    state: error.state,
     stack
   };
 
-  LoggerManager.log('error', line);
+  if (apmConfig && apm && isWritableLevel(error.level || 'error', apmConfig.level || 'error')) {
+    apm.captureError(error, {
+      response, request, message,
+      custom: line
+    });
+  }
+
+  LoggerManager.log(error.level || 'error', line);
 }
 
 export const log = (level: string, line: string | LogType) => {
   LoggerManager.log(level, isString(line) ? { message: line } : line);
+}
+
+export const logWarn = (line: string | LogType) => {
+  LoggerManager.log('warn', isString(line) ? { message: line } : line);
 }
 
 export const logInfo = (line: string | LogType) => {
@@ -200,15 +248,16 @@ export const logInfo = (line: string | LogType) => {
 }
 
 export const logVerbose = (line: string | LogType) => {
-  LoggerManager.log('verbose', isString(line) ? { message: line } : line);
+  LoggerManager.log('debug', isString(line) ? { message: line } : line);
 }
 
 export const logClientError = (message: string, stack: string, data: LogType = {}) => {
   let line = {
     ...data,
     message,
-    stack
+    stack,
+    client: true
   };
 
-  LoggerManager.log('client', line);
+  LoggerManager.log('error', line);
 }
