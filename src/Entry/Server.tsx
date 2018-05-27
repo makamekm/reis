@@ -9,7 +9,9 @@ import * as os from 'os';
 import { getConfig, readConfig } from '../Modules/Config';
 readConfig();
 
-import * as Log from '../Server/Log';
+import * as Log from '../Modules/Log';
+Log.init();
+
 import * as Server from '../Server/Server';
 
 export function run() {

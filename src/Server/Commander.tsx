@@ -2,14 +2,16 @@ import * as rl from 'readline';
 
 import * as Translation from '../Modules/Translation';
 
+export type Action = (args: string[], read: () => rl.ReadLine) => (Promise<void> | void)
+
 export type Command = {
   description: string
-  action: (args: string[], read: () => rl.ReadLine) => (Promise<void> | void)
+  action: Action
 }
 
 export class Commander {
 
-  private commands: { [name: string]: Command }
+  protected commands: { [name: string]: Command }
 
   constructor(commands: { [name: string]: Command }) {
     this.commands = commands;
@@ -29,8 +31,12 @@ export class Commander {
     };
   }
 
+  public getAction(name: string): Action {
+    return this.commands[name] && this.commands[name].action;
+  }
+
   public async run(name: string, args: string[]) {
-    await this.commands[name].action(args, () => rl.createInterface({
+    await this.getAction(name)(args, () => rl.createInterface({
       input: process.stdin,
       output: process.stdout
     }));

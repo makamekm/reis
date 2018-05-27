@@ -20,15 +20,15 @@ import * as Log from '../Modules/Log';
 import * as WebHook from '../Modules/WebHook';
 import * as Hooks from '../Modules/ServerHook';
 import { Render } from '../Server/Render';
-import { genMessage, parseAndLogError } from './Lib/Error';
+import { parseAndLogError } from './Lib/Error';
 import { processUrl } from './Lib/Url';
 
 export class Server {
-  public app: express.Express;
-  public server: http.Server;
-  private subscriptionManager: Query.SubscriptionManager
+  protected app: express.Express;
+  protected server: http.Server;
+  protected subscriptionManager: Query.SubscriptionManager
 
-  public async start() {
+  public start() {
     this.init();
     this.setBasic();
     this.setHelmet();
@@ -43,18 +43,18 @@ export class Server {
     this.run();
   }
 
-  public init() {
+  protected init() {
     this.app = express();
   }
 
-  public setBasic() {
+  protected setBasic() {
     getConfig().port && this.app.set('port', getConfig().port);
     this.app.use(cookieParser());
     this.app.use(bodyParser.json());
     this.app.use(compression());
   }
 
-  public setHelmet() {
+  protected setHelmet() {
     if (getConfig().proxyProtection) this.app.set('trust proxy', 1);
     this.app.use(helmet());
     this.app.disable('x-powered-by');
@@ -63,7 +63,7 @@ export class Server {
     }
   }
 
-  public setStatic() {
+  protected setStatic() {
     this.app.get('*.js', (req, res, next) => {
       getConfig().apm && Log.getApm().setTransactionName('GET ' + processUrl(req.url), 'static');
       if (fs.existsSync(path.resolve(getConfig().publicDir, processUrl(req.url)) + '.gz')) {
@@ -86,7 +86,7 @@ export class Server {
     this.app.use('/uploads', express.static(getConfig().uploadDir));
   }
 
-  public setLogger() {
+  protected setLogger() {
     this.app.all('/*', (req, res, next) => {
       Log.logInfo({
         message: 'request',
@@ -101,12 +101,12 @@ export class Server {
     });
   }
 
-  public setSubscription() {
+  protected setSubscription() {
     this.subscriptionManager = new Query.SubscriptionManager();
     this.subscriptionManager.init();
   }
 
-  public setLogError() {
+  protected setLogError() {
     this.app.use((error, req, res, next) => {
       if (error.status) res.status(error.status);
       else res.status(501);
@@ -114,7 +114,7 @@ export class Server {
     });
   }
 
-  public setRender() {
+  protected setRender() {
     Translation.getLanguages().forEach(language => {
       this.app.get('/' + language + '/*', (req, res, next) => {
         getConfig().apm && Log.getApm().setTransactionName('GET ' + processUrl(req.baseUrl), 'render');
@@ -128,7 +128,7 @@ export class Server {
     });
   }
 
-  public setFileUpload() {
+  protected setFileUpload() {
     let storage;
     if (getConfig().tempUploadDir) {
       storage = multer.diskStorage({
@@ -162,7 +162,7 @@ export class Server {
     });
   }
 
-  public setWebHook() {
+  protected setWebHook() {
     WebHook.webHooks.forEach(webHook => {
       this.app.post('/wh/' + webHook.path, (req, res, next) => {
         getConfig().apm && Log.getApm().setTransactionName('POST ' + processUrl(req.baseUrl), 'webhook');
@@ -171,7 +171,7 @@ export class Server {
     })
   }
 
-  public setGraphQL() {
+  protected setGraphQL() {
     this.app.use('/graphql', bodyParser.json(), async (req, res, next) => {
       getConfig().apm && Log.getApm().setTransactionName(req.method + ' ' + processUrl(req.baseUrl), 'graphql');
 
@@ -291,7 +291,7 @@ export class Server {
     }
   }
 
-  public run() {
+  protected run() {
     this.server = http.createServer(this.app);
 
     if (getConfig().seaportHost && getConfig().seaportPort) {
@@ -304,6 +304,7 @@ export class Server {
         for (let hook of Hooks.getHooksAfterServerStart()) {
           hook();
         }
+        // TODO: Make an example in hooks
         // if (process.env.NODE_ENV == 'development') fetch('http://localhost:3001/__browser_sync__?method=reload&args=index.js');
       });
     }

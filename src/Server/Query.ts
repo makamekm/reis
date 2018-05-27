@@ -46,11 +46,6 @@ export function Subscribe(name: string, basic?: Function, filter?: (payload, var
     }
 }
 
-// export const EnumType = GraphQLEnumType;
-// export const ScalarType = GraphQLScalarType;
-// export const GraphQLError = GraphQLError;
-// export const Kind = Kind;
-
 let typesInput = {};
 let types = {};
 

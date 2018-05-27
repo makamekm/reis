@@ -4,13 +4,12 @@ import { promisify } from 'util';
 import { getConfig } from '../Modules/Config';
 
 export class RedisClient {
-
-    getAsync: <T = any>(key: string) => Promise<T>
-    setAsync: <T = any>(key: string, value: T) => Promise<void>
+    get: <T = any>(key: string) => Promise<T>
+    set: <T = any>(key: string, value: T) => Promise<void>
 
     constructor(client) {
-        this.getAsync = promisify(client.get).bind(client);
-        this.setAsync = promisify(client.set).bind(client);
+        this.get = promisify(client.get).bind(client);
+        this.set = promisify(client.set).bind(client);
     }
 }
 

@@ -6,7 +6,9 @@ process.env.MODE = 'server';
 import { getConfig, readConfig } from '../Modules/Config';
 readConfig();
 
-import * as Log from '../Server/Log';
+import * as Log from '../Modules/Log';
+Log.init();
+
 import * as ORM from '../Modules/ORM';
 import * as Tool from '../Modules/Tool';
 import { Commander } from '../Server/Commander';

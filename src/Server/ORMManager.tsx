@@ -4,22 +4,18 @@ export interface Config {
     [name: string]: ORM.ConnectionOptions
 }
 
-interface Map<T> {
-    [K: string]: T;
-}
+const entities: { [name: string]: any[] } = {};
 
-const Entities: Map<any[]> = {};
-
-export class Manager {
+export class ORMManager {
     private conn: ORM.Connection;
     private connPromise: Promise<ORM.Connection>;
 
     public static addEntity(name: any, entity: any) {
-        if (Entities[name]) {
-            Entities[name].push(entity);
+        if (entities[name]) {
+            entities[name].push(entity);
         }
         else {
-            Entities[name] = [entity]
+            entities[name] = [entity]
         }
     }
 
@@ -28,11 +24,11 @@ export class Manager {
 
         if (args && args.length > 0) {
             args.forEach(name => {
-                result = result.concat(Entities[name]);
+                result = result.concat(entities[name]);
             });
         } else {
-            for (let name in Entities) {
-                result = result.concat(Entities[name]);
+            for (let name in entities) {
+                result = result.concat(entities[name]);
             }
         }
 
@@ -95,8 +91,7 @@ export class Manager {
 }
 
 export function RegisterEntity(name: string, options?: any): (target: any) => void {
-
     return (entity: any): void => {
-        Manager.addEntity(name, entity);
+        ORMManager.addEntity(name, entity);
     }
 }

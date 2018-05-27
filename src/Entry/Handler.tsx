@@ -11,7 +11,9 @@ let scope: any = process.env.HANDLER_SCOPE || 'Main';
 import { getConfig, readConfig } from '../Modules/Config';
 readConfig();
 
-import * as Log from '../Server/Log';
+import * as Log from '../Modules/Log';
+Log.init();
+
 import * as ORM from '../Modules/ORM';
 import * as Handler from '../Modules/Handler';
 

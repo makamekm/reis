@@ -12,7 +12,9 @@ readConfig();
 
 let scope: any = process.env.WORKER_SCOPE;
 
-import * as Log from '../Server/Log';
+import * as Log from '../Modules/Log';
+Log.init();
+
 import * as Worker from '../Modules/Worker';
 import * as Translation from '../Modules/Translation';
 
