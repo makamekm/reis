@@ -1,4 +1,5 @@
 import * as express from 'express';
+import * as ApolloLink from "apollo-link";
 
 let hooksGraphQL: ((req, context) => (Promise<void> | void))[] = [];
 export const getHooksGraphQL = () => hooksGraphQL;
@@ -24,9 +25,17 @@ export function RegisterHookWSonDisconnect(func: (webSocket) => (Promise<void> |
   getHooksWSonDisconnect().push(func);
 }
 
-let hooksRender: ((req, res, next, context, store) => (Promise<void> | void))[] = [];
+export type Hook = {
+  linksBefore?: ApolloLink.ApolloLink[]
+  linksAfter?: ApolloLink.ApolloLink[]
+  linksWrap?: ApolloLink.ApolloLink
+}
+export type Func = (req, res, next, context: {
+  language: string
+} & any, store) => (Promise<Hook> | Hook)
+let hooksRender: Func[] = [];
 export const getHooksRender = () => hooksRender;
-export function RegisterHookRender(func: (req, res, next, context, store) => (Promise<void> | void)) {
+export function RegisterHookRender(func: Func) {
   getHooksRender().push(func);
 }
 

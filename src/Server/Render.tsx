@@ -17,10 +17,10 @@ import { getConfig } from '../Modules/Config';
 import * as Translation from '../Modules/Translation';
 import * as Router from '../Modules/Router';
 import * as Reducer from '../Modules/Reducer';
-import { getHooksRender } from '../Modules/ServerHook';
+import { getHooksRender, Hook } from '../Modules/ServerHook';
 import * as Log from '../Modules/Log';
 
-export async function checkInteruptHook(req: express.Request, res: express.Response, next: express.NextFunction, store: Redux.Store<any>, context, hooksRes: any[]): Promise<boolean> {
+export async function checkInteruptHook(req: express.Request, res: express.Response, next: express.NextFunction, store: Redux.Store<any>, context, hooksRes: Hook[]): Promise<boolean> {
   for (let hook of getHooksRender()) {
     let hookRes = await hook(req, res, next, context, store);
 
@@ -81,7 +81,13 @@ export function genLink(hooksRes: any[]): ApolloLink.ApolloLink {
 
   // const link = linkError.concat(ApolloLink.ApolloLink.from(links));
 
-  return ApolloLink.ApolloLink.from(links);
+  let link = ApolloLink.ApolloLink.from(links);
+
+  hooksRes.forEach(hook => {
+    if (hook.linksWrap) link = hook.linksWrap.concat(link);
+  });
+
+  return link;
 }
 
 export async function Render(req: express.Request, res: express.Response, next: express.NextFunction, language?: string) {
@@ -91,7 +97,7 @@ export async function Render(req: express.Request, res: express.Response, next: 
 
   const store = Reducer.createStore();
 
-  const hooksRes = [];
+  const hooksRes: Hook[] = [];
 
   if (!await checkInteruptHook(req, res, next, store, context, hooksRes)) return;
 
