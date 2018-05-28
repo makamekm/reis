@@ -11,43 +11,37 @@ import * as Translation from '../Modules/Translation';
 import { getHooksRouter } from '../Modules/BothHook';
 
 let Html = null
-let Context = null
-
+export function GetHtml(): any {
+  return Html
+}
 export function DeclareHtml() {
   return function (target, ...args): any {
     Html = target;
   }
 }
 
-export function GetHtml(): any {
-  return Html
-}
-
-export function DeclareContext(target) {
-  Context = target;
-}
-
-export function GetContext(): any {
-  return Context
-}
-
 export const withRouter: any = ReactRouter.withRouter;
 export const matchPath: any = ReactRouter.matchPath;
 export const gql = graphqltag;
 export type ApolloClient = any;
+// TODO: Create an issue ticket
 // export type ApolloClient = ApolloReact.ApolloClient;
 export const graphql = ApolloReact.graphql;
 
 let Routes: RouteModel[] = [];
 
+export const connectProps = (name: string, defaultData: object, target): any => {
+  let state = defaultData ? { ...defaultData } : {};
+  const newProps = {};
+  newProps[name] = state;
+  return function(props) {
+    return React.createElement(target, { ...props, ...newProps });
+  }
+}
+
 export const ConnectProps = (name: string, defaultData: object): any => {
   return function (target) {
-    let state = defaultData ? { ...defaultData } : {};
-    const newProps = {};
-    newProps[name] = state;
-    return function(props) {
-      return React.createElement(target, { ...props, ...newProps });
-    }
+    return connectProps(name, defaultData, target);
   }
 }
 
@@ -64,6 +58,26 @@ class RouteModel {
   } & any) => any
 }
 
+export function route(path: string, render: (data: {
+    store,
+    children,
+    trans,
+    match,
+    location,
+    history
+} & any) => any, target: Function, order: number = 0) {
+  let route = new RouteModel();
+
+  route.path = path;
+  route.order = order;
+  route.target = target;
+  route.render = render;
+
+  Routes.push(route);
+
+  return target;
+}
+
 export function Route(path: string, render: (data: {
     store,
     children,
@@ -73,22 +87,7 @@ export function Route(path: string, render: (data: {
     history
   } & any) => any, order: number = 0) {
   return function (target, ...args): any {
-    // Routes.forEach(route => {
-    //   if (route.order == order) {
-    //     throw new Error(`The order ${order} for: ${path} is busy by: ${route.path}`);
-    //   }
-    // });
-
-    let route = new RouteModel();
-
-    route.path = path;
-    route.order = order;
-    route.target = target;
-    route.render = render;
-
-    Routes.push(route);
-
-    return target;
+    return route(path, render, target, order);
   }
 }
 
