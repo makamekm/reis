@@ -2,7 +2,6 @@ require("fetch-everywhere");
 
 (global as any).process = global.process || {};
 global.process.env = global.process.env || {};
-
 global.process.env.MODE = 'client';
 
 import * as React from 'react';
@@ -22,120 +21,102 @@ import * as Upload from '../Client/Upload';
 import * as Translation from '../Modules/Translation';
 import * as Router from '../Modules/Router';
 import * as Reducer from '../Modules/Reducer';
-import { getHooks } from '../Modules/ClientHook';
+import { getHooks, Hook } from '../Modules/ClientHook';
 
-// import * as Header from '../../../Header';
+// TODO: Optimize client links creation
+function genLink(hooksRes: Hook[], context): ApolloLink.ApolloLink {
+  const wsAddress = "ws://" + (window as any).__HOST__ + ":" + (window as any).__WSADDRESS__ + "/";
+  const linkWS = new ApolloLinkWS.WebSocketLink({
+    uri: wsAddress,
+    options: {
+      reconnect: true,
+      connectionParams: context
+    }
+  });
 
-class Main {
+  const linkNetwork = new BatchHttpLink({
+    uri: `/graphql`,
+  });
 
-  public run() {
-    const store = Reducer.createStore();
+  const linkUpload = new Upload.UploadLink({});
 
-    const hooksRes = getHooks().map(hook => hook(store));
+  const linkSplitted = ApolloLink.ApolloLink.split(
+    operation => {
+      const operationAST = graphql.getOperationAST(operation.query as any, operation.operationName);
+      return !!operationAST && operationAST.operation === 'subscription';
+    },
+    linkWS,
+    linkNetwork
+  );
 
-    const connectionParams = {
-      language: Translation.getLanguage()
-    };
+  let links: ApolloLink.ApolloLink[] = [];
 
-    hooksRes.forEach(hook => {
-      if (hook.connectionParams) Object.assign(connectionParams, hook.connectionParams)
-    });
+  links = links.concat(linkUpload);
 
-    const wsAddress = "ws://" + (window as any).__HOST__ + ":" + (window as any).__WSADDRESS__ + "/";
+  hooksRes.forEach(hook => {
+    if (hook.linksBefore) links = links.concat(hook.linksBefore);
+  });
 
-    const linkWS = new ApolloLinkWS.WebSocketLink({
-      uri: wsAddress,
-      options: {
-        reconnect: true,
-        connectionParams
-      }
-    });
+  links = links.concat(linkSplitted);
 
-    const linkNetwork = new BatchHttpLink({
-      uri: `/graphql`,
-    });
+  hooksRes.forEach(hook => {
+    if (hook.linksAfter) links = links.concat(hook.linksAfter);
+  });
 
-    const linkUpload = new Upload.UploadLink({});
+  let link = ApolloLink.ApolloLink.from(links);
 
-    const linkSplitted = ApolloLink.ApolloLink.split(
-      operation => {
-        const operationAST = graphql.getOperationAST(operation.query as any, operation.operationName);
-        return !!operationAST && operationAST.operation === 'subscription';
-      },
-      linkWS,
-      linkNetwork
-    );
+  hooksRes.forEach(hook => {
+    if (hook.linksWrap) link = hook.linksWrap.concat(link);
+  });
 
-    let links: ApolloLink.ApolloLink[] = [];
-
-    links = links.concat(linkUpload);
-
-    hooksRes.forEach(hook => {
-      if (hook.linksBefore) links = links.concat(hook.linksBefore);
-    });
-
-    links = links.concat(linkSplitted);
-
-    hooksRes.forEach(hook => {
-      if (hook.linksAfter) links = links.concat(hook.linksAfter);
-    });
-
-    let link: ApolloLink.ApolloLink = ApolloLink.ApolloLink.from(links);
-
-    hooksRes.forEach(hook => {
-      if (hook.linksWrap) link = hook.linksWrap.concat(link);
-    });
-
-    const cache = new ApolloCache.InMemoryCache((window as any).__APOLLO_STATE__);
-
-    const gqlClient = new ApolloClient.ApolloClient({
-      link,
-      cache,
-      ssrMode: true,
-      queryDeduplication: true,
-      defaultOptions: {
-        watchQuery: {
-          fetchPolicy: 'cache-and-network',
-          errorPolicy: 'ignore',
-        },
-        query: {
-          fetchPolicy: 'cache-and-network',
-          errorPolicy: 'all',
-        },
-        mutate: {
-          errorPolicy: 'all'
-        }
-      }
-    });
-
-    // window.onerror = function (message, file, line, col, error) {
-    //   auth.log(error);
-    //   return false;
-    // }
-
-    // store.subscribe(() => {
-    //   $('head title').html(store.getState().Friends.title);
-    // });
-
-    let Html = Router.GetHtml();
-
-    ReactDOM.hydrate(
-      <ApolloReact.ApolloProvider client={gqlClient as any}>
-        <ReactRedux.Provider store={store}>
-          <BrowserRouter>
-            <Html client={gqlClient} store={store} language={Translation.getLanguage()}>
-              {Router.GetRoutes(store, Translation.getLanguage())}
-            </Html>
-          </BrowserRouter>
-        </ReactRedux.Provider>
-      </ApolloReact.ApolloProvider>, document.getElementById("body"), () => {
-        store.dispatch((Responsive as any).calculateResponsiveState(window));
-      }
-    );
-  }
+  return link;
 }
 
-export const run = () => {
-  const main = new Main();
-  main.run();
+export function run() {
+  const context = {
+    language: Translation.getLanguage()
+  };
+  const store = Reducer.createStore();
+  const hooksRes = getHooks().map(hook => hook(store, context));
+  const link = genLink(hooksRes, context);
+  const cache = new ApolloCache.InMemoryCache((window as any).__APOLLO_STATE__);
+  const gqlClient = new ApolloClient.ApolloClient({
+    link,
+    cache,
+    ssrMode: true,
+    queryDeduplication: true,
+    defaultOptions: {
+      watchQuery: {
+        fetchPolicy: 'cache-and-network',
+        errorPolicy: 'ignore',
+      },
+      query: {
+        fetchPolicy: 'cache-and-network',
+        errorPolicy: 'all',
+      },
+      mutate: {
+        errorPolicy: 'all'
+      }
+    }
+  });
+
+  // TODO: Log errors in client
+  // window.onerror = function (message, file, line, col, error) {
+  //   auth.log(error);
+  //   return false;
+  // }
+
+  let Html = Router.GetHtml();
+
+  ReactDOM.hydrate(
+    <ApolloReact.ApolloProvider client={gqlClient as any}>
+      <ReactRedux.Provider store={store}>
+        <BrowserRouter>
+          <Html client={gqlClient} store={store} language={Translation.getLanguage()}>
+            {Router.GetRoutes(store, Translation.getLanguage())}
+          </Html>
+        </BrowserRouter>
+      </ReactRedux.Provider>
+    </ApolloReact.ApolloProvider>, document.getElementById("body"), () => store.dispatch((Responsive as any).calculateResponsiveState(window))
+  );
 }

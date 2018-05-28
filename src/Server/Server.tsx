@@ -163,7 +163,7 @@ export class Server {
   }
 
   protected setWebHook() {
-    WebHook.webHooks.forEach(webHook => {
+    Hooks.getWebHooks().forEach(webHook => {
       this.app.post('/wh/' + webHook.path, (req, res, next) => {
         getConfig().apm && Log.getApm().setTransactionName('POST ' + processUrl(req.baseUrl), 'webhook');
         return WebHook.hook(webHook, req, res, next)
@@ -182,7 +182,7 @@ export class Server {
       }
 
       context.language = Translation.getLanguage();
-      context.trans = (query: string, ...args): string => Translation.trans(context.language, query, ...args);
+      context.trans = (query, ...args) => Translation.trans(context.language, query, ...args);
 
       for (let hook of Hooks.getHooksGraphQL()) {
         await hook(req, context);
@@ -190,7 +190,7 @@ export class Server {
 
       if (req.headers.language) {
         context.language = req.headers.language;
-        context.trans = (query: string, ...args): string => Translation.trans(context.language, query, ...args);
+        context.trans = (query, ...args) => Translation.trans(context.language, query, ...args);
       }
 
       graphqlHTTP.graphqlExpress({
@@ -205,6 +205,7 @@ export class Server {
 
     const websocketServer = http.createServer(this.app);
 
+    // TODO: DRY
     if (getConfig().seaportHost && getConfig().seaportPort) {
       var ports = (seaport as any).connect(getConfig().seaportHost, getConfig().seaportPort);
       websocketServer.listen(ports.register("ServerWS"), () => {
@@ -232,7 +233,7 @@ export class Server {
 
               if (webSocket.upgradeReq.headers.language) params.context.language = webSocket.upgradeReq.headers.language;
 
-              params.context.trans = (query: string, ...args): string => Translation.trans(params.context.language, query, ...args);
+              params.context.trans = (query, ...args) => Translation.trans(params.context.language, query, ...args);
 
               return params;
             },
@@ -273,7 +274,7 @@ export class Server {
 
               if (webSocket.upgradeReq.headers.language) params.context.language = webSocket.upgradeReq.headers.language;
 
-              params.context.trans = (query: string, ...args): string => Translation.trans(params.context.language, query, ...args);
+              params.context.trans = (query, ...args) => Translation.trans(params.context.language, query, ...args);
 
               return params;
             },

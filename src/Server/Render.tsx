@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as Redux from 'redux';
 import * as ReactDOM from 'react-dom';
 import * as ReactDOMServer from 'react-dom/server';
 import { StaticRouter } from 'react-router';
@@ -10,6 +11,7 @@ import { Helmet } from "react-helmet";
 import { BatchHttpLink } from 'apollo-link-batch-http';
 import * as ApolloLink from "apollo-link";
 import { onError } from "apollo-link-error";
+import * as express from 'express';
 
 import { getConfig } from '../Modules/Config';
 import * as Translation from '../Modules/Translation';
@@ -18,31 +20,36 @@ import * as Reducer from '../Modules/Reducer';
 import { getHooksRender } from '../Modules/ServerHook';
 import * as Log from '../Modules/Log';
 
-export const Render = async (req, res, next, _language?) => {
-  const store = Reducer.createStore();
-  let language = _language;
-
-  const hooksRes = [];
-
+export async function checkInteruptHook(req: express.Request, res: express.Response, next: express.NextFunction, store: Redux.Store<any>, context, hooksRes: any[]): Promise<boolean> {
   for (let hook of getHooksRender()) {
-    let hookR = await hook(req, res, next, language, store);
+    let hookRes = await hook(req, res, next, context, store);
 
-    if (!hookR) return;
+    if (!hookRes) return false;
 
-    if (!language && hookR.language) {
-      language = hookR.language
-    }
-
-    hooksRes.push(hookR);
+    hooksRes.push(hookRes);
   }
 
-  if (!language) {
-    language = Translation.getLanguage();
-  }
+  return true;
+}
 
+export function genLink(hooksRes: any[]): ApolloLink.ApolloLink {
   const linkNetwork = new BatchHttpLink({
     uri: `http://${getConfig().host}:${getConfig().globalPort}/graphql`,
   });
+
+  let links: ApolloLink.ApolloLink[] = [];
+
+  hooksRes.forEach(hook => {
+    if (hook.linksBefore) links = links.concat(hook.linksBefore);
+  });
+
+  links = links.concat(linkNetwork);
+
+  hooksRes.forEach(hook => {
+    if (hook.linksAfter) links = links.concat(hook.linksAfter);
+  });
+
+  // TODO: Error processing
 
   // const linkError = onError(({ graphQLErrors, networkError, operation }) => {
   //   if (graphQLErrors) {
@@ -72,22 +79,29 @@ export const Render = async (req, res, next, _language?) => {
   //   }
   // });
 
-  let links: ApolloLink.ApolloLink[] = [];
-
-  hooksRes.forEach(hook => {
-    links = links.concat(hook.linksBefore);
-  });
-
-  links = links.concat(linkNetwork);
-
-  hooksRes.forEach(hook => {
-    links = links.concat(hook.linksAfter);
-  });
-
   // const link = linkError.concat(ApolloLink.ApolloLink.from(links));
-  const link = ApolloLink.ApolloLink.from(links);
 
-  let cache = new ApolloCache.InMemoryCache();
+  return ApolloLink.ApolloLink.from(links);
+}
+
+export async function Render(req: express.Request, res: express.Response, next: express.NextFunction, language?: string) {
+  const context = {
+    language
+  };
+
+  const store = Reducer.createStore();
+
+  const hooksRes = [];
+
+  if (!await checkInteruptHook(req, res, next, store, context, hooksRes)) return;
+
+  if (!context.language) {
+    context.language = Translation.getLanguage();
+  }
+
+  const link = genLink(hooksRes);
+
+  const cache = new ApolloCache.InMemoryCache();
 
   const gqlClient = new ApolloClient.ApolloClient({
     link,
@@ -109,9 +123,9 @@ export const Render = async (req, res, next, _language?) => {
     }
   });
 
-  let Html = Router.GetHtml();
+  const Html = Router.GetHtml();
 
-  let component = (
+  const component = (
     <ApolloReact.ApolloProvider client={gqlClient as any}>
       <ReactRedux.Provider store={store}>
         <StaticRouter location={req.url} context={{}}>
@@ -123,6 +137,7 @@ export const Render = async (req, res, next, _language?) => {
     </ApolloReact.ApolloProvider>
   );
 
+  // TODO: Fix server rendering with context
   let html: string;
 
   try {
@@ -152,7 +167,8 @@ export const Render = async (req, res, next, _language?) => {
             window.__INITIAL_STATE__ = ${JSON.stringify(store.getState())};
             window.__TRANSLATION__ = ${JSON.stringify(Translation.getTranslation())};
             window.__LANGUAGES__ = ${JSON.stringify(Translation.getLanguages())};
-            window.__LANGUAGE__ = "${language}";
+            window.__LANGUAGE__ = "${context.language}";
+            window.__CONTEXT__ = "${JSON.stringify(context)}";
             window.__HOST__ = "${getConfig().host}";
             window.__WSADDRESS__ = ${getConfig().globalPortWS};
             window.__APOLLO_STATE__ = ${JSON.stringify(cache.extract())};
