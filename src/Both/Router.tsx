@@ -30,20 +30,21 @@ export const graphql = ApolloReact.graphql;
 
 let Routes: RouteModel[] = [];
 
-export const connectProps = (name: string, defaultData: object, target): any => {
-  let state = defaultData ? { ...defaultData } : {};
-  const newProps = {};
-  newProps[name] = state;
-  return function(props) {
-    return React.createElement(target, { ...props, ...newProps });
-  }
-}
+// TODO: Remove if is not necessary
+// export const connectProps = (name: string, defaultData: object, target): any => {
+//   let state = defaultData ? { ...defaultData } : {};
+//   const newProps = {};
+//   newProps[name] = state;
+//   return function(props) {
+//     return React.createElement(target, { ...props, ...newProps });
+//   }
+// }
 
-export const ConnectProps = (name: string, defaultData: object): any => {
-  return function (target) {
-    return connectProps(name, defaultData, target);
-  }
-}
+// export const ConnectProps = (name: string, defaultData: object): any => {
+//   return function (target) {
+//     return connectProps(name, defaultData, target);
+//   }
+// }
 
 class RouteModel {
   order: number
@@ -91,28 +92,28 @@ export function Route(path: string, render: (data: {
   }
 }
 
-export function GetRoutes(store, language) {
+export function GetRoutes(store, language: string) {
   let routes = [];
   Routes = Routes.sort((a, b) => a.order > b.order ? 1 : -1);
 
   Routes.forEach(route => {
-    let data = {
+    let context = {
       store
     };
 
-    getHooksRouter().forEach(hook => hook(data));
+    getHooksRouter().forEach(hook => hook(context));
 
     Translation.getLanguages().forEach(language => {
       routes.push(
         <ReactRouter.Route exact={true} path={'/' + language + (route.path || '/*')} key={'/' + language + (route.path || '/*')} render={({ match, location, history }) => {
           if (process.env.MODE == "client") Translation.setLanguage(language);
-          return route.render({...data, trans: (query, ...args) => Translation.trans(language, query, ...args), location, history, match})
+          return route.render({...context, trans: (query, ...args) => Translation.trans(language, query, ...args), location, history, match})
         }}/>
       );
     });
 
     routes.push(
-      <ReactRouter.Route exact={true} path={route.path} key={route.path} render={({ match, location, history }) => route.render({...data, trans: (query, ...args) => Translation.trans(language, query, ...args), location, history, match})}/>
+      <ReactRouter.Route exact={true} path={route.path} key={route.path} render={({ match, location, history }) => route.render({...context, trans: (query, ...args) => Translation.trans(language, query, ...args), location, history, match})}/>
     )
   });
 
