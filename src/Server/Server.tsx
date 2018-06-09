@@ -22,11 +22,13 @@ import * as Hooks from '../Modules/ServerHook';
 import { Render } from '../Server/Render';
 import { parseAndLogError } from './Lib/Error';
 import { processUrl } from './Lib/Url';
+import { setLanguageContext } from './Lib/Transtalion';
 
 export class Server {
   protected app: express.Express;
   protected server: http.Server;
   protected subscriptionManager: Query.SubscriptionManager
+  protected subscriptionsServer: subscriptionServer.SubscriptionServer
 
   public start() {
     this.init();
@@ -175,18 +177,20 @@ export class Server {
     this.app.use('/graphql', bodyParser.json(), async (req, res, next) => {
       getConfig().apm && Log.getApm().setTransactionName(req.method + ' ' + processUrl(req.baseUrl), 'graphql');
 
-      let context: any = { files: req.files };
+      let context: any = {
+        files: req.files,
+        language: Translation.getLanguage()
+      };
 
       if (req.body.operations) {
         req.body = JSON.parse(req.body.operations);
       }
 
-      context.language = Translation.getLanguage();
-      context.trans = (query, ...args) => Translation.trans(context.language, query, ...args);
-
       for (let hook of Hooks.getHooksGraphQL()) {
         await hook(req, context);
       }
+
+      setLanguageContext(context);
 
       if (req.headers.language) {
         context.language = req.headers.language;
@@ -205,103 +209,68 @@ export class Server {
 
     const websocketServer = http.createServer(this.app);
 
-    // TODO: DRY
     if (getConfig().seaportHost && getConfig().seaportPort) {
-      var ports = (seaport as any).connect(getConfig().seaportHost, getConfig().seaportPort);
-      websocketServer.listen(ports.register("ServerWS"), () => {
-        Log.logInfo(`Websocket Server is connected to seaport as "ServerWS" on ${getConfig().seaportHost}:${getConfig().seaportPort}`);
-
-        const subscriptionsServer = new subscriptionServer.SubscriptionServer({
-            schema: Query.getSchema(),
-            execute: graphql.execute as any,
-            subscribe: graphql.subscribe,
-            onConnect: async (connectionParams, webSocket, connectionContext) => {
-              for (let hook of Hooks.getHooksWSonConnect()) {
-                await hook(connectionParams, webSocket, connectionContext);
-              }
-
-              if (connectionParams.language) connectionContext.socket.upgradeReq.headers.language = connectionParams.language;
-            },
-            onOperation: async (message, params, webSocket) => {
-              if (!params.context) params.context = {};
-
-              params.context.language = Translation.getLanguage();
-
-              for (let hook of Hooks.getHooksWSonMessage()) {
-                await hook(message, params, webSocket);
-              }
-
-              if (webSocket.upgradeReq.headers.language) params.context.language = webSocket.upgradeReq.headers.language;
-
-              params.context.trans = (query, ...args) => Translation.trans(params.context.language, query, ...args);
-
-              return params;
-            },
-            onDisconnect: async (webSocket) => {
-              for (let hook of Hooks.getHooksWSonDisconnect()) {
-                await hook(webSocket);
-              }
-            }
-          },
-          {
-            server: websocketServer,
-          }
-        );
+      var ports = seaport.connect(getConfig().seaportHost, getConfig().seaportPort);
+      websocketServer.listen(ports.register(getConfig().seaportWSName || "ServerWS"), () => {
+        Log.logInfo(`Websocket Server is connected to seaport as "${getConfig().seaportWSName || "ServerWS"}" on ${getConfig().seaportHost}:${getConfig().seaportPort}`);
+        this.subscriptionsServer = this.makeSubscriptionServer(websocketServer);
       });
     } else {
       websocketServer.listen(getConfig().portWS, () => {
-        Log.logInfo(`Websocket Server is now running on http://localhost:${getConfig().portWS}`);
-
-        const subscriptionsServer = new subscriptionServer.SubscriptionServer({
-            schema: Query.getSchema(),
-            execute: graphql.execute as any,
-            subscribe: graphql.subscribe,
-            onConnect: async (connectionParams, webSocket, connectionContext) => {
-              for (let hook of Hooks.getHooksWSonConnect()) {
-                await hook(connectionParams, webSocket, connectionContext);
-              }
-
-              if (connectionParams.language) connectionContext.socket.upgradeReq.headers.language = connectionParams.language;
-            },
-            onOperation: async (message, params, webSocket) => {
-              if (!params.context) params.context = {};
-
-              params.context.language = Translation.getLanguage();
-
-              for (let hook of Hooks.getHooksWSonMessage()) {
-                await hook(message, params, webSocket);
-              }
-
-              if (webSocket.upgradeReq.headers.language) params.context.language = webSocket.upgradeReq.headers.language;
-
-              params.context.trans = (query, ...args) => Translation.trans(params.context.language, query, ...args);
-
-              return params;
-            },
-            onDisconnect: async (webSocket) => {
-              for (let hook of Hooks.getHooksWSonDisconnect()) {
-                await hook(webSocket);
-              }
-            },
-          },
-          {
-            server: websocketServer,
-          }
-        );
+        Log.logInfo(`Websocket Server is listening on port ${getConfig().portWS}`);
+        this.subscriptionsServer = this.makeSubscriptionServer(websocketServer);
       });
     }
+  }
+
+  makeSubscriptionServer(websocketServer: http.Server): subscriptionServer.SubscriptionServer {
+    return new subscriptionServer.SubscriptionServer({
+      schema: Query.getSchema(),
+      execute: graphql.execute as any,
+      subscribe: graphql.subscribe,
+      onConnect: async (connectionParams, webSocket, connectionContext) => {
+        for (let hook of Hooks.getHooksWSonConnect()) {
+          await hook(connectionParams, webSocket, connectionContext);
+        }
+
+        if (connectionParams.language) connectionContext.socket.upgradeReq.headers.language = connectionParams.language;
+      },
+      onOperation: async (message, params, webSocket) => {
+        if (!params.context) params.context = {};
+
+        params.context.language = Translation.getLanguage();
+
+        for (let hook of Hooks.getHooksWSonMessage()) {
+          await hook(message, params, webSocket);
+        }
+
+        if (webSocket.upgradeReq.headers.language) params.context.language = webSocket.upgradeReq.headers.language;
+        setLanguageContext(params.context);
+
+        return params;
+      },
+      onDisconnect: async (webSocket) => {
+        for (let hook of Hooks.getHooksWSonDisconnect()) {
+          await hook(webSocket);
+        }
+      }
+    },
+      {
+        server: websocketServer
+      }
+    );
   }
 
   protected run() {
     this.server = http.createServer(this.app);
 
     if (getConfig().seaportHost && getConfig().seaportPort) {
-      Log.logInfo(`Server connected to seaport as "${getConfig().seaportName || "Server"}" on ${getConfig().seaportHost}:${getConfig().seaportPort}`);
-      var ports = (seaport as any).connect(getConfig().seaportHost, getConfig().seaportPort);
+      Log.logInfo(`Server is connected to seaport as "${getConfig().seaportName || "Server"}" on ${getConfig().seaportHost}:${getConfig().seaportPort}`);
+      var ports = seaport.connect(getConfig().seaportHost, getConfig().seaportPort);
       this.server.listen(ports.register(getConfig().seaportName || "Server"));
     } else {
       this.server.listen(this.app.get('port'), () => {
-        Log.logInfo('Server listening on port ' + this.app.get('port'));
+        Log.logInfo('Server is listening on port ' + this.app.get('port'));
         for (let hook of Hooks.getHooksAfterServerStart()) {
           hook();
         }

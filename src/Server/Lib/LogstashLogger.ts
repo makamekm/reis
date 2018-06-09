@@ -16,7 +16,7 @@ export class LogstashLogger implements LoggerI {
     }
 
     private startTimer() {
-        this.timer = setInterval(() => this.logger.logstashSend(), logLogstashConfig.interval || 300);
+        this.timer = setInterval(() => this.logger.logstashSend(), logLogstashConfig && logLogstashConfig.interval || 300);
     }
 
     getLevel() {

@@ -19,6 +19,7 @@ import * as Router from '../Modules/Router';
 import * as Reducer from '../Modules/Reducer';
 import { getHooksRender, Hook } from '../Modules/ServerHook';
 import * as Log from '../Modules/Log';
+import { setLanguageContext } from './Lib/Transtalion';
 
 export async function checkInteruptHook(req: express.Request, res: express.Response, next: express.NextFunction, store: Redux.Store<any>, context, hooksRes: Hook[]): Promise<boolean> {
   for (let hook of getHooksRender()) {
@@ -92,7 +93,7 @@ export function genLink(hooksRes: any[]): ApolloLink.ApolloLink {
 
 export async function Render(req: express.Request, res: express.Response, next: express.NextFunction, language?: string) {
   const context = {
-    language
+    language: language || Translation.getLanguage()
   };
 
   const store = Reducer.createStore();
@@ -101,9 +102,7 @@ export async function Render(req: express.Request, res: express.Response, next: 
 
   if (!await checkInteruptHook(req, res, next, store, context, hooksRes)) return;
 
-  if (!context.language) {
-    context.language = Translation.getLanguage();
-  }
+  setLanguageContext(context);
 
   const link = genLink(hooksRes);
 
@@ -135,28 +134,28 @@ export async function Render(req: express.Request, res: express.Response, next: 
     <ApolloReact.ApolloProvider client={gqlClient as any}>
       <ReactRedux.Provider store={store}>
         <StaticRouter location={req.url} context={{}}>
-          <Html client={gqlClient} store={store} language={language}>
-            {Router.GetRoutes(store, language)}
+          <Html client={gqlClient} store={store} language={context.language}>
+            {Router.GetRoutes(store, context.language)}
           </Html>
         </StaticRouter>
       </ReactRedux.Provider>
     </ApolloReact.ApolloProvider>
   );
 
-  // TODO: Fix server rendering with context
+  // TODO: Fix server rendering with context (Fixed & need to test)
   let html: string;
 
   try {
-    // html = await ApolloReact.renderToStringWithData(component);
+    html = await ApolloReact.renderToStringWithData(component);
     // await ApolloReact.getDataFromTree(component);
   }
   catch (e) {
     Log.logError(e, { type: "server_render" });
-
-    // html = ReactDOMServer.renderToString(component);
+  } finally {
+    html = ReactDOMServer.renderToString(component);
   }
 
-  html = ReactDOMServer.renderToString(component);
+  // html = ReactDOMServer.renderToString(component);
 
   const helmet = Helmet.renderStatic();
 

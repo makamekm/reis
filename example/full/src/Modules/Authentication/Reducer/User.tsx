@@ -31,7 +31,7 @@ export interface UserInterface {
 }
 
 export interface Model {
-  entity: UserInterface,
+  entity: UserInterface
 }
 
 export interface StateModel {
@@ -40,7 +40,7 @@ export interface StateModel {
 
 const initialState: Model = {
   entity: null
-};
+}
 
 type Types = 'SET_USER' | 'DELETE_USER'
 
@@ -53,13 +53,13 @@ export function setUser(user: UserInterface): Action|Promise<Action> {
   return {
     type: 'SET_USER',
     user
-  };
+  }
 }
 
 export function deleteUser(id: number): Action|Promise<Action> {
   return {
     type: 'DELETE_USER'
-  };
+  }
 }
 
 Reducer.Reducer('User', (state: Model = initialState, action: Action): Model => {
@@ -74,9 +74,9 @@ Reducer.Reducer('User', (state: Model = initialState, action: Action): Model => 
       return {
         ...state,
         entity: null
-      };
+      }
 
     default:
-      return state;
+      return state
   }
 })

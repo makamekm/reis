@@ -6,12 +6,12 @@ import * as Translation from '../Modules/Translation';
 import * as WebHooks from '../Modules/WebHook';
 import * as Log from '../Modules/Log';
 import { getHooksWebHook, WebHookInterface } from '../Modules/ServerHook';
+import { setLanguageContext } from './Lib/Transtalion';
 
-export async function checkInteruptHook(req: express.Request, res: express.Response, next: express.NextFunction, context): Promise<boolean> {
+export async function checkHooks(req: express.Request, res: express.Response, next: express.NextFunction, context): Promise<void> {
   for (let hook of getHooksWebHook()) {
-    if (!await hook(req, res, next, context)) return false;
+    await hook(req, res, next, context)
   }
-  return true;
 }
 
 export async function checkAuth(webHook: WebHookInterface, req: express.Request, res: express.Response, context): Promise<boolean> {
@@ -48,12 +48,12 @@ export function prepareLanguage(context) {
 export async function hook(webHook: WebHookInterface, req: express.Request, res: express.Response, next: express.NextFunction, language?: string) {
   const context = {
     files: req.files,
-    language
+    language: language || Translation.getLanguage()
   };
 
-  if (!await checkInteruptHook(req, res, next, context)) return;
+  await checkHooks(req, res, next, context);
 
-  prepareLanguage(context);
+  setLanguageContext(context);
 
   if (!await checkAuth(webHook, req, res, context)) {
     res.set('WWW-Authenticate', 'Basic realm=Authorization Required');

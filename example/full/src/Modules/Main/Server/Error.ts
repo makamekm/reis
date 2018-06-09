@@ -34,6 +34,6 @@ import * as Header from '../Reducer/Header';
 //   });
 
 //   return {
-//     linkWrap: linkError
+//     linksWrap: linkError
 //   }
 // })

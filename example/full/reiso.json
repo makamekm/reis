@@ -13,6 +13,9 @@
     "defaultLanguage": "en",
     "languages": ["en", "ru"],
     "graphiql": true,
+    "logConsole": {
+      "level": "debug"
+    },
     "apm": {
       "serverUrl": "http://localhost:8200",
       "serviceName": "reiso_full_server",
