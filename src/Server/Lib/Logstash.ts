@@ -1,5 +1,7 @@
 import net = require('net');
 
+import { LoggerI, LogType } from "./Logger";
+
 export type LogstashI = { log: Function, connection: any };
 
 export class Logstash {

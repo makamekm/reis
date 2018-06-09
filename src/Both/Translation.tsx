@@ -37,8 +37,7 @@ function evaluate(obj: any, queries: string[], path: string): string {
 
   if (queries.length > 0) {
     return obj[name] ? evaluate(obj[name], queries, path) : '';
-  }
-  else {
+  } else {
     return obj[name] || '';
   }
 }
