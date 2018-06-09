@@ -99,7 +99,8 @@
     "enzyme-context-patch": "0.0.7",
     "jasmine-ts": "0.2.1",
     "jasmine-spec-reporter": "4.2.1",
-    "fuse-box": "3.2.2"
+    "fuse-box": "3.2.2",
+    "nodemon": "1.17.5"
   },
   "dependencies": {
     "babel-polyfill": "6.26.0",

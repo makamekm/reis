@@ -15,6 +15,7 @@
   ],
   "scripts": {
     "build": "tsc",
+    "watch": "node_modules/.bin/nodemon --watch './src' node_modules/.bin/tsc",
     "publish": "publish"
   },
   "author": {
@@ -25,7 +26,8 @@
   "devDependencies": {
     "typescript": "2.8.3",
     "npm-registry-client": "8.5.1",
-    "git-repo-watch": "1.0.0"
+    "git-repo-watch": "1.0.0",
+    "nodemon": "1.17.5"
   },
   "dependencies": {
     "@types/async": "2.0.49",
