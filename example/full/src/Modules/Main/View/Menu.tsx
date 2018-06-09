@@ -17,7 +17,6 @@ import Id from '../../../Export/Id';
 import { Menu as MenuRaw, MenuSpace, MenuLink, MenuHeader, MenuItem, MenuDivider, MenuGroup, MenuInput, MenuDrop } from '../../../Components/Menu';
 import * as UserReducer from '../../Authentication/Reducer/User';
 import { Language, CodeFlag, LanguageForEach, LanguageStringify, LanguageCode, CodeLanguage } from '../../Language/Enum/Language';
-import { AdminRule } from '../../Authentication/Enum/AdminRule';
 import { Theme, ThemeStringify } from '../Enum/Theme';
 
 import { LoginForm } from './Auth/LoginForm';

@@ -2,7 +2,7 @@ import * as Redux from 'redux';
 
 import * as Reducer from 'reiso/Modules/Reducer';
 
-import { AdminRule, HasAdminRule, AdminRuleStringify, AdminRuleForEach } from '../Enum/AdminRule';
+import { UserRule, HasUserRule, UserRuleStringify, UserRuleForEach } from '../Enum/UserRule';
 
 export interface ConnectUserStateInterface {
   user?: ConnectUserInterface
@@ -10,12 +10,12 @@ export interface ConnectUserStateInterface {
 
 export interface ConnectUserInterface {
   entity: UserInterface
-  hasRule: (rules: AdminRule[]) => boolean
+  hasRule: (rules: UserRule[]) => boolean
 }
 
 export const ConvertConnectUser = (state: StateModel) => ({
   entity: state.User.entity,
-  hasRule: (rules: AdminRule[]) => state.User.entity && HasAdminRule(state.User.entity.rules, rules),
+  hasRule: (rules: UserRule[]) => state.User.entity && HasUserRule(state.User.entity.rules, rules),
 })
 
 export const DecorateConnectUser = Reducer.Connect<ConnectUserStateInterface, any, StateModel>(state => ({

@@ -22,7 +22,7 @@ import { User } from '../Entity/User';
 import { UserAvatar } from '../Entity/UserAvatar';
 import { Email } from '../Entity/Email';
 import { UserPrivate } from '../Entity/UserPrivate';
-import { AdminRule } from '../Enum/AdminRule';
+import { UserRule } from '../Enum/UserRule';
 import { emailType } from '../Query/Type/Email';
 import { usernameType, passwordType } from '../Query/Type/User';
 
@@ -251,7 +251,7 @@ export class Auth {
     let verifyed = false;
 
     if (userCount == 0) {
-      rules.push(AdminRule.Administator);
+      rules.push(UserRule.Administator);
     }
 
     let user = userRepository.create({

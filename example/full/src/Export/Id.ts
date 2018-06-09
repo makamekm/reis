@@ -1,4 +1,4 @@
-exports.default = {
+export default {
     // Menu
     menuSigninBtn: "menuSigninBtn", // => Opens Login Modal Form
     menuSignupBtn: "menuSignupBtn", // => Opens Registration Modal Form

@@ -7,9 +7,9 @@ import { Email } from '../Entity/Email';
 import { UserAvatar } from '../Entity/UserAvatar';
 import { UserPrivate } from '../Entity/UserPrivate';
 import { Session } from '../Entity/Session';
-import { AdminRule } from '../Enum/AdminRule';
+import { UserRule } from '../Enum/UserRule';
 import { languageType } from '../Query/Type/Language';
-import { ruleAdminType } from '../Query/Type/AdminRule';
+import { ruleUserType } from '../Query/Type/UserRule';
 
 @ORM.RegisterEntity('Authentication')
 @ORM.Entity('user')
@@ -71,9 +71,9 @@ export class User {
         nullable: false,
         comment: "Integers only",
     })
-    rules: AdminRule[] = [];
+    rules: UserRule[] = [];
 
-    @GraphQL.Field(type => ruleAdminType, { name: 'rules', array: true })
+    @GraphQL.Field(type => ruleUserType, { name: 'rules', array: true })
     public async _rules(context) {
         return this.rules && this.rules[0] ? this.rules : [];
     }

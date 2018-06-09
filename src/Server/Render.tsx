@@ -172,7 +172,7 @@ export async function Render(req: express.Request, res: express.Response, next: 
             window.__TRANSLATION__ = ${JSON.stringify(Translation.getTranslation())};
             window.__LANGUAGES__ = ${JSON.stringify(Translation.getLanguages())};
             window.__LANGUAGE__ = "${context.language}";
-            window.__CONTEXT__ = "${JSON.stringify(context)}";
+            window.__CONTEXT__ = ${JSON.stringify(context)};
             window.__HOST__ = "${getConfig().host}";
             window.__WSADDRESS__ = ${getConfig().globalPortWS};
             window.__APOLLO_STATE__ = ${JSON.stringify(cache.extract())};

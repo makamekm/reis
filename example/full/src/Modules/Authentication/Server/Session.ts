@@ -10,7 +10,7 @@ import { SessionStore } from '../Service/Session';
 import { User } from '../Entity/User';
 import { Session } from '../Entity/Session';
 import * as UserReducer from '../Reducer/User';
-import { AdminRule, HasAdminRule } from '../Enum/AdminRule';
+import { UserRule, HasUserRule } from '../Enum/UserRule';
 
 const arena = Arena({
   queues: Handler.getQueuesArena()
@@ -137,7 +137,7 @@ RegisterHookRender(async (req, res, next, context, store) => {
   }
 
   if (req.path.indexOf('/admin/worker') == 0) {
-    if (user && HasAdminRule(user.rules, [AdminRule.Administator])) {
+    if (user && HasUserRule(user.rules, [UserRule.Administator])) {
       arena(req, res, next);
       return;
     }

@@ -22,6 +22,7 @@
       "secretToken": "qwerty",
       "instrument": true,
       "errorOnAbortedRequests": true,
+      "captureBody": "all",
       "captureErrorLogStackTraces": "always",
       "active": true,
       "transactionSampleRate": 0.5,

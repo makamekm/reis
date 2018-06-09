@@ -9,7 +9,7 @@ import { DenyError } from '../../../Global/Error';
 import { Language } from '../../Language/Enum/Language';
 import { Session } from '../Entity/Session';
 import { User } from '../Entity/User';
-import { AdminRule, HasAdminRule } from '../Enum/AdminRule';
+import { UserRule, HasUserRule } from '../Enum/UserRule';
 
 // export const pubsub: Subscriptions.PubSub = new Subscriptions.PubSub();
 
@@ -20,7 +20,7 @@ export class UserFilter {
   username?: string;
 
   @GraphQL.InputField('integer', { nullable: true, array: true })
-  rules?: AdminRule[];
+  rules?: UserRule[];
 
   @GraphQL.InputField('integer', { nullable: true, array: true })
   language?: Language[];
@@ -82,7 +82,7 @@ export class UserQuery {
       throw new DenyError(null, context.trans('Error.NotLogged'));
     }
 
-    if (!(HasAdminRule(context.session.user.rules, [AdminRule.Administator]))) {
+    if (!(HasUserRule(context.session.user.rules, [UserRule.Administator]))) {
       throw new DenyError(null, context.trans('Error.HaventRule'));
     }
 
