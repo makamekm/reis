@@ -151,7 +151,6 @@ export async function Render(req: express.Request, res: express.Response, next: 
   }
   catch (e) {
     Log.logError(e, { type: "server_render" });
-  } finally {
     html = ReactDOMServer.renderToString(component);
   }
 
