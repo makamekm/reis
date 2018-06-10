@@ -126,10 +126,8 @@ export function Mutation(options: MutationOption): (target: any) => void {
 export function Subscription(type: FieldType | FieldType[], subscribe: Function, options: SubscriptionOption = {}): (target: any, propertyKey: string, descriptor: any) => void {
     return (target: any, propertyKey: string, descriptor: any): void => {
         let name = options.name ? options.name : propertyKey;
+        let scope = options.scope ? options.scope : 'Main';
         let model: ModelSub = Reflect.getMetadata(subMetadataKey, target);
-        if (!model) {
-            model = new ModelSub();
-        }
         if (!model) {
             model = new ModelSub();
         }
@@ -140,7 +138,6 @@ export function Subscription(type: FieldType | FieldType[], subscribe: Function,
         model.value = descriptor.value;
         model.resolveType = options.resolveType;
         subscriptions[name] = model;
-        let scope = options.scope ? options.scope : 'Main';
         if (!getPublishes()[scope]) {
             getPublishes()[scope] = [];
         }
@@ -169,6 +166,18 @@ export function SubscriptionArg(type: FieldType | FieldType[], name: string, opt
     }
 }
 
+export function Input(id: string, options: InputOption = {}): (target: any) => void {
+    return (target: any): void => {
+        let model: ModelInput = Reflect.getMetadata(inputMetadataKey, target);
+        if (!model) {
+            model = new ModelInput();
+        }
+        model.id = id;
+        // model.target = target;
+        Reflect.metadata(inputMetadataKey, model)(target);
+    }
+}
+
 export function Structure(id: string, options: StructureOption = {}): (target: any) => any {
     return (target: any): any => {
         let model: Model = Reflect.getMetadata(typeMetadataKey, target);
@@ -176,10 +185,10 @@ export function Structure(id: string, options: StructureOption = {}): (target: a
             model = new Model();
         }
         model.id = id;
+        model.target = target;
         Object.getOwnPropertyNames(target.prototype).forEach(member => {
             let memberDesc = Object.getOwnPropertyDescriptor(target.prototype, member);
-
-            if (typeof memberDesc.value == "function") {
+            if (typeof memberDesc.value == 'function') {
                 if (member == 'constructor') {
                     if (!model.constr) {
                         model.constr = new ModelConstructor();
@@ -187,8 +196,8 @@ export function Structure(id: string, options: StructureOption = {}): (target: a
                 }
             }
         })
-        model.target = target;
         Reflect.metadata(typeMetadataKey, model)(target);
+        console.log(model);
     }
 }
 
@@ -208,6 +217,7 @@ export function Field(type: FieldType | FieldType[], options: FieldOption = {}):
         model.fields[propertyKey].array = options.array;
         model.fields[propertyKey].resolveType = options.resolveType;
         Reflect.metadata(typeMetadataKey, model)(target);
+        console.log(model);
     }
 }
 
@@ -287,18 +297,6 @@ export function InputField(type: FieldType | FieldType[], options: InputFieldOpt
         model.fields[propertyKey].nullable = options.nullable;
         model.fields[propertyKey].array = options.array;
         model.fields[propertyKey].resolveType = options.resolveType;
-        Reflect.metadata(inputMetadataKey, model)(target);
-    }
-}
-
-export function Input(id: string, options: InputOption = {}): (target: any) => void {
-    return (target: any): void => {
-        let model: ModelInput = Reflect.getMetadata(inputMetadataKey, target);
-        if (!model) {
-            model = new ModelInput();
-        }
-        model.id = id;
-        // model.target = target;
         Reflect.metadata(inputMetadataKey, model)(target);
     }
 }

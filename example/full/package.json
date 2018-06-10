@@ -34,8 +34,11 @@
     "test_unit": "jasmine-ts --project ./tsconfig.node.json -r tsconfig-paths/register ./src/Test/Server/Unit/Entry.ts",
     "test": "npm run test_unit && npm run test_client"
   },
-  "author": "mkarpov",
-  "license": "ISC",
+  "author": {
+    "name": "Karpov Maxim",
+    "email": "makame@mail.ru"
+  },
+  "license": "GNU",
   "devDependencies": {
     "@types/draft-js": "0.10.23",
     "@types/gm": "1.18.0",

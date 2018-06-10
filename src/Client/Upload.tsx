@@ -58,14 +58,10 @@ export class UploadLink extends ApolloLink {
       }));
     }
 
-    operation.setContext(({ headers }) => {
-      console.log(headers);
-      
-      return {}
-    });
-
     // operation.setContext(({ headers }) => ({
+    //   method: 'POST',
     //   headers: {
+    //     'content-type': 'application/graphql'
     //   }
     // }));
 
