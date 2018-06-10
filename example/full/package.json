@@ -56,7 +56,6 @@
     "browser-sync": "2.24.4",
     "concurrently": "3.5.1",
     "copy-webpack-plugin": "4.5.1",
-    "cross-env": "5.1.6",
     "css-loader": "0.28.11",
     "extract-text-webpack-plugin": "4.0.0-beta.0",
     "font-awesome": "4.7.0",
@@ -107,6 +106,7 @@
     "nodemon": "1.17.5"
   },
   "dependencies": {
+    "cross-env": "5.1.6",
     "babel-polyfill": "6.26.0",
     "bull-arena": "2.4.5",
     "draft-js": "0.10.5",

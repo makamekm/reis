@@ -1,4 +1,4 @@
-import { GraphQLObjectType, GraphQLInputObjectType, GraphQLString, GraphQLUnionType, GraphQLInt, GraphQLFloat, GraphQLBoolean, GraphQLID, GraphQLList, GraphQLNonNull, GraphQLSchema } from 'graphql';
+import { GraphQLObjectType, Kind, GraphQLNullableType, GraphQLInputObjectType, GraphQLString, GraphQLType, GraphQLScalarType, GraphQLUnionType, GraphQLInt, GraphQLFloat, GraphQLBoolean, GraphQLID, GraphQLList, GraphQLNonNull, GraphQLSchema } from 'graphql';
 
 import {
     ModelInput,
@@ -36,8 +36,8 @@ export function getInputModelType(model: ModelInput) {
     return typesInput[model.id];
 }
 
-export function getInputTypeSimple(t: any, arg: ModelArg | ModelInputField) {
-    let type: any = GraphQLString;
+export function getInputTypeSimple(t: string | Function, arg: ModelArg | ModelInputField): GraphQLNullableType {
+    let type: GraphQLNullableType = GraphQLString;
 
     switch (typeof t) {
         case 'string':
@@ -52,28 +52,33 @@ export function getInputTypeSimple(t: any, arg: ModelArg | ModelInputField) {
             } else if (t == 'id') {
                 type = GraphQLID;
             } else {
-                throw new Error('Undefined arg type: ' + t);
+                throw new Error('Undefined arg type: ' + t + ' for ' + arg.name);
+            }
+            break;
+        case 'object':
+            if (Array.isArray(t)) {
+                // TODO: Make union types
+                // const types = t.forEach(t => getInputTypeSimple(t, arg));
+                // type = GraphQLUnionType;
+            } else {
+                throw new Error('The arg type: ' + typeof arg.type + ' should be a string or a function [() => Class or GraphQLType] or an array of them for ' + arg.name);
+            }
+            break;
+        case 'function':
+            let func = (t as Function)();
+            if (typeof func == 'function') {
+                let inputModel: ModelInput = Reflect.getMetadata(inputMetadataKey, func);
+                if (inputModel) {
+                    type = getInputModelType(inputModel);
+                } else {
+                    throw new Error('The arg type: ' + typeof arg.type + ' does not have Model for ' + arg.name);
+                }
+            } else {
+                type = func;
             }
             break;
         default:
-            if (Array.isArray(t)) {
-                const types = t.forEach(t => getInputTypeSimple(t, arg))
-                type = GraphQLUnionType
-            } else {
-                let tt = (t as Function)();
-
-                if (typeof tt == 'function') {
-                    let inputModel: ModelInput = Reflect.getMetadata(inputMetadataKey, tt);
-                    if (inputModel) {
-                        type = getInputModelType(inputModel);
-                    } else {
-                        console.trace(arg, t);
-                        throw new Error('The arg in not an Input: ' + typeof arg.type);
-                    }
-                } else {
-                    type = tt;
-                }
-            }
+            throw new Error('The arg type: ' + typeof arg.type + ' should be a string or a function [() => Class or GraphQLType] or an array of them for ' + arg.name);
     }
 
     if (!arg.nullable) {
@@ -89,23 +94,25 @@ export function getInputTypeSimple(t: any, arg: ModelArg | ModelInputField) {
 
 export function getInputType(arg: ModelArg | ModelInputField) {
     if (Array.isArray(arg.type)) {
-        const uTypes = arg.type.map(t => ({ t, type: getInputTypeSimple(t, arg) }));
-        const type = new GraphQLUnionType({
-            name: 'Union' + arg.name,
-            types: uTypes.map(t => t.type),
-            resolveType: (value) => {
-                const t = uTypes.find(t => t.t === arg.resolveType(value));
-                return t && t.type;
-            }
-        })
-        return type;
+        // TODO: Make union types
+        // const unionTypes = arg.type.map(t => ({ t, type: getInputTypeSimple(t, arg) }));
+        // const type = new GraphQLUnionType({
+        //     name: 'Union' + arg.name,
+        //     types: unionTypes.map(t => t.type),
+        //     resolveType: (value) => {
+        //         const resolvedType = unionTypes.find(t => t.t === arg.resolveType(value));
+        //         return resolvedType && resolvedType.type;
+        //     }
+        // })
+        // return type;
+        throw new Error('Not implemented!');
     } else {
         return getInputTypeSimple(arg.type, arg);
     }
 }
 
-export function getFieldType(arg: ModelField | ModelSub) {
-    let type: any = GraphQLString;
+export function getFieldType(arg: ModelField | ModelSub): GraphQLNullableType {
+    let type: GraphQLNullableType = GraphQLString;
 
     switch (typeof arg.type) {
         case 'string':
@@ -120,23 +127,24 @@ export function getFieldType(arg: ModelField | ModelSub) {
             } else if (arg.type == 'id') {
                 type = GraphQLID;
             } else {
-                throw new Error('Undefined arg type: ' + arg.type);
+                throw new Error('Undefined arg type: ' + arg.type + ' for ' + arg.name);
             }
             break;
-        default:
-            let tt = (arg.type as Function)();
-
-            if (typeof tt == 'function') {
-                let inputModel: Model = Reflect.getMetadata(typeMetadataKey, tt);
+        case 'function':
+            let func = (arg.type as Function)();
+            if (typeof func == 'function') {
+                let inputModel: Model = Reflect.getMetadata(typeMetadataKey, func.prototype);
                 if (inputModel) {
                     type = getModel(inputModel);
                 } else {
-                    console.trace(arg, arg.type);
-                    throw new Error('The arg in not an Field: ' + typeof arg.type + ' as ' + arg.name);
+                    throw new Error('The arg type: ' + typeof arg.type + ' does not have Model for ' + arg.name);
                 }
             } else {
-                type = tt;
+                type = func;
             }
+            break;
+        default:
+            throw new Error('The arg type: ' + typeof arg.type + ' should be a string or a function [() => Class or GraphQLType] for ' + arg.name);
     }
 
     if (arg.array) {

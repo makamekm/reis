@@ -63,18 +63,6 @@ export function getSchema() {
         subscriptionFields[key] = getSub(subscriptions[key]);
     }
 
-    const eventType = new GraphQLObjectType({
-        name: 'Event',
-        fields: {
-            Id: {
-                type: GraphQLInt
-            },
-            Name: {
-                type: GraphQLString
-            }
-        }
-    });
-
     let shema: Schema = {
         query: undefined,
     };
@@ -106,11 +94,7 @@ export function getSchema() {
 export function Query(options: QueryOption): (target: any) => void {
     return (target: any): void => {
         let name = options.name ? options.name : target.constructor.name;
-        let model: Model = Reflect.getMetadata(typeMetadataKey, target);
-        if (!model) {
-            model = new Model();
-        }
-        Reflect.metadata(typeMetadataKey, model)(target);
+        let model: Model = Reflect.getMetadata(typeMetadataKey, target.prototype);
         queries[name] = model;
     }
 }
@@ -118,8 +102,30 @@ export function Query(options: QueryOption): (target: any) => void {
 export function Mutation(options: MutationOption): (target: any) => void {
     return (target: any): void => {
         let name = options.name ? options.name : target.constructor.name;
-        let model: Model = Reflect.getMetadata(typeMetadataKey, target);
+        let model: Model = Reflect.getMetadata(typeMetadataKey, target.prototype);
         mutations[name] = model;
+    }
+}
+
+export function Structure(id: string, options: StructureOption = {}): (target: any) => any {
+    return (target: any): any => {
+        let model: Model = Reflect.getMetadata(typeMetadataKey, target.prototype);
+        if (!model) {
+            model = new Model();
+        }
+        model.id = id;
+        model.target = target;
+        Object.getOwnPropertyNames(target.prototype).forEach(member => {
+            let memberDesc = Object.getOwnPropertyDescriptor(target.prototype, member);
+            if (typeof memberDesc.value == 'function') {
+                if (member == 'constructor') {
+                    if (!model.constr) {
+                        model.constr = new ModelConstructor();
+                    }
+                }
+            }
+        })
+        Reflect.metadata(typeMetadataKey, model)(target.prototype);
     }
 }
 
@@ -137,7 +143,6 @@ export function Subscription(type: FieldType | FieldType[], subscribe: Function,
         model.array = options.array;
         model.value = descriptor.value;
         model.resolveType = options.resolveType;
-        subscriptions[name] = model;
         if (!getPublishes()[scope]) {
             getPublishes()[scope] = [];
         }
@@ -145,6 +150,7 @@ export function Subscription(type: FieldType | FieldType[], subscribe: Function,
             getPublishes()[scope].push(name);
         }
         Reflect.metadata(typeMetadataKey, model)(target);
+        subscriptions[name] = model;
     }
 }
 
@@ -178,29 +184,6 @@ export function Input(id: string, options: InputOption = {}): (target: any) => v
     }
 }
 
-export function Structure(id: string, options: StructureOption = {}): (target: any) => any {
-    return (target: any): any => {
-        let model: Model = Reflect.getMetadata(typeMetadataKey, target);
-        if (!model) {
-            model = new Model();
-        }
-        model.id = id;
-        model.target = target;
-        Object.getOwnPropertyNames(target.prototype).forEach(member => {
-            let memberDesc = Object.getOwnPropertyDescriptor(target.prototype, member);
-            if (typeof memberDesc.value == 'function') {
-                if (member == 'constructor') {
-                    if (!model.constr) {
-                        model.constr = new ModelConstructor();
-                    }
-                }
-            }
-        })
-        Reflect.metadata(typeMetadataKey, model)(target);
-        console.log(model);
-    }
-}
-
 export function Field(type: FieldType | FieldType[], options: FieldOption = {}): (target: any, propertyKey: string) => void {
     return (target: any, propertyKey: string): void => {
         let name = options.name ? options.name : propertyKey;
@@ -217,7 +200,6 @@ export function Field(type: FieldType | FieldType[], options: FieldOption = {}):
         model.fields[propertyKey].array = options.array;
         model.fields[propertyKey].resolveType = options.resolveType;
         Reflect.metadata(typeMetadataKey, model)(target);
-        console.log(model);
     }
 }
 
