@@ -44,8 +44,28 @@ let subscriptions: {
     [name: string]: ModelSub
 } = {}
 
+let schema: GraphQLSchema
+let schemaWS: GraphQLSchema
+
 export function getSchema() {
+    if (!schema) {
+        schema = genSchema();
+    }
+    return schema;
+}
+
+export function getWSSchema() {
+    if (!schemaWS) {
+        schemaWS = genWSSchema();
+    }
+    return schemaWS;
+}
+
+function genSchema(): GraphQLSchema {
     let queryFields = {};
+
+    console.log(queries, mutations, subscriptions);
+    
 
     for (let key in queries) {
         queryFields[key] = getField(queries[key]);
@@ -57,15 +77,9 @@ export function getSchema() {
         mutationFields[key] = getField(mutations[key]);
     }
 
-    let subscriptionFields = {};
-
-    for (let key in subscriptions) {
-        subscriptionFields[key] = getSub(subscriptions[key]);
-    }
-
     let shema: Schema = {
         query: undefined,
-    };
+    }
 
     if (Object.keys(queryFields).length > 0) {
         shema.query = new GraphQLObjectType({
@@ -79,6 +93,20 @@ export function getSchema() {
             name: 'RootMutation',
             fields: mutationFields
         });
+    }
+
+    return new GraphQLSchema(shema);
+}
+
+function genWSSchema(): GraphQLSchema {
+    let subscriptionFields = {};
+
+    for (let key in subscriptions) {
+        subscriptionFields[key] = getSub(subscriptions[key]);
+    }
+
+    let shema: Schema = {
+        query: undefined
     }
 
     if (Object.keys(subscriptionFields).length > 0) {

@@ -225,7 +225,7 @@ export class Server {
 
   makeSubscriptionServer(websocketServer: http.Server): subscriptionServer.SubscriptionServer {
     return new subscriptionServer.SubscriptionServer({
-      schema: Query.getSchema(),
+      schema: Query.getWSSchema(),
       execute: graphql.execute as any,
       subscribe: graphql.subscribe,
       onConnect: async (connectionParams, webSocket, connectionContext) => {

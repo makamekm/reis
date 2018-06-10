@@ -61,13 +61,13 @@ export function getInputTypeSimple(t: string | Function, arg: ModelArg | ModelIn
                 // const types = t.forEach(t => getInputTypeSimple(t, arg));
                 // type = GraphQLUnionType;
             } else {
-                throw new Error('The arg type: ' + typeof arg.type + ' should be a string or a function [() => Class or GraphQLType] or an array of them for ' + arg.name);
+                throw new Error('The arg type: ' + typeof arg.type + ' should be String or Function [() => Class or GraphQLType] or an array of them for ' + arg.name);
             }
             break;
         case 'function':
             let func = (t as Function)();
             if (typeof func == 'function') {
-                let inputModel: ModelInput = Reflect.getMetadata(inputMetadataKey, func);
+                let inputModel: ModelInput = Reflect.getMetadata(inputMetadataKey, func) || Reflect.getMetadata(inputMetadataKey, func.prototype);
                 if (inputModel) {
                     type = getInputModelType(inputModel);
                 } else {
@@ -78,7 +78,7 @@ export function getInputTypeSimple(t: string | Function, arg: ModelArg | ModelIn
             }
             break;
         default:
-            throw new Error('The arg type: ' + typeof arg.type + ' should be a string or a function [() => Class or GraphQLType] or an array of them for ' + arg.name);
+            throw new Error('The arg type: ' + typeof arg.type + ' should be String or Function [() => Class or GraphQLType] or an array of them for ' + arg.name);
     }
 
     if (!arg.nullable) {
@@ -133,9 +133,9 @@ export function getFieldType(arg: ModelField | ModelSub): GraphQLNullableType {
         case 'function':
             let func = (arg.type as Function)();
             if (typeof func == 'function') {
-                let inputModel: Model = Reflect.getMetadata(typeMetadataKey, func.prototype);
+                let inputModel: Model = Reflect.getMetadata(typeMetadataKey, func) || Reflect.getMetadata(typeMetadataKey, func.prototype);
                 if (inputModel) {
-                    type = getModel(inputModel);
+                    type = getModelType(inputModel);
                 } else {
                     throw new Error('The arg type: ' + typeof arg.type + ' does not have Model for ' + arg.name);
                 }
@@ -154,12 +154,10 @@ export function getFieldType(arg: ModelField | ModelSub): GraphQLNullableType {
     return type;
 }
 
-export function getModel(model: Model) {
+export function getModelType(model: Model) {
     if (types[model.id]) {
         return types[model.id];
     }
-
-    let target = undefined;
 
     let fields = {};
 
@@ -175,12 +173,12 @@ export function getModel(model: Model) {
             let field: ModelField = fieldRaw as ModelField;
 
             if (field.substructure) {
-                let tt = (field.type as Function)();
-                let inputModel: Model = Reflect.getMetadata(typeMetadataKey, tt);
+                let func = (field.type as Function)();
+                let inputModel: Model = Reflect.getMetadata(typeMetadataKey, func) || Reflect.getMetadata(typeMetadataKey, func.prototype);
                 if (inputModel instanceof Model) {
-                    fields[field.name] = getField(inputModel, model);
+                    fields[field.name] = getField(inputModel);
                 } else {
-                    throw new Error('Substructure should be a Model: ' + field.type);
+                    throw new Error('Substructure should be Model: ' + field.type);
                 }
             } else {
                 let args = {};
@@ -220,8 +218,7 @@ export function getModel(model: Model) {
     return types[model.id];
 }
 
-export function getField(model: Model, parent?: Model) {
-
+export function getField(model: Model) {
     let constr = undefined;
     let args = {};
 
@@ -261,11 +258,11 @@ export function getField(model: Model, parent?: Model) {
         }
     }
 
-    let modelType = getModel(model);
+    let modelType = getModelType(model);
 
     return {
         type: modelType,
-        args: args,
+        args,
         resolve: constr
     }
 }
