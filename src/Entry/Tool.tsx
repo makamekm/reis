@@ -1,5 +1,6 @@
 require("source-map-support").install();
 require("fetch-everywhere");
+import "reflect-metadata";
 
 process.env.MODE = 'server';
 

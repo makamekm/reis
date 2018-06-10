@@ -42,7 +42,11 @@ export type ApmAdditional = {
 
 export type LogErrorApmAdditional = ApmAdditional & LogType;
 
-export const logError = (error: LogError, data: LogErrorApmAdditional) => {
+process.on('uncaughtException', function(err) {
+  logError(err);
+})
+
+export const logError = (error: LogError, data: LogErrorApmAdditional = {}) => {
   let stack = StackTraceParser.parse(error.stack);
 
   let response = data.response;
@@ -61,6 +65,10 @@ export const logError = (error: LogError, data: LogErrorApmAdditional) => {
     state: error.state,
     stack
   };
+
+  for (let i in line) {
+    if (line[i] === undefined) delete line[i];
+  }
 
   if (apmConfig && apm && isWritableLevel(error.level || 'error', apmConfig.level || 'error')) {
     apm.captureError(error, {

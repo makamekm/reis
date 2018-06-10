@@ -59,10 +59,10 @@ const UserOrderEnum = new GraphQLEnumType({
 export class UserOrder {
 
   @GraphQL.InputField(type => UserOrderEnum)
-  name: string;
+  name: string
 
   @GraphQL.InputField(type => orderEnum)
-  type: 'DESC'|'ASC';
+  type: 'DESC'|'ASC'
 }
 
 @GraphQL.Query({ name: 'user' })
