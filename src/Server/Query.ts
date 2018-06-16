@@ -1,7 +1,11 @@
 import { GraphQLObjectType, GraphQLInputObjectType, GraphQLString, GraphQLUnionType, GraphQLInt, GraphQLFloat, GraphQLBoolean, GraphQLID, GraphQLList, GraphQLNonNull, GraphQLSchema } from 'graphql';
 
 import { getPublishes } from './GraphQL/SubscriptionManager';
-export { SubscriptionManager, Subscribe, Publish } from './GraphQL/SubscriptionManager';
+export {
+    SubscriptionManager,
+    Subscribe,
+    Publish
+} from './GraphQL/SubscriptionManager';
 
 import {
     FieldType,
@@ -27,26 +31,26 @@ import {
 } from './GraphQL/Model';
 import {
     getField,
-    getSub
+    getSubscriptionField
 } from './GraphQL/Input';
 
-type Schema = { query: GraphQLObjectType, mutation?: GraphQLObjectType, subscription?: GraphQLObjectType }
+type Schema = {
+    query: GraphQLObjectType
+    mutation?: GraphQLObjectType
+    subscription?: GraphQLObjectType
+}
 
-let queries: {
+const queriesModel: {
     [name: string]: Model
 } = {};
-
-let mutations: {
+const mutationsModel: {
     [name: string]: Model
 } = {};
-
-let subscriptions: {
+const subscriptionsModel: {
     [name: string]: ModelSub
-} = {}
+} = {};
 
 let schema: GraphQLSchema
-let schemaWS: GraphQLSchema
-
 export function getSchema() {
     if (!schema) {
         schema = genSchema();
@@ -54,30 +58,28 @@ export function getSchema() {
     return schema;
 }
 
-export function getWSSchema() {
-    if (!schemaWS) {
-        schemaWS = genWSSchema();
+let schemaSubscription: GraphQLSchema
+export function getSubscriptionSchema() {
+    if (!schemaSubscription) {
+        schemaSubscription = genSubscriptionSchema();
     }
-    return schemaWS;
+    return schemaSubscription;
 }
 
 function genSchema(): GraphQLSchema {
-    let queryFields = {};
+    const queryFields = {};
 
-    console.log(queries, mutations, subscriptions);
-    
-
-    for (let key in queries) {
-        queryFields[key] = getField(queries[key]);
+    for (const key in queriesModel) {
+        queryFields[key] = getField(queriesModel[key]);
     }
 
-    let mutationFields = {};
+    const mutationFields = {};
 
-    for (let key in mutations) {
-        mutationFields[key] = getField(mutations[key]);
+    for (const key in mutationsModel) {
+        mutationFields[key] = getField(mutationsModel[key]);
     }
 
-    let shema: Schema = {
+    const shema: Schema = {
         query: undefined,
     }
 
@@ -98,14 +100,14 @@ function genSchema(): GraphQLSchema {
     return new GraphQLSchema(shema);
 }
 
-function genWSSchema(): GraphQLSchema {
-    let subscriptionFields = {};
+function genSubscriptionSchema(): GraphQLSchema {
+    const subscriptionFields = {};
 
-    for (let key in subscriptions) {
-        subscriptionFields[key] = getSub(subscriptions[key]);
+    for (const key in subscriptionsModel) {
+        subscriptionFields[key] = getSubscriptionField(subscriptionsModel[key]);
     }
 
-    let shema: Schema = {
+    const shema: Schema = {
         query: undefined
     }
 
@@ -121,17 +123,17 @@ function genWSSchema(): GraphQLSchema {
 
 export function Query(options: QueryOption): (target: any) => void {
     return (target: any): void => {
-        let name = options.name ? options.name : target.constructor.name;
-        let model: Model = Reflect.getMetadata(typeMetadataKey, target.prototype);
-        queries[name] = model;
+        const name = options.name ? options.name : target.constructor.name;
+        const model: Model = Reflect.getMetadata(typeMetadataKey, target.prototype);
+        queriesModel[name] = model;
     }
 }
 
 export function Mutation(options: MutationOption): (target: any) => void {
     return (target: any): void => {
-        let name = options.name ? options.name : target.constructor.name;
-        let model: Model = Reflect.getMetadata(typeMetadataKey, target.prototype);
-        mutations[name] = model;
+        const name = options.name ? options.name : target.constructor.name;
+        const model: Model = Reflect.getMetadata(typeMetadataKey, target.prototype);
+        mutationsModel[name] = model;
     }
 }
 
@@ -144,7 +146,7 @@ export function Structure(id: string, options: StructureOption = {}): (target: a
         model.id = id;
         model.target = target;
         Object.getOwnPropertyNames(target.prototype).forEach(member => {
-            let memberDesc = Object.getOwnPropertyDescriptor(target.prototype, member);
+            const memberDesc = Object.getOwnPropertyDescriptor(target.prototype, member);
             if (typeof memberDesc.value == 'function') {
                 if (member == 'constructor') {
                     if (!model.constr) {
@@ -157,10 +159,22 @@ export function Structure(id: string, options: StructureOption = {}): (target: a
     }
 }
 
+export function Input(id: string, options: InputOption = {}): (target: any) => void {
+    return (target: any): void => {
+        let model: ModelInput = Reflect.getMetadata(inputMetadataKey, target.prototype);
+        if (!model) {
+            model = new ModelInput();
+        }
+        model.id = id;
+        // model.target = target;
+        Reflect.metadata(inputMetadataKey, model)(target.prototype);
+    }
+}
+
 export function Subscription(type: FieldType | FieldType[], subscribe: Function, options: SubscriptionOption = {}): (target: any, propertyKey: string, descriptor: any) => void {
     return (target: any, propertyKey: string, descriptor: any): void => {
-        let name = options.name ? options.name : propertyKey;
-        let scope = options.scope ? options.scope : 'Main';
+        const name = options.name ? options.name : propertyKey;
+        const scope = options.scope ? options.scope : 'Main';
         let model: ModelSub = Reflect.getMetadata(subMetadataKey, target);
         if (!model) {
             model = new ModelSub();
@@ -178,7 +192,7 @@ export function Subscription(type: FieldType | FieldType[], subscribe: Function,
             getPublishes()[scope].push(name);
         }
         Reflect.metadata(typeMetadataKey, model)(target);
-        subscriptions[name] = model;
+        subscriptionsModel[name] = model;
     }
 }
 
@@ -200,21 +214,9 @@ export function SubscriptionArg(type: FieldType | FieldType[], name: string, opt
     }
 }
 
-export function Input(id: string, options: InputOption = {}): (target: any) => void {
-    return (target: any): void => {
-        let model: ModelInput = Reflect.getMetadata(inputMetadataKey, target);
-        if (!model) {
-            model = new ModelInput();
-        }
-        model.id = id;
-        // model.target = target;
-        Reflect.metadata(inputMetadataKey, model)(target);
-    }
-}
-
 export function Field(type: FieldType | FieldType[], options: FieldOption = {}): (target: any, propertyKey: string) => void {
     return (target: any, propertyKey: string): void => {
-        let name = options.name ? options.name : propertyKey;
+        const name = options.name ? options.name : propertyKey;
         let model: Model = Reflect.getMetadata(typeMetadataKey, target);
         if (!model) {
             model = new Model();
@@ -294,7 +296,7 @@ export function Constructor(): (target: any, propertyKey: string, descriptor: Ty
 
 export function InputField(type: FieldType | FieldType[], options: InputFieldOption = {}): (target: any, propertyKey: string) => void {
     return (target: any, propertyKey: string): void => {
-        let name = options.name ? options.name : propertyKey;
+        const name = options.name ? options.name : propertyKey;
         let model: ModelInput = Reflect.getMetadata(inputMetadataKey, target);
         if (!model) {
             model = new ModelInput();

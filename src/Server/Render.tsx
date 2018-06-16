@@ -131,7 +131,7 @@ export async function Render(req: express.Request, res: express.Response, next: 
   const Html = Router.GetHtml();
 
   const component = (
-    <ApolloReact.ApolloProvider client={gqlClient as any}>
+    <ApolloReact.ApolloProvider client={gqlClient}>
       <ReactRedux.Provider store={store}>
         <StaticRouter location={req.url} context={{}}>
           <Html client={gqlClient} store={store} language={context.language}>

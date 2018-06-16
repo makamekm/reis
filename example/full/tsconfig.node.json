@@ -16,6 +16,7 @@
     "stripInternal": true,
     "skipLibCheck": true,
     "noLib": false,
+    "declaration": false,
     "baseUrl": "./src",
     "outDir": "./dev",
     "allowSyntheticDefaultImports": true,
@@ -26,7 +27,7 @@
     "sourceMap": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "allowJs": true
+    "allowJs": false
   },
   "types": ["jasmine"],
   "compileOnSave": false,
@@ -35,9 +36,6 @@
     "node_modules",
     "public",
     "dist",
-    "dev",
-    "server.js",
-    "tool.js",
-    "worker.js"
+    "dev"
   ]
 }

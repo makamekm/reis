@@ -98,6 +98,7 @@ export class Server {
         hostname: req.hostname,
         headers: req.headers,
         ip: req.ip,
+        body: req.body
       })
       next();
     });
@@ -173,7 +174,14 @@ export class Server {
     })
   }
 
+  protected initGraphQL() {
+    Query.getSchema();
+    Query.getSubscriptionSchema();
+  }
+
   protected setGraphQL() {
+    this.initGraphQL();
+
     this.app.use('/graphql', bodyParser.json(), async (req, res, next) => {
       getConfig().apm && Log.getApm().setTransactionName(req.method + ' ' + processUrl(req.baseUrl), 'graphql');
 
@@ -225,7 +233,7 @@ export class Server {
 
   makeSubscriptionServer(websocketServer: http.Server): subscriptionServer.SubscriptionServer {
     return new subscriptionServer.SubscriptionServer({
-      schema: Query.getWSSchema(),
+      schema: Query.getSubscriptionSchema(),
       execute: graphql.execute as any,
       subscribe: graphql.subscribe,
       onConnect: async (connectionParams, webSocket, connectionContext) => {

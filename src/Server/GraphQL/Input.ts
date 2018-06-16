@@ -1,4 +1,15 @@
-import { GraphQLObjectType, Kind, GraphQLNullableType, GraphQLInputObjectType, GraphQLString, GraphQLType, GraphQLScalarType, GraphQLUnionType, GraphQLInt, GraphQLFloat, GraphQLBoolean, GraphQLID, GraphQLList, GraphQLNonNull, GraphQLSchema } from 'graphql';
+import {
+    GraphQLObjectType,
+    GraphQLNullableType,
+    GraphQLInputObjectType,
+    GraphQLString,
+    GraphQLInt,
+    GraphQLFloat,
+    GraphQLBoolean,
+    GraphQLID,
+    GraphQLList,
+    GraphQLNonNull
+} from 'graphql';
 
 import {
     ModelInput,
@@ -8,20 +19,19 @@ import {
     ModelSub,
     Model,
     inputMetadataKey,
-    typeMetadataKey,
-    subMetadataKey
+    typeMetadataKey
 } from './Model';
 
-let typesInput = {};
-let types = {};
+const typesInput = {};
+const types = {};
 
 export function getInputModelType(model: ModelInput) {
     if (typesInput[model.id]) {
         return typesInput[model.id];
     }
 
-    let fields = {};
-    for (let i in model.fields) {
+    const fields = {};
+    for (const i in model.fields) {
         let field = model.fields[i];
         fields[field.name] = {
             type: getInputType(field)
@@ -159,46 +169,46 @@ export function getModelType(model: Model) {
         return types[model.id];
     }
 
-    let fields = {};
+    const fields = {};
 
     types[model.id] = new GraphQLObjectType({
         name: model.id,
         fields: fields
     });
 
-    for (let fieldName in model.fields) {
-        let fieldRaw = model.fields[fieldName];
+    for (const fieldName in model.fields) {
+        const fieldRaw = model.fields[fieldName];
 
         if (fieldRaw instanceof ModelField) {
-            let field: ModelField = fieldRaw as ModelField;
+            const field: ModelField = fieldRaw as ModelField;
 
             if (field.substructure) {
-                let func = (field.type as Function)();
-                let inputModel: Model = Reflect.getMetadata(typeMetadataKey, func) || Reflect.getMetadata(typeMetadataKey, func.prototype);
+                const func = (field.type as Function)();
+                const inputModel: Model = Reflect.getMetadata(typeMetadataKey, func) || Reflect.getMetadata(typeMetadataKey, func.prototype);
                 if (inputModel instanceof Model) {
                     fields[field.name] = getField(inputModel);
                 } else {
                     throw new Error('Substructure should be Model: ' + field.type);
                 }
             } else {
-                let args = {};
+                const args = {};
 
-                for (let i in field.args) {
-                    let arg = field.args[i];
+                for (const i in field.args) {
+                    const arg = field.args[i];
                     args[arg.name] = {
                         type: getInputType(arg)
                     }
                 }
 
-                let type = getFieldType(field);
+                const type = getFieldType(field);
 
                 fields[field.name] = {
                     type: type,
                     args: args,
                     resolve: async (obj, argsRaw, context) => {
-                        let params = [];
-                        for (let i in field.args) {
-                            let arg = field.args[i];
+                        const params = [];
+                        for (const i in field.args) {
+                            const arg = field.args[i];
                             params.push(argsRaw[arg.name]);
                         }
 
@@ -220,20 +230,20 @@ export function getModelType(model: Model) {
 
 export function getField(model: Model) {
     let constr = undefined;
-    let args = {};
+    const args = {};
 
     if (model.constr) {
-        for (let i in model.constr.args) {
-            let arg = model.constr.args[i];
+        for (const i in model.constr.args) {
+            const arg = model.constr.args[i];
             args[arg.name] = {
                 type: getInputType(arg)
             }
         }
 
         constr = async (obj, argsRaw, context) => {
-            let params = [];
-            for (let i in model.constr.args) {
-                let arg = model.constr.args[i];
+            const params = [];
+            for (const i in model.constr.args) {
+                const arg = model.constr.args[i];
                 params.push(argsRaw[arg.name]);
             }
 
@@ -252,13 +262,13 @@ export function getField(model: Model) {
         }
     } else {
         constr = async (obj, argsRaw, context) => {
-            let target = new model.target();
+            const target = new model.target();
             target.parent = obj;
             return target;
         }
     }
 
-    let modelType = getModelType(model);
+    const modelType = getModelType(model);
 
     return {
         type: modelType,
@@ -267,45 +277,45 @@ export function getField(model: Model) {
     }
 }
 
-export function getSub(model: ModelSub) {
+export function getSubscriptionField(model: ModelSub) {
 
-    let args = {};
+    const args = {};
 
-    for (let i in model.args) {
-        let arg = model.args[i];
+    for (const i in model.args) {
+        const arg = model.args[i];
         args[arg.name] = {
             type: getInputType(arg)
         }
     }
 
-    let resolve = async (obj, argsRaw, context) => {
-        let params = [];
-        for (let i in model.args) {
-            let arg = model.args[i];
+    const resolve = async (obj, argsRaw, context) => {
+        const params = [];
+        for (const i in model.args) {
+            const arg = model.args[i];
             params.push(argsRaw[arg.name]);
         }
 
         params.push(obj);
         params.push(context);
 
-        let target = await model.value.apply(obj, params);
+        const target = await model.value.apply(obj, params);
         return target;
     }
 
-    let subscribe = (obj, argsRaw, context) => {
-        let params = [];
-        for (let i in model.args) {
-            let arg = model.args[i];
+    const subscribe = (obj, argsRaw, context) => {
+        const params = [];
+        for (const i in model.args) {
+            const arg = model.args[i];
             params.push(argsRaw[arg.name]);
         }
 
         params.push(context);
 
-        let target = model.subscribe.apply(obj, params).apply(obj, params);
+        const target = model.subscribe.apply(obj, params).apply(obj, params);
         return target;
     }
 
-    let type = getFieldType(model);
+    const type = getFieldType(model);
 
     return {
         type: type,

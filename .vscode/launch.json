@@ -1,0 +1,73 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "ExFull Server",
+            "cwd": "${workspaceFolder}/example/full",
+            "runtimeArgs": [
+                "-r", "${workspaceFolder}/example/full/node_modules/ts-node/register",
+                "-r", "${workspaceFolder}/example/full/node_modules/tsconfig-paths/register"
+            ],
+            "preLaunchTask": "build",
+            "args": [
+                "${workspaceFolder}/example/full/src/Entry/Server.ts"
+            ],
+            "env": {
+                "NODE_ENV": "development"
+            }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "ExFull Tool",
+            "cwd": "${workspaceFolder}/example/full",
+            "runtimeArgs": [
+                "-r", "${workspaceFolder}/example/full/node_modules/ts-node/register",
+                "-r", "${workspaceFolder}/example/full/node_modules/tsconfig-paths/register"
+            ],
+            "preLaunchTask": "build",
+            "args": [
+                "${workspaceFolder}/example/full/src/Entry/Tool.ts"
+            ],
+            "env": {
+                "NODE_ENV": "development"
+            }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "ExFull Worker",
+            "cwd": "${workspaceFolder}/example/full",
+            "runtimeArgs": [
+                "-r", "${workspaceFolder}/example/full/node_modules/ts-node/register",
+                "-r", "${workspaceFolder}/example/full/node_modules/tsconfig-paths/register"
+            ],
+            "preLaunchTask": "build",
+            "args": [
+                "${workspaceFolder}/example/full/src/Entry/Worker.ts"
+            ],
+            "env": {
+                "NODE_ENV": "development"
+            }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "ExFull Handler",
+            "cwd": "${workspaceFolder}/example/full",
+            "runtimeArgs": [
+                "-r", "${workspaceFolder}/example/full/node_modules/ts-node/register",
+                "-r", "${workspaceFolder}/example/full/node_modules/tsconfig-paths/register"
+            ],
+            "preLaunchTask": "build",
+            "args": [
+                "${workspaceFolder}/example/full/src/Entry/Handler.ts"
+            ],
+            "env": {
+                "NODE_ENV": "development"
+            }
+        }
+    ]
+}
