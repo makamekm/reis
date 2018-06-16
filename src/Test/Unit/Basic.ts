@@ -1,7 +1,6 @@
 import fs = require('fs');
 import path = require('path');
 require('tsconfig-paths/register');
-// import $ = require('jquery');
 
 describe("A suite", function() {
   it("contains spec with an expectation", function() {

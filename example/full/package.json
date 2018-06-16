@@ -30,7 +30,7 @@
     "wd": "webdriver-manager update",
     "test_integration": "protractor protractor.integration.js",
     "test_client": "karma start karma.js",
-    "test_unit": "jasmine-ts --project ./tsconfig.node.json -r tsconfig-paths/register ./src/Test/Server/Unit/Entry.ts",
+    "test_unit": "jasmine-ts ./src/Test/Server/Unit/Entry.ts",
     "test": "npm run test_unit && npm run test_client"
   },
   "author": {
