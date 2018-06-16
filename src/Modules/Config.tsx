@@ -38,6 +38,7 @@ let config: any = {
     "seaportPort": null,
     "seaportName": null,
     "graphiql": null,
+    "quotaLimit": null,
     "cores": null,
     "logConsole": {
       "lelel": "info"

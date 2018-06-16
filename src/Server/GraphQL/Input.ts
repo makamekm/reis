@@ -25,6 +25,13 @@ import {
 const typesInput = {};
 const types = {};
 
+export function checkQuota(context, quota) {
+    if (context.quotaLimit) {
+        if (quota) context.quota += quota;
+        if (context.quotaLimit < context.quota) throw new Error(`You have reached your quota of a query at ${context.quota} of ${context.quotaLimit}`)
+    }
+}
+
 export function getInputModelType(model: ModelInput) {
     if (typesInput[model.id]) {
         return typesInput[model.id];
@@ -75,6 +82,7 @@ export function getInputTypeSimple(t: string | Function, arg: ModelArg | ModelIn
             }
             break;
         case 'function':
+            // TODO: resolveType like string into Structure
             let func = (t as Function)();
             if (typeof func == 'function') {
                 let inputModel: ModelInput = Reflect.getMetadata(inputMetadataKey, func) || Reflect.getMetadata(inputMetadataKey, func.prototype);
@@ -206,6 +214,8 @@ export function getModelType(model: Model) {
                     type: type,
                     args: args,
                     resolve: async (obj, argsRaw, context) => {
+                        checkQuota(context, field.quota);
+                        
                         const params = [];
                         for (const i in field.args) {
                             const arg = field.args[i];
@@ -241,6 +251,8 @@ export function getField(model: Model) {
         }
 
         constr = async (obj, argsRaw, context) => {
+            checkQuota(context, model.quotaConstr);
+
             const params = [];
             for (const i in model.constr.args) {
                 const arg = model.constr.args[i];
@@ -262,6 +274,7 @@ export function getField(model: Model) {
         }
     } else {
         constr = async (obj, argsRaw, context) => {
+            checkQuota(context, model.quotaConstr);
             const target = new model.target();
             target.parent = obj;
             return target;
@@ -303,6 +316,8 @@ export function getSubscriptionField(model: ModelSub) {
     }
 
     const subscribe = (obj, argsRaw, context) => {
+        checkQuota(context, model.quota);
+
         const params = [];
         for (const i in model.args) {
             const arg = model.args[i];

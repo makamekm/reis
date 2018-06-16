@@ -13,6 +13,7 @@
     "defaultLanguage": "en",
     "languages": ["en", "ru"],
     "graphiql": true,
+    "quotaLimit": 100,
     "logConsole": {
       "level": "debug"
     },

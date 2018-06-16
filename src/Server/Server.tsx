@@ -187,7 +187,9 @@ export class Server {
 
       let context: any = {
         files: req.files,
-        language: Translation.getLanguage()
+        language: Translation.getLanguage(),
+        quotaLimit: getConfig().quotaLimit || 0,
+        quota: 0
       };
 
       if (req.body.operations) {

@@ -15,6 +15,7 @@ import {
     MutationOption,
     SubscriptionOption,
     SubscriptionArgOption,
+    ConstructorOption,
     ModelArg,
     StructureOption,
     ModelConstructor,
@@ -145,6 +146,7 @@ export function Structure(id: string, options: StructureOption = {}): (target: a
         }
         model.id = id;
         model.target = target;
+        if (options.quotaConstr) model.quotaConstr = options.quotaConstr;
         Object.getOwnPropertyNames(target.prototype).forEach(member => {
             const memberDesc = Object.getOwnPropertyDescriptor(target.prototype, member);
             if (typeof memberDesc.value == 'function') {
@@ -185,6 +187,7 @@ export function Subscription(type: FieldType | FieldType[], subscribe: Function,
         model.array = options.array;
         model.value = descriptor.value;
         model.resolveType = options.resolveType;
+        if (options.quota) model.quota = options.quota;
         if (!getPublishes()[scope]) {
             getPublishes()[scope] = [];
         }
@@ -229,6 +232,7 @@ export function Field(type: FieldType | FieldType[], options: FieldOption = {}):
         model.fields[propertyKey].substructure = options.substructure;
         model.fields[propertyKey].array = options.array;
         model.fields[propertyKey].resolveType = options.resolveType;
+        if (options.quota) model.fields[propertyKey].quota = options.quota;
         Reflect.metadata(typeMetadataKey, model)(target);
     }
 }
@@ -280,7 +284,7 @@ export function Arg(type: FieldType | FieldType[], name: string, options: ArgOpt
     }
 }
 
-export function Constructor(): (target: any, propertyKey: string, descriptor: TypedPropertyDescriptor<any>) => void {
+export function Constructor(options: ConstructorOption = {}): (target: any, propertyKey: string, descriptor: TypedPropertyDescriptor<any>) => void {
     return (target: any, propertyKey: string, descriptor: TypedPropertyDescriptor<any>): void => {
         let model: Model = Reflect.getMetadata(typeMetadataKey, target);
         if (!model) {
@@ -290,6 +294,7 @@ export function Constructor(): (target: any, propertyKey: string, descriptor: Ty
             model.constr = new ModelConstructor();
         }
         model.constr.name = propertyKey;
+        if (options.quota) model.quotaConstr = options.quota;
         Reflect.metadata(typeMetadataKey, model)(target);
     }
 }

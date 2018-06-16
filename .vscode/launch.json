@@ -16,7 +16,11 @@
             ],
             "env": {
                 "NODE_ENV": "development"
-            }
+            },
+            "skipFiles": [
+                "${workspaceFolder}/node_modules/**/*.js",
+                "${workspaceFolder}/example/full/node_modules/**/*.js"
+            ]
         },
         {
             "type": "node",
@@ -33,7 +37,11 @@
             ],
             "env": {
                 "NODE_ENV": "development"
-            }
+            },
+            "skipFiles": [
+                "${workspaceFolder}/node_modules/**/*",
+                "${workspaceFolder}/example/full/node_modules/**/*"
+            ]
         },
         {
             "type": "node",
@@ -50,7 +58,11 @@
             ],
             "env": {
                 "NODE_ENV": "development"
-            }
+            },
+            "skipFiles": [
+                "${workspaceFolder}/node_modules/**/*",
+                "${workspaceFolder}/example/full/node_modules/**/*"
+            ]
         },
         {
             "type": "node",
@@ -67,7 +79,11 @@
             ],
             "env": {
                 "NODE_ENV": "development"
-            }
+            },
+            "skipFiles": [
+                "${workspaceFolder}/node_modules/**/*",
+                "${workspaceFolder}/example/full/node_modules/**/*"
+            ]
         }
     ]
 }
