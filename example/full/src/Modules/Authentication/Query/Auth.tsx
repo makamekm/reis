@@ -108,7 +108,7 @@ export class Auth {
     @GraphQL.Arg(type => emailType, 'email', { nullable: true }) email: string,
     @GraphQL.Arg(type => passwordType, 'password') password: string,
     context: { session: Session, language: string }
-    ) {
+  ) {
 
     let errors = stringValidator(login, {
       min: 3,

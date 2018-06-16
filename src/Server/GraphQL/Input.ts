@@ -22,6 +22,10 @@ import {
     typeMetadataKey
 } from './Model';
 
+import {
+    LogError
+} from '../../Modules/Error';
+
 const typesInput = {};
 const types = {};
 
@@ -34,7 +38,10 @@ export function checkQuota(context, args: any[], quota: number | ((args: any[], 
                 context.quota += quota;
             }
         }
-        if (context.quotaLimit < context.quota) throw new Error(`You have reached your quota of a query at ${context.quota} of ${context.quotaLimit}`)
+
+        if (context.quotaLimit < context.quota) {
+            throw new LogError("Quota limit", "debug", `You have reached your quota of a query at ${context.quota} of ${context.quotaLimit}`);
+        }
     }
 }
 

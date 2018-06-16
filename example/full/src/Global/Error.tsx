@@ -1,36 +1,25 @@
 import * as graphql from 'graphql';
+import { LogError } from 'reiso/Modules/Error';
 
 import Code from '../Export/Code';
 
-export class BaseError extends Error {
-  public status: number;
-  public title: string;
-  public code: string;
-
-  constructor (title: string, message: any, code: string, status: number = 501) {
-    super(message);
-    this.title = title;
-    this.code = code;
-    this.status = status;
-  }
-}
-
-export class InputError extends BaseError {
+export class InputError extends LogError {
   constructor (title: string, message: any, code: string, status: number = 422) {
-    super(title, message, code, status);
+    super(title, 'debug', message, code, status);
   }
 }
 
-export class DenyError extends BaseError {
+export class DenyError extends LogError {
   constructor (title: string, message: any, code: string = Code.DenyAccess, status: number = 401) {
-    super(title, message, code, status);
+    super(title, 'debug', message, code, status);
   }
 }
 
 export class ValidationError extends graphql.GraphQLError {
-  status: number = 422;
-  title: string;
-  code: string;
+  status: number = 422
+  title: string
+  code: string
+  level: string = 'debug'
   state: {
     [key: string]: string[]
   }
