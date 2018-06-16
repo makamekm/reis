@@ -16,7 +16,7 @@ import * as ORM from '../Modules/ORM';
 import * as Handler from '../Modules/Handler';
 import { runCluster } from '../Server/Lib/EntryRunner';
 
-export const run = () => runCluster(() => {
+export const run = (callback?: (manager: Handler.JobManager) => void) => runCluster(() => {
   const cronManager = new Handler.JobManager(scope);
-  cronManager.init();
+  cronManager.init(callback);
 });

@@ -14,7 +14,7 @@ import * as ORM from '../Modules/ORM';
 import * as Tool from '../Modules/Tool';
 import { Commander } from '../Server/Commander';
 
-export const run = () => {
+export const run = (callback?: (commander: Commander) => void) => {
   const commander = new Commander({
     db_sync: {
       description: "Sync DB",
@@ -57,7 +57,9 @@ export const run = () => {
   let args = process.argv.slice(2);
   if (args[0]) {
     commander.run(args[0], args.slice(1));
+    if (callback) callback(commander);
   } else {
     console.log("Type 'help' argument to get some help");
+    if (callback) callback(commander);
   }
 }

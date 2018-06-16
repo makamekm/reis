@@ -19,7 +19,7 @@ Log.init();
 import * as Worker from '../Modules/Worker';
 import { runCluster } from '../Server/Lib/EntryRunner';
 
-export const run = () => runCluster(() => {
+export const run = (callback?: (manager: Worker.CronManager) => void) => runCluster(() => {
   const cronManager = new Worker.CronManager(scope);
-  cronManager.init();
+  cronManager.init(callback);
 });

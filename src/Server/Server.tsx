@@ -30,7 +30,7 @@ export class Server {
   protected subscriptionManager: Query.SubscriptionManager
   protected subscriptionsServer: subscriptionServer.SubscriptionServer
 
-  public start() {
+  public start(callback?: (app: express.Express) => void) {
     this.init();
     this.setBasic();
     this.setHelmet();
@@ -42,7 +42,7 @@ export class Server {
     this.setRender();
     this.setSubscription();
     this.setLogError();
-    this.run();
+    this.run(callback);
   }
 
   protected init() {
@@ -271,19 +271,21 @@ export class Server {
     );
   }
 
-  protected run() {
+  protected run(callback?: (app: express.Express) => void) {
     this.server = http.createServer(this.app);
 
     if (getConfig().seaportHost && getConfig().seaportPort) {
       Log.logInfo(`Server is connected to seaport as "${getConfig().seaportName || "Server"}" on ${getConfig().seaportHost}:${getConfig().seaportPort}`);
       var ports = seaport.connect(getConfig().seaportHost, getConfig().seaportPort);
       this.server.listen(ports.register(getConfig().seaportName || "Server"));
+      if (callback) callback(this.app);
     } else {
       this.server.listen(this.app.get('port'), () => {
         Log.logInfo('Server is listening on port ' + this.app.get('port'));
         for (let hook of Hooks.getHooksAfterServerStart()) {
           hook();
         }
+        if (callback) callback(this.app);
         // TODO: Make an example in hooks
         // if (process.env.NODE_ENV == 'development') fetch('http://localhost:3001/__browser_sync__?method=reload&args=index.js');
       });

@@ -108,10 +108,11 @@ export class JobManager {
     j.job = processQueue;
   }
 
-  public init() {
+  public init(callback?: (manager: JobManager) => void) {
     for (let name in this.jobs) {
       const job = this.getJob(name);
       this.hireJob(job);
     }
+    if (callback) callback(this);
   }
 }

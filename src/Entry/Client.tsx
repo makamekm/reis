@@ -72,7 +72,7 @@ function genLink(hooksRes: Hook[], context): ApolloLink.ApolloLink {
   return link;
 }
 
-export function run() {
+export function run(callback?: () => void) {
   const context = {
     language: Translation.getLanguage()
   };
@@ -117,6 +117,9 @@ export function run() {
           </Html>
         </BrowserRouter>
       </ReactRedux.Provider>
-    </ApolloReact.ApolloProvider>, document.getElementById("body"), () => store.dispatch((Responsive as any).calculateResponsiveState(window))
+    </ApolloReact.ApolloProvider>, document.getElementById("body"), () => {
+      store.dispatch((Responsive as any).calculateResponsiveState(window));
+      if (callback) callback();
+    }
   );
 }

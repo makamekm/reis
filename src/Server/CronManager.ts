@@ -69,11 +69,12 @@ export class CronManager {
         });
     }
 
-    public init() {
+    public init(callback?: (manager: CronManager) => void) {
         for (var name in this.jobs) {
             const job = this.getJob(name);
             job.cronJob = this.genCronJob(job);
         }
+        if (callback) callback(this);
     }
 
     public async stop(name) {
