@@ -22,7 +22,7 @@ export class ModelField {
     type: FieldType | FieldType[]
     substructure: boolean = false
     array: boolean = false
-    quota: number = 0
+    quota: number | ((args: any[], context) => number)
     resolveType: (value) => FieldType
 
     args: { [name: string]: ModelArg; } = {}
@@ -35,7 +35,7 @@ export class ModelSub {
     subscribe: Function
     value: Function
     resolveType: (value) => FieldType
-    quota: number = 0
+    quota: number | ((args: any[], context) => number)
 
     args: { [name: string]: ModelArg; } = {}
 }
@@ -43,7 +43,7 @@ export class ModelSub {
 export class Model {
     id: string
     target: any = null
-    quotaConstr: number = 0
+    quotaConstr: number | ((args: any[], context) => number)
 
     constr: ModelConstructor = null
 
@@ -76,7 +76,7 @@ export class SubscriptionOption {
     array?: boolean = false
     resolveType?: (value) => FieldType
     scope?: string
-    quota?: number = 0
+    quota?: number | ((args: any[], context) => number)
 }
 
 export class SubscriptionArgOption {
@@ -87,12 +87,12 @@ export class SubscriptionArgOption {
 }
 
 export class StructureOption {
-    quotaConstr?: number = 0
+    quotaConstr?: number | ((args: any[], context) => number)
 }
 
 export class FieldOption {
     name?: string
-    quota?: number = 0
+    quota?: number | ((args: any[], context) => number)
     substructure?: boolean = false
     array?: boolean = false
     resolveType?: (value) => FieldType
@@ -116,5 +116,5 @@ export class InputOption {
 }
 
 export class ConstructorOption {
-    quota?: number = 0
+    quota?: number | ((args: any[], context) => number)
 }

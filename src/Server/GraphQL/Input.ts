@@ -25,9 +25,15 @@ import {
 const typesInput = {};
 const types = {};
 
-export function checkQuota(context, quota) {
+export function checkQuota(context, args: any[], quota: number | ((args: any[], context) => number)) {
     if (context.quotaLimit) {
-        if (quota) context.quota += quota;
+        if (quota) {
+            if (typeof quota === 'function') {
+                context.quota += quota(args, context);
+            } else {
+                context.quota += quota;
+            }
+        }
         if (context.quotaLimit < context.quota) throw new Error(`You have reached your quota of a query at ${context.quota} of ${context.quotaLimit}`)
     }
 }
@@ -214,13 +220,13 @@ export function getModelType(model: Model) {
                     type: type,
                     args: args,
                     resolve: async (obj, argsRaw, context) => {
-                        checkQuota(context, field.quota);
-                        
                         const params = [];
                         for (const i in field.args) {
                             const arg = field.args[i];
                             params.push(argsRaw[arg.name]);
                         }
+
+                        checkQuota(context, params, field.quota);
 
                         params.push(context);
 
@@ -251,13 +257,13 @@ export function getField(model: Model) {
         }
 
         constr = async (obj, argsRaw, context) => {
-            checkQuota(context, model.quotaConstr);
-
             const params = [];
             for (const i in model.constr.args) {
                 const arg = model.constr.args[i];
                 params.push(argsRaw[arg.name]);
             }
+
+            checkQuota(context, params, model.quotaConstr);
 
             params.push(context);
 
@@ -274,7 +280,7 @@ export function getField(model: Model) {
         }
     } else {
         constr = async (obj, argsRaw, context) => {
-            checkQuota(context, model.quotaConstr);
+            checkQuota(context, [], model.quotaConstr);
             const target = new model.target();
             target.parent = obj;
             return target;
@@ -316,13 +322,13 @@ export function getSubscriptionField(model: ModelSub) {
     }
 
     const subscribe = (obj, argsRaw, context) => {
-        checkQuota(context, model.quota);
-
         const params = [];
         for (const i in model.args) {
             const arg = model.args[i];
             params.push(argsRaw[arg.name]);
         }
+
+        checkQuota(context, params, model.quota);
 
         params.push(context);
 
