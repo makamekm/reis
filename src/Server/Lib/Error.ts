@@ -1,12 +1,11 @@
 import * as express from 'express';
 
-import { getConfig } from '../../Modules/Config';
 import * as Log from '../../Modules/Log';
 
 export function genMessage(state: Log.ErrorState): string {
     let messages = [];
     for (let i in state) {
-        messages = messages.concat(i + ': ' + state[i]);
+        messages = messages.concat(i + ': ' + state[i].join(', '));
     }
     return messages.join('; ');
 }
@@ -16,7 +15,9 @@ export type SerializedError = {
     type: string
     state: Log.ErrorState
     message: string
+    originalMessage: string
     title: string
+    typeResponse: string
     code: string | number
     path: Object
     errors: SerializedError[]
@@ -30,7 +31,9 @@ export function getSerialized(error, type = 'graphql', map: typeof parseAndLogEr
         status: original.status,
         type: error.type ? error.type : (original.constructor.name),
         state: original.state,
-        message: error.message,
+        message: error.message || original.message,
+        originalMessage: original.message,
+        typeResponse: type,
         title: original.title,
         code: original.code,
         path: original.path,

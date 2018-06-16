@@ -104,12 +104,7 @@ export function parseEnv(str: string) {
   return str;
 }
 
-export function readConfig() {
-  try {
-    if (fs.existsSync(configPath)) config = Object.assign(config, JSON.parse(parseEnv(fs.readFileSync(configPath, "utf8"))));
-  }
-  catch (e) {}
-
+function setTranslation(config) {
   if (config[scope].languages) {
     try {
       let data = JSON.parse(fs.readFileSync(path.resolve(config[scope].translation), "utf8"));
@@ -122,6 +117,18 @@ export function readConfig() {
 
     Translation.setState(config[scope].defaultLanguage, config[scope].languages, translation);
   }
+}
+
+export function setConfig(_config) {
+  config = Object.assign(config, JSON.parse(parseEnv(JSON.stringify(_config))));
+  setTranslation(config);
+}
+
+export function readConfig() {
+  try {
+    if (fs.existsSync(configPath)) config = Object.assign(config, JSON.parse(parseEnv(fs.readFileSync(configPath, "utf8"))));
+  } catch (e) {}
+  setTranslation(config);
 }
 
 export const SaveConfig = (config) => {
