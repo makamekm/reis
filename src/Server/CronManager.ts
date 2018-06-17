@@ -30,13 +30,13 @@ export class CronManager {
     }
 
     protected getEvents(type: CronEvents) {
-        return getEvents().filter(s => s.type == 'start' && (!s.scope || s.scope == this.scope));
+        return getEvents().filter(s => s.type == type && (!s.scope || s.scope == this.scope));
     }
 
-    genCronJob(job: Job) {
+    genCronJob(job: Job, name) {
         return new this.CronJob(job.cronTime, () => {
-            let current = new Date();
-            let promise = this.runJob(job, job.current !== current && job.current);
+            const current = new Date();
+            const promise = this.runJob(job, job.current !== current && job.current);
 
             if (!job.current) {
                 job.current = current;
@@ -69,9 +69,11 @@ export class CronManager {
     }
 
     public init(callback?: (manager: CronManager) => void) {
-        for (var name in this.jobs) {
+        for (const name in this.jobs) {
             const job = this.getJob(name);
-            job.cronJob = this.genCronJob(job);
+            job.cronJob = this.genCronJob(job, name);
+            job.cronJob.start();
+            this.getEvents('start').forEach(e => e.event(name));
         }
         if (callback) callback(this);
     }
@@ -104,7 +106,6 @@ export class CronManager {
 
     public start(name) {
         this.jobs[name].cronJob.start();
-
         this.getEvents('start').forEach(e => e.event(name));
     }
 
@@ -122,5 +123,15 @@ export class CronManager {
 
     public getNames(): string[] {
         return Object.getOwnPropertyNames(this.jobs);
+    }
+
+    public destroy() {
+        for (const name in this.jobs) {
+            this.jobs[name].cronJob.stop();
+            this.jobs[name].currentTick = null;
+            this.jobs[name].current = null;
+
+            this.getEvents('stop').forEach(e => e.event(name));
+        }
     }
 }

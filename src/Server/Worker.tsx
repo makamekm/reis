@@ -22,6 +22,6 @@ const events: {
 export function getEvents() {
     return events;
 }
-export function RegisterWorkerEvent(scope: string, type: CronEvents, func: (name: string) => void) {
+export function RegisterWorkerEvent(type: CronEvents, func: (name: string) => void, scope: string = 'Main') {
     events.push({ type, scope, event: func });
 }
