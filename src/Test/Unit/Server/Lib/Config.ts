@@ -62,6 +62,6 @@ describe("Server/Lib/Config", function () {
       "TEST2": "123"
     });
 
-    expect('{"Test1": "t1t1", "Test2": 123}').toBe(parseEnv('{"Test1": "${TEST1}", "Test2": ${TEST2}}'));
+    expect('{"Test1": "t1t1", "Test2": 123, "Test3": 111}').toBe(parseEnv('{"Test1": "${TEST1}", "Test2": ${TEST2}, "Test3": ${TEST3:111}}'));
   });
 });

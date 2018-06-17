@@ -19,5 +19,9 @@ export function parseEnv(str: string) {
     while (result = /\$\{(\w+)\}/gi.exec(str)) {
         str = str.replace("${" + result[1] + "}", process.env[result[1]]);
     }
+
+    while (result = /\$\{(\w+):(\w+)\}/gi.exec(str)) {
+        str = str.replace("${" + result[1] + ":" + result[2] + "}", process.env[result[1]] || result[2]);
+    }
     return str;
 }
