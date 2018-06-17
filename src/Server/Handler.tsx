@@ -1,14 +1,13 @@
-import * as cron from 'cron';
 import * as QueueRaw from 'bull';
 
 import * as Log from '../Modules/Log';
 import { getConfig } from '../Modules/Config';
 
-export let scope: { [name: string]: { [name: string]: Job } } = {}
+export let scope: { [name: string]: { [name: string]: Handler } } = {}
 
 export function Queue(name: string, scope: string = 'Main') {
   return new QueueRaw(name, {
-    redis: getConfig().redisJob[scope]
+    redis: getConfig().redisHandler[scope]
   });
 }
 
@@ -18,7 +17,7 @@ export function getQueues() {
   for (let sc in scope) {
     for (let name in scope[sc]) {
       arr.push(new QueueRaw(name, {
-        redis: getConfig().redisJob[sc]
+        redis: getConfig().redisHandler[sc]
       }));
     }
   }
@@ -34,7 +33,7 @@ export function getQueuesArena() {
       arr.push({
         name,
         hostId: sc,
-        ...getConfig().redisJob[sc]
+        ...getConfig().redisHandler[sc]
       });
     }
   }
@@ -42,21 +41,21 @@ export function getQueuesArena() {
   return arr;
 }
 
-export interface Job {
+export interface Handler {
   description?: string
   process(job): Promise<any>
   count?: number
   job?: any
 }
 
-export interface JobOption {
+export interface HandlerOption {
   name: string
   scope?: string
   description?: string
   count?: number
 }
 
-export function RegisterJob(opt: JobOption, func: (job: QueueRaw.Job) => (Promise<any> | any)) {
+export function RegisterHandler(opt: HandlerOption, func: (job: QueueRaw.Job) => (Promise<any> | any)) {
   if (!scope[opt.scope || 'Main']) scope[opt.scope || 'Main'] = {};
   scope[opt.scope || 'Main'][opt.name] = {
     count: opt.count || 1,
@@ -65,8 +64,8 @@ export function RegisterJob(opt: JobOption, func: (job: QueueRaw.Job) => (Promis
   }
 }
 
-export class JobManager {
-  private jobs: { [name: string]: Job } = {}
+export class HandlerManager {
+  private jobs: { [name: string]: Handler } = {}
   private name: string
 
   constructor(name: string = 'Main') {
@@ -74,22 +73,22 @@ export class JobManager {
     this.jobs = scope[name];
   }
 
-  public getJob(name: string): Job {
+  public getHandler(name: string): Handler {
     return this.jobs[name];
   }
 
-  public async runJob<T>(j: Job, job: QueueRaw.Job): Promise<T> {
+  public async runHandler<T>(j: Handler, job: QueueRaw.Job): Promise<T> {
     return await j.process(job);
   }
 
-  public hireJob(j: Job) {
+  public hireHandler(j: Handler, name: string) {
     const processQueue = new QueueRaw(name, {
-      redis: getConfig().redisJob[this.name]
+      redis: getConfig().redisHandler[this.name]
     });
 
     processQueue.process(j.count, async (job: QueueRaw.Job, done) => {
       try {
-        let result = await this.runJob(j, job);
+        let result = await this.runHandler(j, job);
         done(null, result);
         return result;
       }
@@ -108,11 +107,23 @@ export class JobManager {
     j.job = processQueue;
   }
 
-  public init(callback?: (manager: JobManager) => void) {
+  public init(callback?: (manager: HandlerManager) => void) {
     for (let name in this.jobs) {
-      const job = this.getJob(name);
-      this.hireJob(job);
+      const job = this.getHandler(name);
+      this.hireHandler(job, name);
     }
     if (callback) callback(this);
+  }
+
+  public async cleanAll() {
+    for (const name in this.jobs) {
+      await this.jobs[name].job.empty();
+    }
+  }
+
+  public async destroy() {
+    for (const name in this.jobs) {
+      await this.jobs[name].job.close();
+    }
   }
 }

@@ -59,6 +59,7 @@ export class CronManager {
 
                 Log.logError(e, {
                     name,
+                    scope: this.scope,
                     type: 'worker'
                 });
 
@@ -127,11 +128,7 @@ export class CronManager {
 
     public destroy() {
         for (const name in this.jobs) {
-            this.jobs[name].cronJob.stop();
-            this.jobs[name].currentTick = null;
-            this.jobs[name].current = null;
-
-            this.getEvents('stop').forEach(e => e.event(name));
+            this.stopForce(name);
         }
     }
 }

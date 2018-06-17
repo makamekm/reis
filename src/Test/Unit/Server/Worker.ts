@@ -1,10 +1,22 @@
-import { $it } from 'jasmine-ts-async';
+import { $it, $afterEach, $beforeEach  } from 'jasmine-ts-async';
 
 import { setConfig } from '../../../Modules/Config';
 
 import { CronManager, RegisterWorker, RegisterWorkerEvent } from '../../../Modules/Worker';
 
 describe("Module/Worker", () => {
+
+    let originalTimeout;
+
+    $beforeEach(async () => {
+        originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    });
+
+    $afterEach(async () => {
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
+    });
+    
     $it("test job", async () => {
         let prevNotBinded: boolean = false;
         let prevBinded: boolean = false;
@@ -35,6 +47,7 @@ describe("Module/Worker", () => {
         await new Promise(r => setTimeout(r, 4000));
         commander.destroy();
 
+        expect(commander.getNames().join(',')).toBe('test');
         expect(prevNotBinded).toBe(true);
         expect(prevBinded).toBe(true);
         expect(counter).toBeGreaterThan(0);
@@ -78,7 +91,7 @@ describe("Module/Worker", () => {
         const commander = new CronManager();
         await new Promise(r => commander.init(r));
         await new Promise(r => setTimeout(r, 1500));
-        commander.stopForce('test');
+        commander.stop('test');
         counterAfter = counter + 0;
         await new Promise(r => setTimeout(r, 1500));
         counterStop = counter + 0;

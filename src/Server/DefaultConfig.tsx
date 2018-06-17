@@ -43,6 +43,16 @@ export default {
     },
     // Log to Logstash by json with level: [debug, info, warn, error]
     "logLogstash": null,
+    // "logLogstash": {
+    //   "host": "elk",
+    //   "port": 5801,
+    //   "tags": ["production", "test"],
+    //   "tries": 2,
+    //   "interval": 100,
+    //   "beat": "reiso_ex_full",
+    //   "type": "reiso_ex_full",
+    //   "level": "info"
+    // },
     // Additional information for logging
     "logAdditional": {},
     // DDOS protection
@@ -84,7 +94,7 @@ export default {
       }
     },
     // Handler Redis cache server
-    "redisJob": {
+    "redisHandler": {
       "Main": {
         "port": 6379,
         "host": "127.0.0.1",
