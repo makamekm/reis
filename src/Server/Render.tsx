@@ -19,7 +19,7 @@ import * as Router from '../Modules/Router';
 import * as Reducer from '../Modules/Reducer';
 import { getHooksRender, Hook } from '../Modules/ServerHook';
 import * as Log from '../Modules/Log';
-import { setLanguageContext } from './Lib/Transtalion';
+import { setLanguageContext } from './Lib/Translation';
 
 export async function checkInteruptHook(req: express.Request, res: express.Response, next: express.NextFunction, store: Redux.Store<any>, context, hooksRes: Hook[]): Promise<boolean> {
   for (let hook of getHooksRender()) {

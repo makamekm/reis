@@ -1,4 +1,3 @@
-//require('tsconfig-paths/register');
 import { distinct } from '../../../../Server/Lib/String';
 
 describe("Server/Lib/String", function() {

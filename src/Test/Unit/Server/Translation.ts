@@ -1,5 +1,4 @@
-//require('tsconfig-paths/register');
-import { setLanguageContext } from '../../../Server/Lib/Transtalion';
+//import { setLanguageContext } from '../../../Server/Lib/Translation';
 
 // describe("Server/Lib/Log", function() {
 //   it("setLanguageContext", function() {

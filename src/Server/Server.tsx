@@ -22,7 +22,7 @@ import * as Hooks from '../Modules/ServerHook';
 import { Render } from '../Server/Render';
 import { parseAndLogError } from './Lib/Error';
 import { processUrl } from './Lib/Url';
-import { setLanguageContext } from './Lib/Transtalion';
+import { setLanguageContext } from './Lib/Translation';
 
 export class Server {
   protected app: express.Express;

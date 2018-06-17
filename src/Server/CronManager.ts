@@ -1,10 +1,9 @@
 import redis = require("redis");
 const cron = require("cron-cluster");
 
-import { Commander } from './Commander';
 import * as Log from '../Modules/Log';
 import { getConfig } from '../Modules/Config';
-import { WorkerOption, Job } from './Lib/Worker';
+import { Job } from './Lib/Worker';
 import { getJobs, getEvents } from './Worker';
 
 export type CronEvents = 'start' | 'stop' | 'run' | 'success' | 'fail' | 'finish';

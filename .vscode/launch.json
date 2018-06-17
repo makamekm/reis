@@ -4,6 +4,28 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Unit Testing",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "test_unit"
+            ],
+            "port": 9229
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Integration Testing",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "test_integration"
+            ],
+            "port": 9229
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "ExFull Server",
             "cwd": "${workspaceFolder}/example/full",
             "runtimeArgs": [

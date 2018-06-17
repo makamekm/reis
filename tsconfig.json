@@ -19,7 +19,7 @@
     "declaration": true,
     "baseUrl": "./src",
     "outDir": "./build",
-    "types": ["jasmine"],
+    "types": ["jasmine", "node"],
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "emitDecoratorMetadata": true,

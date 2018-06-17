@@ -17,7 +17,7 @@
     "build": "tsc",
     "watch": "node_modules/.bin/nodemon --watch './src' node_modules/.bin/tsc",
     "publish": "publish",
-    "test_unit": "jasmine-ts ./src/Test/Unit/**/*.ts",
+    "test_unit": "jasmine-ts ./src/Test/Unit/*.ts ./src/Test/Unit/**/*.ts ./src/Test/Unit/**/**/*.ts",
     "test_integration": "protractor protractor.integration.js",
     "test": "npm run test_unit && npm run test_integration",
     "wd": "webdriver-manager update"
@@ -37,7 +37,8 @@
     "jasmine-core": "3.1.0",
     "jasmine-spec-reporter": "4.2.1",
     "jasmine-ts": "0.2.1",
-    "protractor": "5.3.2"
+    "protractor": "5.3.2",
+    "jasmine-ts-async": "1.0.0"
   },
   "dependencies": {
     "@types/async": "2.0.49",

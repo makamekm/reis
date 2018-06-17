@@ -1,5 +1,3 @@
-import * as fs from 'fs';
-import * as path from 'path';
 import * as express from 'express';
 import * as StackTraceParser from 'stacktrace-parser';
 import { isString } from 'util';
@@ -11,6 +9,8 @@ import { LogLevel, LogType } from './Lib/Logger';
 import { LoggerManager } from './LoggerManager';
 
 // TODO: Create file logging
+// import * as fs from 'fs';
+// import * as path from 'path';
 // const logFile = getConfig().logFile && path.resolve(getConfig().logFile);
 const apmConfig = getConfig().apm;
 

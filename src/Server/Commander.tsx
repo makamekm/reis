@@ -35,11 +35,11 @@ export class Commander {
     return this.commands[name] && this.commands[name].action;
   }
 
-  public async run(name: string, args: string[]) {
+  public async run(name: string, args: string[], exit: boolean = true) {
     await this.getAction(name)(args, () => rl.createInterface({
       input: process.stdin,
       output: process.stdout
     }));
-    process.exit();
+    if (exit) process.exit();
   }
 }

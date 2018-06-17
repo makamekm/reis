@@ -1,4 +1,3 @@
-//require('tsconfig-paths/register');
 import { genMessage, getSerialized, getApmError } from '../../../../Server/Lib/Error';
 
 describe("Server/Lib/Error", function() {

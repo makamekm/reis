@@ -6,7 +6,7 @@ import * as Translation from '../Modules/Translation';
 import * as WebHooks from '../Modules/WebHook';
 import * as Log from '../Modules/Log';
 import { getHooksWebHook, WebHookInterface } from '../Modules/ServerHook';
-import { setLanguageContext } from './Lib/Transtalion';
+import { setLanguageContext } from './Lib/Translation';
 
 export async function checkHooks(req: express.Request, res: express.Response, next: express.NextFunction, context): Promise<void> {
   for (let hook of getHooksWebHook()) {
