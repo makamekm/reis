@@ -84,6 +84,10 @@ export const log = (level: LogLevel, line: string | LogType) => {
   LoggerManager.log(level, isString(line) ? { message: line } : line);
 }
 
+export const logDebug = (line: string | LogType) => {
+  LoggerManager.log('debug', isString(line) ? { message: line } : line);
+}
+
 export const logWarn = (line: string | LogType) => {
   LoggerManager.log('warn', isString(line) ? { message: line } : line);
 }

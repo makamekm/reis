@@ -1,5 +1,4 @@
 import { getConfig } from '../Modules/Config';
-import { Logstash } from "./lib/Logstash";
 import { isWritableLevel } from "./Lib/Log";
 import { LoggerI, LogType, LogLevel } from "./Lib/Logger";
 import { LogstashLogger } from "./Lib/LogstashLogger";

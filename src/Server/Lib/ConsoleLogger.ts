@@ -5,7 +5,7 @@ const logConsoleConfig = getConfig().logConsole;
 
 export class ConsoleLogger implements LoggerI {
     log(level: string, line: LogType) {
-        console.log(level, line);
+        console.log(level, new Date(), line);
     }
 
     getLevel() {
