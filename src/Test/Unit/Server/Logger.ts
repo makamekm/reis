@@ -1,23 +1,9 @@
-import { $it, $afterEach, $beforeEach  } from 'jasmine-ts-async';
-
 import { setConfig } from '../../../Modules/Config';
 
 import * as Log from '../../../Modules/Log';
 
 describe("Module/Logger", () => {
-
-    let originalTimeout;
-
-    $beforeEach(async () => {
-        originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
-    });
-
-    $afterEach(async () => {
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-    });
-    
-    $it("test job", async () => {
+    it("test logger levels & addLogger", () => {
         type Logs = {
             debug: string[]
             info: string[]
