@@ -45,8 +45,7 @@ describe("Module/ORM", () => {
 
         const conStringPri = 'postgres://' + username + ':' + password + '@' + host + '/postgres';
 
-        const client = new Client(conStringPri);
-
+        let client = new Client(conStringPri);
         await client.connect();
         await client.query('DROP DATABASE IF EXISTS ' + db_name);
         await client.query('CREATE DATABASE ' + db_name);
@@ -71,6 +70,7 @@ describe("Module/ORM", () => {
         await commander.sync();
         await commander.test();
 
+        client = new Client(conStringPri);
         await client.connect();
         await client.query('DROP DATABASE IF EXISTS ' + db_name);
         await client.end();
