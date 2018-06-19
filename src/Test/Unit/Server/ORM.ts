@@ -43,12 +43,9 @@ describe("Module/ORM", () => {
         const host = 'localhost';
         const db_name = 'test';
 
-        const client = new Client({
-            "host": host,
-            "port": 5432,
-            "username": username,
-            "password": password
-        });
+        const conStringPri = 'postgres://' + username + ':' + password + '@' + host + '/postgres';
+
+        const client = new Client(conStringPri);
 
         await client.connect();
         await client.query('DROP DATABASE IF EXISTS ' + db_name);
