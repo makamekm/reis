@@ -1,47 +1,21 @@
 import * as ORM from "typeorm";
 
-export interface Config {
-    [name: string]: ORM.ConnectionOptions
-}
-
-const entities: { [name: string]: any[] } = {};
+const entities: { [name: string]: {
+    entity: any
+    scope: string
+}[] } = {};
 
 export class ORMManager {
     private conn: ORM.Connection;
     private connPromise: Promise<ORM.Connection>;
 
-    public static addEntity(name: any, entity: any) {
-        if (entities[name]) {
-            entities[name].push(entity);
-        }
-        else {
-            entities[name] = [entity]
-        }
-    }
+    private config: ORM.ConnectionOptions
 
-    public static getEntity(...args: any[]): any[] {
-        let result = [];
-
-        if (args && args.length > 0) {
-            args.forEach(name => {
-                result = result.concat(entities[name]);
-            });
-        } else {
-            for (let name in entities) {
-                result = result.concat(entities[name]);
-            }
-        }
-
-        return result;
-    }
-
-    private config: Config
-
-    constructor(config: Config) {
+    constructor(config: ORM.ConnectionOptions) {
         this.config = config;
     }
 
-    public async Connect(): Promise<ORM.Connection> {
+    public async connect(): Promise<ORM.Connection> {
         if (!this.conn && !this.connPromise) {
             let resolve = async () => {
                 this.conn = await this.init(this.config);
@@ -56,15 +30,25 @@ export class ORMManager {
     }
 
     private async init(config): Promise<ORM.Connection> {
-        return ORM.createConnection(config);
+        return await ORM.createConnection(config);
     }
 
-    public async Test() {
-        let connection = await this.Connect();
+    public async test() {
+        await this.connect();
     }
 
-    public async Sync(mode: 'passive' | 'force' | 'standart' = 'standart') {
-        let connection = await this.Connect();
+    public async createDB(ifNotExist: boolean = true, name: string = 'test') {
+        let connection = await this.connect();
+        await connection.createQueryRunner().createDatabase(name || this.config.database as string, ifNotExist);
+    }
+
+    public async dropDB(ifNotExist: boolean = true, name: string = 'test') {
+        let connection = await this.connect();
+        await connection.createQueryRunner().dropDatabase(name || this.config.database as string, ifNotExist);
+    }
+
+    public async sync(mode: 'passive' | 'force' | 'standart' = 'standart') {
+        let connection = await this.connect();
         if (mode == 'force') {
             try {
                 await connection.synchronize();
@@ -84,14 +68,45 @@ export class ORMManager {
         }
     }
 
-    public async Drop() {
-        let connection = await this.Connect();
+    public async drop() {
+        let connection = await this.connect();
         await connection.dropDatabase();
     }
 }
 
-export function RegisterEntity(name: string, options?: any): (target: any) => void {
+export function addEntity(name: string, scope: string, entity: any) {
+    if (entities[name]) {
+        entities[name].push({
+            entity,
+            scope
+        });
+    }
+    else {
+        entities[name] = [{
+            entity,
+            scope
+        }]
+    }
+}
+
+export function getEntity(scope: string = 'Main', ...args: string[]): any[] {
+    let result = [];
+
+    if (args && args.length > 0) {
+        args.forEach(name => {
+            result = result.concat(entities[name].filter(s => s.scope == scope).map(s => s.entity));
+        });
+    } else {
+        for (let name in entities) {
+            result = result.concat(entities[name].filter(s => s.scope == scope).map(s => s.entity));
+        }
+    }
+
+    return result;
+}
+
+export function RegisterEntity(name: string, scope: string = 'Main'): (target: any) => void {
     return (entity: any): void => {
-        ORMManager.addEntity(name, entity);
+        addEntity(name, scope, entity);
     }
 }

@@ -20,7 +20,7 @@ export const run = (callback?: (commander: Commander) => void) => {
       description: "Sync DB",
       action: async args => {
         console.log("DB syncing...");
-        await ORM.Sync();
+        await ORM.sync();
         console.log("DB has been successfully synced!");
       }
     },
@@ -28,7 +28,7 @@ export const run = (callback?: (commander: Commander) => void) => {
       description: "Drop DB",
       action: async args => {
         console.log("DB dropping");
-        await ORM.Drop();
+        await ORM.drop();
         console.log("DB has been successfully dropped!");
       }
     },
@@ -36,7 +36,7 @@ export const run = (callback?: (commander: Commander) => void) => {
       description: "Test DB",
       action: async args => {
         console.log("DB testing...");
-        await ORM.Test();
+        await ORM.test();
         console.log("DB has been successfully tested!");
       }
     },

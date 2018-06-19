@@ -38,7 +38,8 @@
     "jasmine-spec-reporter": "4.2.1",
     "jasmine-ts": "0.2.1",
     "protractor": "5.3.2",
-    "jasmine-ts-async": "1.0.0"
+    "jasmine-ts-async": "1.0.0",
+    "pg": "7.4.3"
   },
   "dependencies": {
     "@types/async": "2.0.49",

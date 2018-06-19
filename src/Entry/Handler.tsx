@@ -12,11 +12,10 @@ readConfig();
 import * as Log from '../Modules/Log';
 Log.init();
 
-import * as ORM from '../Modules/ORM';
-import * as Handler from '../Modules/Handler';
+import { HandlerManager } from '../Modules/Handler';
 import { runCluster } from '../Server/Lib/EntryRunner';
 
-export const run = (callback?: (manager: Handler.JobManager) => void) => runCluster(() => {
-  const cronManager = new Handler.JobManager(scope);
+export const run = (callback?: (manager: HandlerManager) => void) => runCluster(() => {
+  const cronManager = new HandlerManager(scope);
   cronManager.init(callback);
 });

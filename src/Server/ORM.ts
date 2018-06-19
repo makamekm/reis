@@ -4,27 +4,27 @@ import { initializeScope } from './Lib/ORM';
 
 const Managers: { [name: string]: ORMManager } = {};
 
-export function Manager(scope: string = 'Main'): ORMManager {
-    if (!Managers[scope]) {
+export function Manager(scope: string = 'Main', init: boolean = false): ORMManager {
+    if (!Managers[scope] || init) {
         Managers[scope] = initializeScope(scope);
     }
     return Managers[scope];
 };
 
-export async function Test() {
+export async function test() {
     for (let name in getConfig().db) {
-        await Manager(name).Test();
+        await Manager(name).test();
     }
 }
 
-export async function Drop() {
+export async function drop() {
     for (let name in getConfig().db) {
-        await Manager(name).Drop();
+        await Manager(name).drop();
     }
 }
 
-export async function Sync() {
+export async function sync() {
     for (let name in getConfig().db) {
-        await Manager(name).Sync();
+        await Manager(name).sync();
     }
 }
