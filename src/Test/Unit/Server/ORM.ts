@@ -70,11 +70,6 @@ describe("Module/ORM", () => {
         await commander.sync();
         await commander.test();
 
-        client = new Client(conStringPri);
-        await client.connect();
-        await client.query('DROP DATABASE IF EXISTS ' + db_name);
-        await client.end();
-
         expect(1).toBe(1);
         // expect(commander.getNames().join(',')).toBe('test');
         // expect(prevNotBinded).toBe(true);
