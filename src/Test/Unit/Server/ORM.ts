@@ -1,4 +1,5 @@
 import { $it, $afterEach, $beforeEach } from 'jasmine-ts-async';
+const { Client } = require('pg');
 
 import { setConfig } from '../../../Modules/Config';
 
@@ -37,42 +38,37 @@ describe("Module/ORM", () => {
             date: Date;
         }
 
+        const username = 'root';
+        const password = 'qwerty';
+        const host = 'localhost';
+        const db_name = 'test';
+
+        const conStringPri = 'postgres://' + username + ':' + password + '@' + host + 
+            '/postgres';
+
+        const client = new Client();
+
+        await client.connect();
+        await client.query('DROP DATABASE IF EXISTS ' + db_name);
+        await client.query('CREATE DATABASE ' + db_name);
+        await client.end();
+
         setConfig({
             default: {
                 "db": {
                     "Main": {
-                        "database": "test",
-                        "host": "localhost",
+                        "database": db_name,
+                        "host": host,
                         "port": 5432,
                         "type": "postgres",
-                        "username": "root",
-                        "password": "qwerty"
+                        "username": username,
+                        "password": password
                     }
                 }
             }
         });
 
         let commander = Manager();
-        await commander.createDB(true, 'test');
-        await commander.dropDB(true, 'test');
-        await commander.createDB(true, 'test');
-
-        setConfig({
-            default: {
-                "db": {
-                    "Main": {
-                        "database": "test",
-                        "host": "localhost",
-                        "port": 5432,
-                        "type": "postgres",
-                        "username": "root",
-                        "password": "qwerty"
-                    }
-                }
-            }
-        });
-
-        commander = Manager('Main', true);
         await commander.sync();
         await commander.test();
 
