@@ -86,7 +86,7 @@ export class UserQuery {
       throw new DenyError(null, context.trans('Error.HaventRule'));
     }
 
-    let connection = await ORM.Manager().Connect();
+    let connection = await ORM.Manager().connect();
     let userRepository = connection.getRepository(User);
 
     let query = userRepository
@@ -140,7 +140,7 @@ export class UserQuery {
       throw new DenyError(null, context.trans('Error.NotLogged'));
     }
 
-    let connection = await ORM.Manager().Connect();
+    let connection = await ORM.Manager().connect();
     let userRepository = connection.getRepository(User);
 
     let q = userRepository

@@ -8,7 +8,7 @@ import { Session } from '../Entity/Session';
 export class SessionStore {
 
   public static async get(sid: string, token: string) {
-    let connection = await ORM.Manager().Connect();
+    let connection = await ORM.Manager().connect();
 
     let sessionRepository = connection.getRepository(Session);
 
@@ -24,7 +24,7 @@ export class SessionStore {
   }
 
   public static async create(user: User): Promise<Session> {
-    let connection = await ORM.Manager().Connect();
+    let connection = await ORM.Manager().connect();
 
     let sessionRepository = connection.getRepository(Session);
 
@@ -53,7 +53,7 @@ export class SessionStore {
   }
 
   public static async touch(session: Session): Promise<Session> {
-    let connection = await ORM.Manager().Connect();
+    let connection = await ORM.Manager().connect();
 
     let sessionRepository = connection.getRepository(Session);
 
@@ -65,7 +65,7 @@ export class SessionStore {
   }
 
   public static async destroy(session: Session) {
-    let connection = await ORM.Manager().Connect();
+    let connection = await ORM.Manager().connect();
 
     let sessionRepository = connection.getRepository(Session);
 

@@ -85,7 +85,7 @@ export class UserEditMutation {
       throw new DenyError(null, context.trans('Error.HaventRule'));
     }
 
-    let connection = await ORM.Manager().Connect();
+    let connection = await ORM.Manager().connect();
     let userRepository = connection.getRepository(User);
 
     if (ids.find(id => id == context.session.user.id)) {
@@ -121,7 +121,7 @@ export class UserEditMutation {
       throw new DenyError(null, context.trans('Error.HaventUserRule'));
     }
 
-    let connection = await ORM.Manager().Connect();
+    let connection = await ORM.Manager().connect();
     let userRepository = connection.getRepository(User);
     let userPrivateRepository = connection.getRepository(UserPrivate);
     let emailRepository = connection.getRepository(Email);
@@ -297,7 +297,7 @@ export class UserEditMutation {
       throw new DenyError(null, context.trans('Error.HaventUserRule'));
     }
 
-    let connection = await ORM.Manager().Connect();
+    let connection = await ORM.Manager().connect();
     let userRepository = connection.getRepository(User);
     let userPrivateRepository = connection.getRepository(UserPrivate);
     let emailRepository = connection.getRepository(Email);
@@ -503,7 +503,7 @@ export class UserEditMutation {
       throw new DenyError(null, context.trans('Error.NotLogged'));
     }
 
-    let connection = await ORM.Manager().Connect();
+    let connection = await ORM.Manager().connect();
     let userRepository = connection.getRepository(User);
     let userPrivateRepository = connection.getRepository(UserPrivate);
     let emailRepository = connection.getRepository(Email);

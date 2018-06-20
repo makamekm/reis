@@ -1,8 +1,9 @@
 import { GraphQLEnumType, GraphQLScalarType, Kind } from 'graphql';
-import * as GraphQL from 'reiso/Modules/Query';
+
+import { LogError } from 'reiso/Modules/Error';
 
 import Code from '../Export/Code';
-import { BaseError, ValidationError } from './Error';
+import { ValidationError } from './Error';
 import * as Validator from './Validator';
 
 export let orderEnum = new GraphQLEnumType({
@@ -23,7 +24,7 @@ export const uploadType = new GraphQLScalarType({
   },
   parseLiteral: ast => {
     if (ast.kind !== Kind.STRING) {
-      throw new BaseError(null, 'Upload can only parse strings got a: ' + ast.kind, Code.FileInputWrong, 422);
+      throw new LogError(null, 'debug', 'Upload can only parse strings got a: ' + ast.kind, Code.FileInputWrong, 422);
     }
 
     let errors = Validator.stringValidator(ast.value, {
@@ -53,7 +54,7 @@ export const colorType = new GraphQLScalarType({
   },
   parseLiteral: ast => {
     if (ast.kind !== Kind.STRING) {
-      throw new BaseError(null, 'Color can only parse strings got a: ' + ast.kind, Code.ColorInputWrong, 422);
+      throw new LogError(null, 'debug', 'Color can only parse strings got a: ' + ast.kind, Code.ColorInputWrong, 422);
     }
 
   let errors = Validator.colorValidator(ast.value, {
@@ -82,7 +83,7 @@ export const dateType = new GraphQLScalarType({
 
   parseLiteral: ast => {
     if (ast.kind !== Kind.STRING) {
-      throw new BaseError(null, 'Date can only parse strings got a: ' + ast.kind, Code.DateInputWrong, 422);
+      throw new LogError(null, 'debug', 'Date can only parse strings got a: ' + ast.kind, Code.DateInputWrong, 422);
     }
 
     let errors = Validator.dateValidator(ast.value, {
