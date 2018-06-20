@@ -6,7 +6,7 @@ import * as Log from '../../Modules/Log';
 
 export const runCluster = (func: () => void) => {
     if (!getConfig().cores) {
-      func()
+      func();
     } else {
       if (cluster.isMaster) {
         const numCPUs = getConfig().cores == 'auto' ? os.cpus().length : getConfig().cores;
@@ -24,7 +24,7 @@ export const runCluster = (func: () => void) => {
           Log.logInfo('Worker started with PID ' + worker.process.pid + '.');
         });
       } else {
-        func()
+        func();
       }
     }
   }

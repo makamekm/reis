@@ -25,24 +25,32 @@ import { processUrl } from './Lib/Url';
 import { setLanguageContext } from './Lib/Translation';
 
 export class Server {
-  protected app: express.Express;
-  protected server: http.Server;
+  protected app: express.Express
+  protected server: http.Server
+  protected websocketServer: http.Server
   protected subscriptionManager: Query.SubscriptionManager
   protected subscriptionsServer: subscriptionServer.SubscriptionServer
 
-  public start(callback?: (app: express.Express) => void) {
-    this.init();
-    this.setBasic();
-    this.setHelmet();
-    this.setStatic();
-    this.setLogger();
-    this.setFileUpload();
-    this.setGraphQL();
-    this.setWebHook();
-    this.setRender();
-    this.setSubscription();
-    this.setLogError();
-    this.run(callback);
+  public async start() {
+    await this.init();
+    await this.setBasic();
+    await this.setHelmet();
+    await this.setStatic();
+    await this.setLogger();
+    await this.setFileUpload();
+    await this.setGraphQL();
+    await this.setWebHook();
+    await this.setRender();
+    await this.setSubscription();
+    await this.setLogError();
+    await this.run();
+  }
+
+  public async stop() {
+    await Promise.all([
+      new Promise(r => this.websocketServer.close(r)),
+      new Promise(r => this.server.close(r))
+    ]);
   }
 
   protected init() {
@@ -179,7 +187,7 @@ export class Server {
     Query.getSubscriptionSchema();
   }
 
-  protected setGraphQL() {
+  protected async setGraphQL() {
     this.initGraphQL();
 
     this.app.use('/graphql', bodyParser.json(), async (req, res, next) => {
@@ -217,20 +225,24 @@ export class Server {
 
     getConfig().graphiql && this.app.get('/graphiql', graphqlHTTP.graphiqlExpress({ endpointURL: '/graphql' }));
 
-    const websocketServer = http.createServer(this.app);
+    this.websocketServer = http.createServer(this.app);
 
-    if (getConfig().seaportHost && getConfig().seaportPort) {
-      var ports = seaport.connect(getConfig().seaportHost, getConfig().seaportPort);
-      websocketServer.listen(ports.register(getConfig().seaportWSName || "ServerWS"), () => {
-        Log.logInfo(`Websocket Server is connected to seaport as "${getConfig().seaportWSName || "ServerWS"}" on ${getConfig().seaportHost}:${getConfig().seaportPort}`);
-        this.subscriptionsServer = this.makeSubscriptionServer(websocketServer);
-      });
-    } else {
-      websocketServer.listen(getConfig().portWS, () => {
-        Log.logInfo(`Websocket Server is listening on port ${getConfig().portWS}`);
-        this.subscriptionsServer = this.makeSubscriptionServer(websocketServer);
-      });
-    }
+    await new Promise(r => {
+      if (getConfig().seaportHost && getConfig().seaportPort) {
+        var ports = seaport.connect(getConfig().seaportHost, getConfig().seaportPort);
+        this.websocketServer.listen(ports.register(getConfig().seaportWSName || "ServerWS"), () => {
+          Log.logInfo(`Websocket Server is connected to seaport as "${getConfig().seaportWSName || "ServerWS"}" on ${getConfig().seaportHost}:${getConfig().seaportPort}`);
+          this.subscriptionsServer = this.makeSubscriptionServer(this.websocketServer);
+          r();
+        });
+      } else {
+        this.websocketServer.listen(getConfig().portWS, () => {
+          Log.logInfo(`Websocket Server is listening on port ${getConfig().portWS}`);
+          this.subscriptionsServer = this.makeSubscriptionServer(this.websocketServer);
+          r();
+        });
+      }
+    });
   }
 
   makeSubscriptionServer(websocketServer: http.Server): subscriptionServer.SubscriptionServer {
@@ -271,24 +283,29 @@ export class Server {
     );
   }
 
-  protected run(callback?: (app: express.Express) => void) {
+  protected async run() {
     this.server = http.createServer(this.app);
 
-    if (getConfig().seaportHost && getConfig().seaportPort) {
-      Log.logInfo(`Server is connected to seaport as "${getConfig().seaportName || "Server"}" on ${getConfig().seaportHost}:${getConfig().seaportPort}`);
-      var ports = seaport.connect(getConfig().seaportHost, getConfig().seaportPort);
-      this.server.listen(ports.register(getConfig().seaportName || "Server"));
-      if (callback) callback(this.app);
-    } else {
-      this.server.listen(this.app.get('port'), () => {
-        Log.logInfo('Server is listening on port ' + this.app.get('port'));
+    await new Promise(r => {
+      if (getConfig().seaportHost && getConfig().seaportPort) {
+        Log.logInfo(`Server is connected to seaport as "${getConfig().seaportName || "Server"}" on ${getConfig().seaportHost}:${getConfig().seaportPort}`);
+        var ports = seaport.connect(getConfig().seaportHost, getConfig().seaportPort);
+        this.server.listen(ports.register(getConfig().seaportName || "Server"));
         for (let hook of Hooks.getHooksAfterServerStart()) {
           hook();
         }
-        if (callback) callback(this.app);
-        // TODO: Make an example in hooks
-        // if (process.env.NODE_ENV == 'development') fetch('http://localhost:3001/__browser_sync__?method=reload&args=index.js');
-      });
-    }
+        r();
+      } else {
+        this.server.listen(this.app.get('port'), () => {
+          Log.logInfo('Server is listening on port ' + this.app.get('port'));
+          for (let hook of Hooks.getHooksAfterServerStart()) {
+            hook();
+          }
+          r();
+          // TODO: Make an example in hooks
+          // if (process.env.NODE_ENV == 'development') fetch('http://localhost:3001/__browser_sync__?method=reload&args=index.js');
+        });
+      }
+    });
   }
 }

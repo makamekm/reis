@@ -114,8 +114,16 @@ describe("Module/ORM", () => {
             name: 'test'
         });
 
-        await commander.close();
-
         expect(testLoaded.name).toBe('test');
+
+        await repo.remove(testLoaded);
+
+        const testRemovedLoaded = await repo.findOne({
+            name: 'test'
+        });
+
+        expect(!!testRemovedLoaded).toBeFalsy();
+
+        await commander.close();
     });
 });
