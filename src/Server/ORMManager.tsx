@@ -1,6 +1,6 @@
 import * as ORM from "typeorm";
 
-const entities: { [name: string]: {
+let entities: { [name: string]: {
     entity: any
     scope: string
 }[] } = {};
@@ -29,22 +29,20 @@ export class ORMManager {
         return this.conn;
     }
 
+    public async close(): Promise<void> {
+        if (this.conn) {
+            await this.conn.close();
+            this.conn = null;
+            this.connPromise = null;
+        }
+    }
+
     private async init(config): Promise<ORM.Connection> {
         return await ORM.createConnection(config);
     }
 
     public async test() {
         await this.connect();
-    }
-
-    public async createDB(ifNotExist: boolean = true, name: string = 'test') {
-        let connection = await this.connect();
-        await connection.createQueryRunner().createDatabase(name || this.config.database as string, ifNotExist);
-    }
-
-    public async dropDB(ifNotExist: boolean = true, name: string = 'test') {
-        let connection = await this.connect();
-        await connection.createQueryRunner().dropDatabase(name || this.config.database as string, ifNotExist);
     }
 
     public async sync(mode: 'passive' | 'force' | 'standart' = 'standart') {
@@ -72,6 +70,10 @@ export class ORMManager {
         let connection = await this.connect();
         await connection.dropDatabase();
     }
+}
+
+export function cleanEntities() {
+    entities = {};
 }
 
 export function addEntity(name: string, scope: string, entity: any) {

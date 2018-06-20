@@ -3,49 +3,23 @@ const { Client } = require('pg');
 
 import { setConfig } from '../../../Modules/Config';
 
-import { RegisterEntity, Manager, Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn } from '../../../Modules/ORM';
+import { RegisterEntity, cleanEntities, Manager, Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn } from '../../../Modules/ORM';
 
 describe("Module/ORM", () => {
 
     let originalTimeout;
+    const username = 'root';
+    const password = 'qwerty';
+    const host = 'localhost';
+    const db_name = 'test';
+
+    const conStringPri = 'postgres://' + username + ':' + password + '@' + host + '/postgres';
 
     $beforeEach(async () => {
         originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
         jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
-    });
 
-    $afterEach(async () => {
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-    });
-
-    $it("test entity", async () => {
-
-        @RegisterEntity("Test")
-        @Entity("test")
-        class Test {
-            @PrimaryGeneratedColumn()
-            id: number;
-
-            @Column({
-                length: 100,
-                nullable: false,
-                unique: true
-            })
-            @Index("name-idx")
-            name: string;
-
-            @CreateDateColumn()
-            date: Date;
-        }
-
-        const username = 'root';
-        const password = 'qwerty';
-        const host = 'localhost';
-        const db_name = 'test';
-
-        const conStringPri = 'postgres://' + username + ':' + password + '@' + host + '/postgres';
-
-        let client = new Client(conStringPri);
+        const client = new Client(conStringPri);
         await client.connect();
         await client.query('DROP DATABASE IF EXISTS ' + db_name);
         await client.query('CREATE DATABASE ' + db_name);
@@ -66,14 +40,82 @@ describe("Module/ORM", () => {
             }
         });
 
+        cleanEntities();
+    });
+
+    $afterEach(async () => {
+        const client = new Client(conStringPri);
+        await client.connect();
+        await client.query('REVOKE CONNECT ON DATABASE ' + db_name + ' FROM public;');
+        await client.query('DROP DATABASE IF EXISTS ' + db_name);
+        await client.end();
+
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
+    });
+
+    $it("test sync entity", async () => {
+        @RegisterEntity("Test")
+        @Entity("test")
+        class Test {
+            @PrimaryGeneratedColumn()
+            id: number;
+
+            @Column({
+                length: 100,
+                nullable: false,
+                unique: true
+            })
+            @Index("name-idx")
+            name: string;
+
+            @CreateDateColumn()
+            date: Date;
+        }
+
         let commander = Manager();
         await commander.sync();
         await commander.test();
+        await commander.close();
 
         expect(1).toBe(1);
-        // expect(commander.getNames().join(',')).toBe('test');
-        // expect(prevNotBinded).toBe(true);
-        // expect(prevBinded).toBe(true);
-        // expect(counter).toBeGreaterThan(0);
+    });
+
+    $it("test create & get", async () => {
+        @RegisterEntity("Test")
+        @Entity("test")
+        class Test {
+            @PrimaryGeneratedColumn()
+            id: number;
+
+            @Column({
+                length: 100,
+                nullable: false,
+                unique: true
+            })
+            @Index("name-idx")
+            name: string;
+
+            @CreateDateColumn()
+            date: Date;
+        }
+
+        let commander = Manager();
+        await commander.sync();
+
+        const connection = await commander.connect();
+        const repo = connection.getRepository(Test);
+
+        const test = new Test();
+        test.name = 'test';
+        test.date = new Date();
+        await repo.save(test);
+
+        const testLoaded = await repo.findOne({
+            name: 'test'
+        });
+
+        await commander.close();
+
+        expect(testLoaded.name).toBe('test');
     });
 });

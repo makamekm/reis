@@ -1,3 +1,3 @@
 export * from "typeorm";
-export { RegisterEntity } from '../Server/ORMManager';
+export { RegisterEntity, cleanEntities } from '../Server/ORMManager';
 export * from "../Server/ORM";

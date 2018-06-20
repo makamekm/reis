@@ -152,7 +152,7 @@ export class Auth {
       throw new ValidationError(null, null, Code.LoginDataWrong, errors);
     }
 
-    let connection = await ORM.Manager().Connect();
+    let connection = await ORM.Manager().connect();
     let userRepository = connection.getRepository(User);
 
     let q = userRepository
@@ -183,9 +183,9 @@ export class Auth {
   public async registration(
     @GraphQL.Arg(type => AuthRegistration, 'data') data: AuthRegistration,
     context: { session: Session, language: string, files: any[] }
-    ) {
+  ) {
 
-    let connection = await ORM.Manager().Connect();
+    let connection = await ORM.Manager().connect();
     let userRepository = connection.getRepository(User);
     let userPrivateRepository = connection.getRepository(UserPrivate);
     let emailRepository = connection.getRepository(Email);
