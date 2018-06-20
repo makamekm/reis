@@ -72,7 +72,7 @@ describe("Module/ORM", () => {
             date: Date;
         }
 
-        let commander = Manager();
+        let commander = Manager('Main', true);
         await commander.sync();
         await commander.test();
         await commander.close();
@@ -99,7 +99,7 @@ describe("Module/ORM", () => {
             date: Date;
         }
 
-        let commander = Manager();
+        let commander = Manager('Main', true);
         await commander.sync();
 
         const connection = await commander.connect();
