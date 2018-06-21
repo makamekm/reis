@@ -59,6 +59,10 @@ class RouteModel {
   } & any) => any
 }
 
+export function cleanRoutes() {
+  Routes = [];
+}
+
 export function route(path: string, render: (data: {
     store,
     children,
@@ -66,17 +70,14 @@ export function route(path: string, render: (data: {
     match,
     location,
     history
-} & any) => any, target: Function, order: number = 0) {
+} & any) => any, order: number = 0) {
   let route = new RouteModel();
 
   route.path = path;
   route.order = order;
-  route.target = target;
   route.render = render;
 
   Routes.push(route);
-
-  return target;
 }
 
 export function Route(path: string, render: (data: {
@@ -88,7 +89,8 @@ export function Route(path: string, render: (data: {
     history
   } & any) => any, order: number = 0) {
   return function (target, ...args): any {
-    return route(path, render, target, order);
+    route(path, render, order);
+    return target;
   }
 }
 

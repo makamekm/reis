@@ -1,6 +1,4 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import * as ApolloReact from 'react-apollo';
 import { Helmet } from "react-helmet";
 import * as StackTraceParser from 'stacktrace-parser';
 import { Context } from 'create-react-context';

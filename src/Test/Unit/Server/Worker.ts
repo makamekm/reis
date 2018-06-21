@@ -17,7 +17,7 @@ describe("Module/Worker", () => {
         jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
     });
     
-    $it("test job", async () => {
+    $it("job", async () => {
         let prevNotBinded: boolean = false;
         let prevBinded: boolean = false;
         let counter = 0;
@@ -53,7 +53,7 @@ describe("Module/Worker", () => {
         expect(counter).toBeGreaterThan(0);
     });
 
-    $it("test job lifecycle", async () => {
+    $it("job lifecycle", async () => {
         let counter = 0;
         let counterStop = 0;
         let counterAfter = 0;

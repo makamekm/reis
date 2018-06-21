@@ -3,7 +3,7 @@ import { setConfig } from '../../../Modules/Config';
 import * as Log from '../../../Modules/Log';
 
 describe("Module/Logger", () => {
-    it("test logger levels & addLogger", () => {
+    it("levels & addLogger", () => {
         type Logs = {
             debug: string[]
             info: string[]

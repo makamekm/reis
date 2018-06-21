@@ -53,7 +53,7 @@ describe("Module/ORM", () => {
         jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
     });
 
-    $it("test sync entity", async () => {
+    $it("sync entity", async () => {
         @RegisterEntity("Test")
         @Entity("test")
         class Test {
@@ -80,7 +80,7 @@ describe("Module/ORM", () => {
         expect(1).toBe(1);
     });
 
-    $it("test create & get", async () => {
+    $it("create & get", async () => {
         @RegisterEntity("Test")
         @Entity("test")
         class Test {

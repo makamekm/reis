@@ -17,7 +17,7 @@ describe("Module/Handler", () => {
         jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
     });
 
-    $it("test job", async () => {
+    $it("run job", async () => {
         let counter = 0;
 
         RegisterHandler({ name: 'test', count: 1 }, async job => {
