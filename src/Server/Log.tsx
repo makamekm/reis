@@ -1,25 +1,16 @@
 import * as express from 'express';
 import * as StackTraceParser from 'stacktrace-parser';
 import { isString } from 'util';
-import apm = require('elastic-apm-node');
 
 import { getConfig } from '../Modules/Config';
 import { isWritableLevel } from './Lib/Log';
 import { LogLevel, LogType } from './Lib/Logger';
-import { LoggerManager } from './LoggerManager';
+import { LoggerManager, getApm } from './LoggerManager';
 
 // TODO: Create file logging
 // import * as fs from 'fs';
 // import * as path from 'path';
 // const logFile = getConfig().logFile && path.resolve(getConfig().logFile);
-const apmConfig = getConfig().apm;
-
-apmConfig && apm.start(apmConfig);
-
-export function getApm() {
-  if (!apmConfig) throw Error('You have not configured apm!');
-  return apm;
-}
 
 export type ErrorState = {
     [name: string]: string[]
@@ -70,8 +61,8 @@ export const logError = (error: LogError, data: LogErrorApmAdditional = {}) => {
     if (line[i] === undefined) delete line[i];
   }
 
-  if (apmConfig && apm && isWritableLevel(error.level || 'error', apmConfig.level || 'error')) {
-    apm.captureError(error, {
+  if (getConfig().apm && isWritableLevel(error.level || 'error', getConfig().apm.level || 'error')) {
+    getApm().captureError(error, {
       response, request, message,
       custom: line
     });

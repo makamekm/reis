@@ -1,11 +1,9 @@
 import * as React from 'react';
-import * as Redux from 'redux';
-import * as ReactDOM from 'react-dom';
+import { Provider } from 'mobx-react';
 import * as ReactDOMServer from 'react-dom/server';
 import { StaticRouter } from 'react-router';
 import * as ApolloReact from 'react-apollo';
 import * as ApolloClient from 'apollo-client';
-import * as ReactRedux from 'react-redux';
 import * as ApolloCache from 'apollo-cache-inmemory';
 import { Helmet } from "react-helmet";
 import { BatchHttpLink } from 'apollo-link-batch-http';
@@ -16,14 +14,15 @@ import * as express from 'express';
 import { getConfig } from '../Modules/Config';
 import * as Translation from '../Modules/Translation';
 import * as Router from '../Modules/Router';
+import * as Model from '../Modules/Model';
 import * as Reducer from '../Modules/Reducer';
 import { getHooksRender, Hook } from '../Modules/ServerHook';
 import * as Log from '../Modules/Log';
 import { setLanguageContext } from './Lib/Translation';
 
-export async function checkInteruptHook(req: express.Request, res: express.Response, next: express.NextFunction, store: Redux.Store<any>, context, hooksRes: Hook[]): Promise<boolean> {
+export async function checkInteruptHook(req: express.Request, res: express.Response, next: express.NextFunction, stores: any, context, hooksRes: Hook[]): Promise<boolean> {
   for (let hook of getHooksRender()) {
-    let hookRes = await hook(req, res, next, context, store);
+    let hookRes = await hook(req, res, next, context, stores);
 
     if (!hookRes) return false;
 
@@ -96,11 +95,11 @@ export async function Render(req: express.Request, res: express.Response, next: 
     language: language || Translation.getLanguage()
   };
 
-  const store = Reducer.createStore();
+  const stores = Model.getStores();
 
   const hooksRes: Hook[] = [];
 
-  if (!await checkInteruptHook(req, res, next, store, context, hooksRes)) return;
+  if (!await checkInteruptHook(req, res, next, stores, context, hooksRes)) return;
 
   setLanguageContext(context);
 
@@ -132,13 +131,13 @@ export async function Render(req: express.Request, res: express.Response, next: 
 
   const component = (
     <ApolloReact.ApolloProvider client={gqlClient}>
-      <ReactRedux.Provider store={store}>
+      <Provider {...stores}>
         <StaticRouter location={req.url} context={{}}>
-          <Html client={gqlClient} store={store} language={context.language}>
-            {Router.GetRoutes(store, context.language)}
+          <Html client={gqlClient} language={context.language}>
+            {Router.GetRoutes(stores, context.language)}
           </Html>
         </StaticRouter>
-      </ReactRedux.Provider>
+      </Provider>
     </ApolloReact.ApolloProvider>
   );
 
@@ -168,7 +167,7 @@ export async function Render(req: express.Request, res: express.Response, next: 
           ${helmet.meta.toString()}
           ${helmet.link.toString()}
           <script type="application/javascript">
-            window.__INITIAL_STATE__ = ${JSON.stringify(store.getState())};
+            window.__INITIAL_STATE__ = ${JSON.stringify(Model.serialize(stores))};
             window.__TRANSLATION__ = ${JSON.stringify(Translation.getTranslation())};
             window.__LANGUAGES__ = ${JSON.stringify(Translation.getLanguages())};
             window.__LANGUAGE__ = "${context.language}";

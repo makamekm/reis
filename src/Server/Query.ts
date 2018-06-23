@@ -41,13 +41,13 @@ type Schema = {
     subscription?: GraphQLObjectType
 }
 
-const queriesModel: {
+let queriesModel: {
     [name: string]: Model
 } = {};
-const mutationsModel: {
+let mutationsModel: {
     [name: string]: Model
 } = {};
-const subscriptionsModel: {
+let subscriptionsModel: {
     [name: string]: ModelSub
 } = {};
 
@@ -65,6 +65,14 @@ export function getSubscriptionSchema() {
         schemaSubscription = genSubscriptionSchema();
     }
     return schemaSubscription;
+}
+
+export function clearModel() {
+    queriesModel = {};
+    mutationsModel = {};
+    subscriptionsModel = {};
+    schema = undefined;
+    schemaSubscription = undefined;
 }
 
 function genSchema(): GraphQLSchema {

@@ -2,7 +2,7 @@ import { WorkerOption, Job } from './Lib/Worker';
 export * from './CronManager';
 import { CronEvents } from './CronManager';
 
-const scope: { [name: string]: { [name: string]: Job } } = {}
+let scope: { [name: string]: { [name: string]: Job } } = {}
 export function getJobs(name: string) {
     return scope[name];
 }
@@ -14,7 +14,7 @@ export function RegisterWorker(opt: WorkerOption, func: (previous: Date | null) 
     }
 }
 
-const events: {
+let events: {
     type: CronEvents
     scope: string
     event: ((name: string) => void)
@@ -24,4 +24,9 @@ export function getEvents() {
 }
 export function RegisterWorkerEvent(type: CronEvents, func: (name: string) => void, scope: string = 'Main') {
     events.push({ type, scope, event: func });
+}
+
+export function clearModel() {
+    scope = {};
+    events = [];
 }

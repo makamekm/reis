@@ -1,3 +1,5 @@
+import apm = require('elastic-apm-node');
+
 import { getConfig } from '../Modules/Config';
 import { isWritableLevel } from "./Lib/Log";
 import { LoggerI, LogType, LogLevel } from "./Lib/Logger";
@@ -23,7 +25,14 @@ export class LoggerManager {
     }
 }
 
+export function getApm() {
+  return apm;
+}
+
 export function init() {
+    const apmConfig = getConfig().apm;
+    apmConfig && apm.start(apmConfig);
+    
     LoggerManager.addLogger(new ConsoleLogger());
     LoggerManager.addLogger(new LogstashLogger());
 }

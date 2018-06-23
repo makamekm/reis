@@ -3,7 +3,6 @@ import * as basicAuth from 'basic-auth';
 
 import { getConfig } from '../Modules/Config';
 import * as Translation from '../Modules/Translation';
-import * as WebHooks from '../Modules/WebHook';
 import * as Log from '../Modules/Log';
 import { getHooksWebHook, WebHookInterface } from '../Modules/ServerHook';
 import { setLanguageContext } from './Lib/Translation';

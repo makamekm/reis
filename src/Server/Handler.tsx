@@ -25,6 +25,10 @@ export function getQueues() {
   return arr;
 }
 
+export function clearModel() {
+  scope = {};
+}
+
 export function getQueuesArena() {
   let arr = [];
 

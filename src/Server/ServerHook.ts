@@ -59,7 +59,7 @@ export interface WebHookOption {
 export type WebHookInterface = WebHookOption & {
   func: (params: { [name: string]: string }, body: any, context: object) => (Promise<object> | object)
 }
-export const webHooks: WebHookInterface[] = []
+export let webHooks: WebHookInterface[] = []
 export const getWebHooks = () => webHooks;
 export function RegisterWebHook(opt: WebHookOption, func: (params: { [name: string]: string }, body: any, context: object) => (Promise<object> | object)) {
   webHooks.push({
@@ -68,4 +68,8 @@ export function RegisterWebHook(opt: WebHookOption, func: (params: { [name: stri
     auth: opt.auth,
     isAuth: opt.isAuth
   });
+}
+
+export function clearWebHook() {
+  webHooks = [];
 }

@@ -16,3 +16,7 @@ export function RegisterTool(opt: ToolOption, func: (args: string[], read: () =>
     action: func
   }
 }
+
+export function clearModel() {
+  commands = {};
+}

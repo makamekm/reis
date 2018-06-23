@@ -94,13 +94,13 @@ export function Route(path: string, render: (data: {
   }
 }
 
-export function GetRoutes(store, language: string) {
+export function GetRoutes(stores, language: string) {
   let routes = [];
   Routes = Routes.sort((a, b) => a.order > b.order ? 1 : -1);
 
   Routes.forEach(route => {
     let context = {
-      store
+      stores
     };
 
     getHooksRouter().forEach(hook => hook(context));

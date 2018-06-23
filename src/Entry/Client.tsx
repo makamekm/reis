@@ -4,12 +4,21 @@ require("fetch-everywhere");
 global.process.env = global.process.env || {};
 global.process.env.MODE = 'client';
 
+declare var window: {
+  __INITIAL_STATE__: Object
+};
+
+let initialStates: any = {};
+if (window.__INITIAL_STATE__) {
+  initialStates = window.__INITIAL_STATE__;
+}
+
 import * as React from 'react';
 import * as ReactDOM from "react-dom";
 import { BrowserRouter } from 'react-router-dom';
 import * as ApolloReact from 'react-apollo';
 import * as ApolloClient from 'apollo-client';
-import * as ReactRedux from 'react-redux';
+import { Provider } from 'mobx-react';
 import * as ApolloCache from 'apollo-cache-inmemory';
 import * as ApolloLinkWS from "apollo-link-ws";
 import * as ApolloLink from "apollo-link";
@@ -20,7 +29,7 @@ import * as Responsive from 'redux-responsive';
 import * as Upload from '../Client/Upload';
 import * as Translation from '../Modules/Translation';
 import * as Router from '../Modules/Router';
-import * as Reducer from '../Modules/Reducer';
+import * as Model from '../Modules/Model';
 import { getHooks, Hook } from '../Modules/ClientHook';
 
 // TODO: Optimize client links creation
@@ -76,8 +85,8 @@ export function run(callback?: () => void) {
   const context = {
     language: Translation.getLanguage()
   };
-  const store = Reducer.createStore();
-  const hooksRes = getHooks().map(hook => hook(store, context));
+  const stores = Model.getStores(initialStates);
+  const hooksRes = getHooks().map(hook => hook(stores, context));
   const link = genLink(hooksRes, context);
   const cache = new ApolloCache.InMemoryCache((window as any).__APOLLO_STATE__);
   const gqlClient = new ApolloClient.ApolloClient({
@@ -110,15 +119,14 @@ export function run(callback?: () => void) {
 
   ReactDOM.hydrate(
     <ApolloReact.ApolloProvider client={gqlClient as any}>
-      <ReactRedux.Provider store={store}>
+      <Provider {...stores}>
         <BrowserRouter>
-          <Html client={gqlClient} store={store} language={Translation.getLanguage()}>
-            {Router.GetRoutes(store, Translation.getLanguage())}
+          <Html client={gqlClient} language={Translation.getLanguage()}>
+            {Router.GetRoutes(stores, Translation.getLanguage())}
           </Html>
         </BrowserRouter>
-      </ReactRedux.Provider>
+      </Provider>
     </ApolloReact.ApolloProvider>, document.getElementById("body"), () => {
-      store.dispatch((Responsive as any).calculateResponsiveState(window));
       if (callback) callback();
     }
   );
