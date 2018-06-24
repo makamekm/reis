@@ -63,10 +63,6 @@ export class ModelInput {
     fields: { [name: string]: ModelInputField; } = {};
 }
 
-export class QueryOption {
-    name: string
-}
-
 export class MutationOption {
     name: string
 }

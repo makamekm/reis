@@ -11,7 +11,6 @@ import {
     FieldType,
     Model,
     ModelSub,
-    QueryOption,
     MutationOption,
     SubscriptionOption,
     SubscriptionArgOption,
@@ -130,9 +129,8 @@ function genSubscriptionSchema(): GraphQLSchema {
     return new GraphQLSchema(shema);
 }
 
-export function Query(options: QueryOption): (target: any) => void {
+export function Query(name: string): (target: any) => void {
     return (target: any): void => {
-        const name = options.name ? options.name : target.constructor.name;
         const model: Model = Reflect.getMetadata(typeMetadataKey, target.prototype);
         queriesModel[name] = model;
     }

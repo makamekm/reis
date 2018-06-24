@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { $it, $afterEach, $beforeEach, $beforeAll, $afterAll } from 'jasmine-ts-async';
+import { createApolloFetch } from 'apollo-fetch';
 const findFreePorts = require('find-free-ports');
 const cheerio = require('cheerio');
 require("fetch-everywhere");
@@ -73,6 +74,7 @@ describe("Module/Server", () => {
 
     $beforeEach(async () => {
         Router.cleanRoutes();
+        Query.clearModel();
     });
 
     $afterEach(async () => {
@@ -149,7 +151,7 @@ describe("Module/Server", () => {
             }
         }
 
-        @Query.Query({ name: 'test' })
+        @Query.Query("test")
         @Query.Structure("Test")
         class Test {
             @Query.Field("integer")
@@ -167,42 +169,60 @@ describe("Module/Server", () => {
 
         await server.start();
 
-        const query = `mutation Auth($login: String, $password: Password!) {
-            test {
-                int,
-                str,
-                sub {
+        const fetch = createApolloFetch({
+            uri: `http://${host}:${port}/graphql`
+        });
+
+        let res = await fetch({
+            query: `query Test($str: String!, $sub: TestInput!) {
+                test {
                     int,
-                    float,
-                    sub(str: $str, sub: $sub) {
+                    str,
+                    sub {
                         int,
                         float,
-                        str
+                        sub(str: $str, sub: $sub) {
+                            int,
+                            float,
+                            str
+                        }
+                    }
+                }
+            }`,
+            variables: {
+                str: "Hello",
+                sub: {
+                    int: 12,
+                    float: 21.2,
+                    str: 'World'
+                }
+            }
+        });
+        
+        expect(JSON.stringify(res)).toBe(JSON.stringify(JSON.parse(JSON.stringify({
+            "data": {
+                "test": {
+                    "int": null,
+                    "str": null,
+                    "sub": {
+                        "int": null,
+                        "float": null,
+                        "sub": [
+                            {
+                                "int": null,
+                                "float": null,
+                                "str": "Hello"
+                            },
+                            {
+                                "int": 12,
+                                "float": 21.2,
+                                "str": "World"
+                            }
+                        ]
                     }
                 }
             }
-        }`;
-
-        let res = await fetch(`http://${host}:${port}/graphql`, {
-            method: 'POST',
-            body: JSON.stringify({
-                query,
-                variables: {
-                    str: "Hello",
-                    sub: {
-                        int: 12,
-                        float: 21.2,
-                        str: 'World'
-                    }
-                }
-            })
-        });
-        let body = await res.text();
-        console.log(body)
-        // let $ = cheerio.load(body, { decodeEntities: false });
-        // expect($('[data-test=test]').text()).toBe('Test');
-
-        Query.clearModel();
+        }))));
     });
 
     // $it("webhook", async () => {
