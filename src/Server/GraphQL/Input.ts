@@ -339,7 +339,7 @@ export function getSubscriptionField(model: ModelSub) {
 
         params.push(context);
 
-        const target = model.subscribe.apply(obj, params).apply(obj, params);
+        const target = model.subscribe.apply(obj, params);
         return target;
     }
 

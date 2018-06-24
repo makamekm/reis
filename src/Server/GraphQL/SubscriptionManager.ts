@@ -24,7 +24,7 @@ export class SubscriptionManager {
     }
 
     public init() {
-        if (nrp) nrp = new RedisNRP(getConfig().redisPubSub[this.name]);
+        if (!nrp) nrp = new RedisNRP(getConfig().redisPubSub[this.name]);
         if (this.publishes) {
             for (let name of this.publishes) {
                 nrp.on(name, function (data) {
@@ -36,7 +36,7 @@ export class SubscriptionManager {
 }
 
 export async function Publish(name: string, data: any, scope: string = 'Main') {
-    if (nrp) {
+    if (!nrp) {
         nrp = new RedisNRP(getConfig().redisPubSub[scope]);
     }
     nrp.emit(name, data);

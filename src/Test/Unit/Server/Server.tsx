@@ -69,9 +69,13 @@ describe("Module/Server", () => {
             str: string
 
             @Query.Field(type => TestSubstructure, { array: true })
-            sub(@Query.Arg("string", 'str') str: string, @Query.Arg(type => TestInput, 'sub') sub: TestInput, @Query.Arg('integer', 'empty', {nullable: true}) empty: number): TestSubstructure[] {
+            async sub(@Query.Arg("string", 'str') str: string, @Query.Arg(type => TestInput, 'sub') sub: TestInput, @Query.Arg('integer', 'empty', {nullable: true}) empty: number): Promise<TestSubstructure[]> {
                 const res1 = new TestSubstructure();
                 const res2 = new TestSubstructure();
+
+                await Query.Publish('test', {
+                    test: 'test'
+                })
 
                 res1.str = str;
                 res2.float = sub.float;
@@ -96,6 +100,24 @@ describe("Module/Server", () => {
 
             @Query.Field(type => TestResult, { substructure: true })
             sub: TestResult
+
+            @Query.Subscription(
+                type => TestSubstructure,
+                (id: number, context) => {
+                    return Query.Subscribe('test', null, (payload, vars) => {
+                        console.log('Subs', id, payload, vars);
+                        return true;
+                    });
+                },
+                {
+                    name: 'test'
+                }
+            )
+            async subscription(@Query.SubscriptionArg('integer', 'id') id: number, context): Promise<TestSubstructure> {
+                console.log('BSubs', id);
+                const res = new TestSubstructure();
+                return res;
+            }
         }
     }
 
@@ -384,8 +406,6 @@ describe("Module/Server", () => {
         }, error => {
             console.error(error);
         });
-
-        
     });
 
     // $it("upload", async () => {
