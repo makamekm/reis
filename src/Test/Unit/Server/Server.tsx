@@ -1,6 +1,10 @@
 import * as React from 'react';
 import { observable } from 'mobx';
 import { observer, inject } from 'mobx-react';
+import * as ApolloClient from 'apollo-client';
+import * as ApolloLinkWS from "apollo-link-ws";
+import * as ApolloCache from 'apollo-cache-inmemory';
+import * as gql from "gql";
 
 import { $it, $afterEach, $beforeEach, $beforeAll, $afterAll } from 'jasmine-ts-async';
 import { createApolloFetch } from 'apollo-fetch';
@@ -329,8 +333,60 @@ describe("Module/Server", () => {
         expect(body).toBe('Unauthorized');
     });
 
-    // $it("websocket", async () => {
-    // });
+    $it("websocket", async () => {
+        setTestGraphQLModel();
+
+        await server.start();
+
+        const wsAddress = "ws://" + host + ":" + portWS + "/";
+        const context: any = {};
+        const link = new ApolloLinkWS.WebSocketLink({
+          uri: wsAddress,
+          options: {
+            reconnect: true,
+            connectionParams: context
+          }
+        });
+        const cache = new ApolloCache.InMemoryCache((window as any).__APOLLO_STATE__);
+        const gqlClient = new ApolloClient.ApolloClient({
+            link,
+            cache,
+            ssrMode: true,
+            queryDeduplication: true,
+            defaultOptions: {
+            watchQuery: {
+                fetchPolicy: 'cache-and-network',
+                errorPolicy: 'ignore',
+            },
+            query: {
+                fetchPolicy: 'cache-and-network',
+                errorPolicy: 'all',
+            },
+            mutate: {
+                errorPolicy: 'all'
+            }
+            }
+        });
+
+        gqlClient.subscribe({
+            query: gql`subscription TestSub($id: Int!) {
+                test(id: $id) {
+                    int,
+                    float,
+                    str
+                }
+            }`,
+            variables: {
+                id: 2
+            }
+        }).subscribe(value => {
+            console.log(value);
+        }, error => {
+            console.error(error);
+        });
+
+        
+    });
 
     // $it("upload", async () => {
     // });
