@@ -53,8 +53,8 @@ export function RegisterHookAfterServerStart(func: () => (Promise<any> | any)) {
 
 export interface WebHookOption {
   path: string
-  isAuth?: (params: { [name: string]: string }, body: any, context) => Promise<boolean> | boolean
-  auth?: (username: string, password: string, params: { [name: string]: string }, body: any, context: object) => Promise<boolean> | boolean
+  isAuth?: (params: { [name: string]: string }, body: any, context) => (Promise<boolean> | boolean)
+  auth?: (username: string, password: string, params: { [name: string]: string }, body: any, context: object) => (Promise<boolean> | boolean)
 }
 export type WebHookInterface = WebHookOption & {
   func: (params: { [name: string]: string }, body: any, context: object) => (Promise<object> | object)

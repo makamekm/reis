@@ -44,7 +44,7 @@ export function prepareLanguage(context) {
   context.trans = (query, ...args) => Translation.trans(context.language, query, ...args);
 }
 
-export async function hook(webHook: WebHookInterface, req: express.Request, res: express.Response, next: express.NextFunction, language?: string) {
+export async function hook(webHook: WebHookInterface, req: express.Request, res: express.Response, next: express.NextFunction, language?: string): Promise<void> {
   const context = {
     files: req.files,
     language: language || Translation.getLanguage()

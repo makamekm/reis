@@ -12,6 +12,7 @@ import * as Log from '../../../Modules/Log';
 import { Server } from '../../../Server/Server';
 import * as Router from '../../../Modules/Router';
 import * as Query from '../../../Modules/Query';
+import * as Hook from '../../../Modules/ServerHook';
 
 let originalTimeout: number;
 let port: number;
@@ -75,6 +76,7 @@ describe("Module/Server", () => {
     $beforeEach(async () => {
         Router.cleanRoutes();
         Query.clearModel();
+        Hook.clearWebHook();
     });
 
     $afterEach(async () => {
@@ -129,7 +131,7 @@ describe("Module/Server", () => {
         @Query.Structure("TestResult")
         class TestResult {
             @Query.Field("integer")
-            int: number
+            int: number = 33
 
             @Query.Field("float")
             float: number
@@ -205,7 +207,7 @@ describe("Module/Server", () => {
                     "int": null,
                     "str": null,
                     "sub": {
-                        "int": null,
+                        "int": 33,
                         "float": null,
                         "sub": [
                             {
@@ -225,8 +227,66 @@ describe("Module/Server", () => {
         }))));
     });
 
-    // $it("webhook", async () => {
-    // });
+    $it("webhook", async () => {
+        const data = {
+            test: 'Test'
+        }
+
+        Hook.RegisterWebHook({
+            path: 'test'
+        }, (params, body, context) => {
+            // TODO: Fix empty body
+            expect(JSON.stringify(body)).toBe(JSON.stringify(data));
+            return {
+                test: 'Test'
+            }
+        });
+
+        Hook.RegisterWebHook({
+            path: 'authtest',
+            isAuth: () => true,
+            auth: (username, password, params, body, context) => username == 'test' && password == 'test'
+        }, (params, body, context) => {
+            // TODO: Fix empty body
+            expect(JSON.stringify(body)).toBe(JSON.stringify(data));
+            return data
+        });
+
+        await server.start();
+
+        let res = await fetch(`http://${host}:${port}/wh/test`, {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        let body = await res.text();
+        expect(body).toBe(JSON.stringify(data));
+
+        res = await fetch(`http://${host}:${port}/wh/authtest`, {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers : {
+                "Authorization": "Basic " + new Buffer('test' + ":" + 'test').toString("base64"),
+                "Content-Type": "application/json"
+            }
+        });
+        body = await res.text();
+        expect(body).toBe(JSON.stringify(data));
+
+        res = await fetch(`http://${host}:${port}/wh/authtest`, {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers : {
+                "Authorization": "Basic " + new Buffer('test' + ":" + 'not').toString("base64"),
+                "Content-Type": "application/json"
+            }
+        });
+        body = await res.text();
+
+        expect(body).toBe('Unauthorized');
+    });
 
     // $it("websocket", async () => {
     // });

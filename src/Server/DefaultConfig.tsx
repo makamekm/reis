@@ -3,45 +3,45 @@ export default {
     // You can provide your own properties here except Reiso internal ones and use them by getConfig()
     // ...
     // --- Reiso Properties ---
-    // File translation path
+    // File translation path [string]
     "translation": "./translation.json",
-    // Awalable languages
+    // Awalable languages [string[]]
     "languages": ["en"],
-    // Default language
+    // Default language [string]
     "defaultLanguage": "en",
-    // Public directory
+    // Public directory [string]
     "publicDir": "./public",
-    // Upload directory
+    // Upload directory [string]
     "uploadDir": "./uploads",
-    // Upload max file size in MB
+    // Upload max file size in MB [number]
     "maxFileSize": 50,
-    // Server Http port
+    // Server Http port [number]
     "port": 3000,
-    // Server Web Socket Port
+    // Server Web Socket Port [number]
     "portWS": 5000,
-    // Public host
+    // Public host [string]
     "host": "127.0.0.1",
-    // Public port for Http connections for a client connection
+    // Public port for Http connections for a client connection [number]
     "globalPort": 3000,
-    // Public port for Web Socket connections for a client connection
+    // Public port for Web Socket connections for a client connection [number]
     "globalPortWS": 5000,
-    // Seaport Ballancer host
+    // Seaport Ballancer host [string]
     "seaportHost": null,
-    // Seaport Ballancer Port
+    // Seaport Ballancer Port [number]
     "seaportPort": null,
-    // Seaport Ballancer Node Name
+    // Seaport Ballancer Node Name [string]
     "seaportName": null,
-    // GraphQL Web Interface (Recommend for development only)
+    // GraphQL Web Interface (Recommend for development only) [boolean]
     "graphiql": null,
-    // GraphQL quota default limitation [Number]
+    // GraphQL quota default limitation [number]
     "quotaLimit": null,
-    // Number of instances per program (0 = automatic) [Number]
+    // Number of instances per program (0 = automatic) [number]
     "cores": null,
-    // Log to console with level: [debug, info, warn, error]
+    // Log to console with level: [debug, info, warn, error] [console object]
     "logConsole": {
       "lelel": "info"
     },
-    // Log to Logstash by json with level: [debug, info, warn, error]
+    // Log to Logstash by json with level: [debug, info, warn, error] [logstash object]
     "logLogstash": null,
     // "logLogstash": {
     //   "host": "elk",
@@ -53,11 +53,11 @@ export default {
     //   "type": "reiso_ex_full",
     //   "level": "info"
     // },
-    // Additional information for logging
+    // Additional information for logging [object]
     "logAdditional": {},
-    // DDOS protection
+    // DDOS protection [ddos object]
     "ddos": null,
-    // Allow via proxy connection
+    // Allow via proxy connection [boolean]
     "proxyProtection": null,
     // Elastic APM monitoring
     // "apm": {
@@ -74,7 +74,7 @@ export default {
     //   "asyncHooks": true,
     //   "level": "debug"
     // },
-    // ORM via typeorm
+    // ORM via typeorm [scope -> typeorm object]
     "db": {
       "Main": {
         "database": "test",
@@ -85,7 +85,7 @@ export default {
         "username": "root"
       }
     },
-    // Web Socket Redis cache server
+    // Web Socket Redis cache server [scope -> redis object]
     "redisPubSub": {
       "Main": {
         "port": 6379,
@@ -93,7 +93,7 @@ export default {
         "password": ""
       }
     },
-    // Handler Redis cache server
+    // Handler Redis cache server [scope -> redis object]
     "redisHandler": {
       "Main": {
         "port": 6379,
@@ -102,7 +102,7 @@ export default {
         "scope": "cb_subscription"
       }
     },
-    // Worker Redis cache server
+    // Worker Redis cache server [scope -> redis object]
     "redisWorker": {
       "Main": {
         "port": 6379,
@@ -110,7 +110,7 @@ export default {
         "password": ""
       }
     },
-    // Redis cache server
+    // Redis cache server [scope -> redis object]
     "redis": {
       "Main": {
         "port": 6379,

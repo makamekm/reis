@@ -60,6 +60,12 @@ export class Server {
   protected setBasic() {
     getConfig().port && this.app.set('port', getConfig().port);
     this.app.use(cookieParser());
+    this.app.use((req, res, next) => {
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+      next();
+    });
+    this.app.use(bodyParser.urlencoded({ extended: true }));
     this.app.use(bodyParser.json());
     this.app.use(compression());
   }
@@ -69,7 +75,7 @@ export class Server {
     this.app.use(helmet());
     this.app.disable('x-powered-by');
     if (getConfig().ddos) {
-      this.app.use(new ddos(getConfig().ddos).express);
+      this.app.use((new ddos(getConfig().ddos)).express);
     }
   }
 
@@ -177,7 +183,7 @@ export class Server {
     Hooks.getWebHooks().forEach(webHook => {
       this.app.post('/wh/' + webHook.path, (req, res, next) => {
         getConfig().apm && Log.getApm().setTransactionName('POST ' + processUrl(req.baseUrl), 'webhook');
-        return WebHook.hook(webHook, req, res, next)
+        WebHook.hook(webHook, req, res, next)
       });
     })
   }
