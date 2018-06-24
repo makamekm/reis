@@ -3,7 +3,7 @@ export type Jsonable = {
 }
 
 export interface IModel {
-  constructor(initialState?: Jsonable)
+  // constructor(initialState?: Jsonable)
   toJson(): Jsonable
 }
 
@@ -23,7 +23,7 @@ export function clearModels() {
   models = {};
 }
 
-export function model<T>(name: string): (target: (new () => IModel) & T) => T {
+export function model<T extends IModel = T>(name: string): (target: new (initialState?: Jsonable) => T) => new (initialState?: Jsonable) => T {
   return (target) => {
     models[name] = target;
     return target;
