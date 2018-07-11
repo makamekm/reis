@@ -115,8 +115,21 @@ function genSubscriptionSchema(): GraphQLSchema {
         subscriptionFields[key] = getSubscriptionField(subscriptionsModel[key]);
     }
 
+    const queryFields = {};
+
+    for (const key in queriesModel) {
+        queryFields[key] = getField(queriesModel[key]);
+    }
+
     const shema: Schema = {
         query: undefined
+    }
+
+    if (Object.keys(queryFields).length > 0) {
+        shema.query = new GraphQLObjectType({
+            name: 'RootQuery',
+            fields: queryFields
+        });
     }
 
     if (Object.keys(subscriptionFields).length > 0) {
@@ -179,19 +192,16 @@ export function Input(id: string, options: InputOption = {}): (target: any) => v
     }
 }
 
-export function Subscription(type: FieldType | FieldType[], subscribe: Function, options: SubscriptionOption = {}): (target: any, propertyKey: string, descriptor: any) => void {
-    return (target: any, propertyKey: string, descriptor: any): void => {
-        const name = options.name ? options.name : propertyKey;
+export function Subscription(type: FieldType | FieldType[], subscribe: Function, options: SubscriptionOption = {}): (target: any) => void {
+    return (target: any): void => {
+        const name = options.name;
         const scope = options.scope ? options.scope : 'Main';
-        let model: ModelSub = Reflect.getMetadata(subMetadataKey, target);
-        if (!model) {
-            model = new ModelSub();
-        }
+        const model = new ModelSub();
         model.name = options.name;
         model.type = type;
         model.subscribe = subscribe;
         model.array = options.array;
-        model.value = descriptor.value;
+        model.value = target;
         model.resolveType = options.resolveType;
         if (options.quota) model.quota = options.quota;
         if (!getPublishes()[scope]) {
@@ -200,27 +210,19 @@ export function Subscription(type: FieldType | FieldType[], subscribe: Function,
         if (getPublishes()[scope].indexOf(name) < 0) {
             getPublishes()[scope].push(name);
         }
-        Reflect.metadata(typeMetadataKey, model)(target);
+        model.args = options.args || [];
         subscriptionsModel[name] = model;
     }
 }
 
-export function SubscriptionArg(type: FieldType | FieldType[], name: string, options: SubscriptionArgOption = {}): (target: any, propertyKey: string, descriptor: number) => void {
-    return (target: any, propertyKey: string, descriptor: number): void => {
-        let model: ModelSub = Reflect.getMetadata(subMetadataKey, target);
-        if (!model) {
-            model = new ModelSub();
-        }
-        if (!model.args[descriptor]) {
-            model.args[descriptor] = new ModelArg();
-        }
-        model.args[descriptor].array = options.array;
-        model.args[descriptor].name = name;
-        model.args[descriptor].nullable = !!options.nullable;
-        model.args[descriptor].type = type;
-        model.args[descriptor].resolveType = options.resolveType;
-        Reflect.metadata(typeMetadataKey, model)(target);
-    }
+export function SubscriptionArg(type: FieldType | FieldType[], name: string, options: SubscriptionArgOption = {}): ModelArg {
+    const model = new ModelArg();
+    model.array = options.array;
+    model.name = name;
+    model.nullable = !!options.nullable;
+    model.type = type;
+    model.resolveType = options.resolveType;
+    return model;
 }
 
 export function Field(type: FieldType | FieldType[], options: FieldOption = {}): (target: any, propertyKey: string) => void {

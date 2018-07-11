@@ -1,10 +1,12 @@
 import * as React from 'react';
+import ws = require('ws');
+
 import { observable } from 'mobx';
 import { observer, inject } from 'mobx-react';
 import * as ApolloClient from 'apollo-client';
 import * as ApolloLinkWS from "apollo-link-ws";
 import * as ApolloCache from 'apollo-cache-inmemory';
-import * as gql from "gql";
+import { gql } from 'apollo-server';
 
 import { $it, $afterEach, $beforeEach, $beforeAll, $afterAll } from 'jasmine-ts-async';
 import { createApolloFetch } from 'apollo-fetch';
@@ -100,25 +102,26 @@ describe("Module/Server", () => {
 
             @Query.Field(type => TestResult, { substructure: true })
             sub: TestResult
-
-            @Query.Subscription(
-                type => TestSubstructure,
-                (id: number, context) => {
-                    return Query.Subscribe('test', null, (payload, vars) => {
-                        console.log('Subs', id, payload, vars);
-                        return true;
-                    });
-                },
-                {
-                    name: 'test'
-                }
-            )
-            async subscription(@Query.SubscriptionArg('integer', 'id') id: number, context): Promise<TestSubstructure> {
-                console.log('BSubs', id);
-                const res = new TestSubstructure();
-                return res;
-            }
         }
+
+        Query.Subscription(
+            type => TestSubstructure,
+            (id: number, context) => {
+                return Query.Subscribe('test', null, (payload, vars) => {
+                    console.log('Subs', id, payload, vars);
+                    return true;
+                });
+            },
+            {
+                name: 'test',
+                args: [Query.SubscriptionArg('integer', 'id')]
+            }
+        )(
+        async function subscription(id: number, context): Promise<TestSubstructure> {
+            console.log('BSubs', id);
+            const res = new TestSubstructure();
+            return res;
+        })
     }
 
     $beforeAll(async () => {
@@ -129,7 +132,9 @@ describe("Module/Server", () => {
 
         setConfig({
             default: {
-                "logConsole": null,
+                "logConsole": {
+                    "level": "debug"
+                },
                 "logLogstash": null,
                 "port": port,
                 "portWS": portWS,
@@ -362,33 +367,34 @@ describe("Module/Server", () => {
 
         const wsAddress = "ws://" + host + ":" + portWS + "/";
         const context: any = {};
-        const link = new ApolloLinkWS.WebSocketLink({
+        const wsLink = new ApolloLinkWS.WebSocketLink({
           uri: wsAddress,
+          webSocketImpl: ws,
           options: {
             reconnect: true,
             connectionParams: context
           }
         });
-        const cache = new ApolloCache.InMemoryCache((window as any).__APOLLO_STATE__);
+        const cache = new ApolloCache.InMemoryCache();
         const gqlClient = new ApolloClient.ApolloClient({
-            link,
+            link: wsLink,
             cache,
             ssrMode: true,
             queryDeduplication: true,
             defaultOptions: {
-            watchQuery: {
-                fetchPolicy: 'cache-and-network',
-                errorPolicy: 'ignore',
-            },
-            query: {
-                fetchPolicy: 'cache-and-network',
-                errorPolicy: 'all',
-            },
-            mutate: {
-                errorPolicy: 'all'
+                watchQuery: {
+                    fetchPolicy: 'cache-and-network',
+                    errorPolicy: 'ignore',
+                },
+                query: {
+                    fetchPolicy: 'cache-and-network',
+                    errorPolicy: 'all',
+                },
+                mutate: {
+                    errorPolicy: 'all'
+                }
             }
-            }
-        });
+        }); 
 
         gqlClient.subscribe({
             query: gql`subscription TestSub($id: Int!) {
@@ -402,10 +408,43 @@ describe("Module/Server", () => {
                 id: 2
             }
         }).subscribe(value => {
-            console.log(value);
+            console.log('Socket', value);
         }, error => {
-            console.error(error);
+            console.error('SocketError', error);
         });
+
+        const fetch = createApolloFetch({
+            uri: `http://${host}:${port}/graphql`
+        });
+
+        let res = await fetch({
+            query: `query Test($str: String!, $sub: TestInput!) {
+                test {
+                    int,
+                    str,
+                    sub {
+                        int,
+                        float,
+                        sub(str: $str, sub: $sub) {
+                            int,
+                            float,
+                            str
+                        }
+                    }
+                }
+            }`,
+            variables: {
+                str: "Hello",
+                sub: {
+                    int: 12,
+                    float: 21.2,
+                    str: 'World'
+                }
+            }
+        });
+
+        console.log(res);
+        
     });
 
     // $it("upload", async () => {

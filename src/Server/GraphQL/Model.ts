@@ -13,7 +13,7 @@ export class ModelArg {
 }
 
 export class ModelConstructor {
-    args: { [name: string]: ModelArg; } = {}
+    args: ModelArg[] = []
     name: string = null
 }
 
@@ -25,7 +25,7 @@ export class ModelField {
     quota: number | ((args: any[], context) => number)
     resolveType: (value) => FieldType
 
-    args: { [name: string]: ModelArg; } = {}
+    args: ModelArg[] = []
 }
 
 export class ModelSub {
@@ -37,7 +37,7 @@ export class ModelSub {
     resolveType: (value) => FieldType
     quota: number | ((args: any[], context) => number)
 
-    args: { [name: string]: ModelArg; } = {}
+    args: ModelArg[] = []
 }
 
 export class Model {
@@ -73,6 +73,7 @@ export class SubscriptionOption {
     resolveType?: (value) => FieldType
     scope?: string
     quota?: number | ((args: any[], context) => number)
+    args?: ModelArg[]
 }
 
 export class SubscriptionArgOption {
