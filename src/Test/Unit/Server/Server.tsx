@@ -107,7 +107,8 @@ describe("Module/Server", () => {
         Query.Subscription(
             type => TestSubstructure,
             (id: number, context) => {
-                return Query.Subscribe('test', null, (payload, vars) => {
+                console.log('SubsInit', id, context);
+                return Query.Subscribe('test', (payload, vars) => {
                     console.log('Subs', id, payload, vars);
                     return true;
                 });
@@ -132,9 +133,7 @@ describe("Module/Server", () => {
 
         setConfig({
             default: {
-                "logConsole": {
-                    "level": "debug"
-                },
+                "logConsole": null,
                 "logLogstash": null,
                 "port": port,
                 "portWS": portWS,
@@ -161,6 +160,14 @@ describe("Module/Server", () => {
 
         process.env.MODE = 'server';
         Log.init();
+        Log.LoggerManager.addLogger({
+            log(level, line) {
+                console.error(level, line);
+            },
+            getLevel() {
+                return 'error';
+            }
+        });
 
         Router.DeclareHtml()(
             Router.withRouter(
@@ -368,83 +375,93 @@ describe("Module/Server", () => {
         const wsAddress = "ws://" + host + ":" + portWS + "/";
         const context: any = {};
         const wsLink = new ApolloLinkWS.WebSocketLink({
-          uri: wsAddress,
-          webSocketImpl: ws,
-          options: {
-            reconnect: true,
-            connectionParams: context
-          }
+            uri: wsAddress,
+            webSocketImpl: ws,
+            options: {
+                lazy: true,
+                reconnect: false,
+                connectionParams: context
+            }
         });
         const cache = new ApolloCache.InMemoryCache();
-        const gqlClient = new ApolloClient.ApolloClient({
-            link: wsLink,
-            cache,
-            ssrMode: true,
-            queryDeduplication: true,
-            defaultOptions: {
-                watchQuery: {
-                    fetchPolicy: 'cache-and-network',
-                    errorPolicy: 'ignore',
-                },
-                query: {
-                    fetchPolicy: 'cache-and-network',
-                    errorPolicy: 'all',
-                },
-                mutate: {
-                    errorPolicy: 'all'
-                }
-            }
-        }); 
-
-        gqlClient.subscribe({
-            query: gql`subscription TestSub($id: Int!) {
-                test(id: $id) {
-                    int,
-                    float,
-                    str
-                }
-            }`,
-            variables: {
-                id: 2
-            }
-        }).subscribe(value => {
-            console.log('Socket', value);
-        }, error => {
-            console.error('SocketError', error);
-        });
-
+    
         const fetch = createApolloFetch({
             uri: `http://${host}:${port}/graphql`
         });
 
-        let res = await fetch({
-            query: `query Test($str: String!, $sub: TestInput!) {
-                test {
-                    int,
-                    str,
-                    sub {
-                        int,
-                        float,
-                        sub(str: $str, sub: $sub) {
-                            int,
-                            float,
-                            str
-                        }
+        let catched = false;
+
+        await new Promise(async r => {
+            const gqlClient = new ApolloClient.ApolloClient({
+                link: wsLink,
+                cache,
+                ssrMode: true,
+                queryDeduplication: true,
+                defaultOptions: {
+                    watchQuery: {
+                        fetchPolicy: 'cache-and-network',
+                        errorPolicy: 'ignore',
+                    },
+                    query: {
+                        fetchPolicy: 'cache-and-network',
+                        errorPolicy: 'all',
+                    },
+                    mutate: {
+                        errorPolicy: 'all'
                     }
                 }
-            }`,
-            variables: {
-                str: "Hello",
-                sub: {
-                    int: 12,
-                    float: 21.2,
-                    str: 'World'
+            });
+            gqlClient.subscribe({
+                query: gql`subscription TestSub($id: Int!) {
+                    test(id: $id) {
+                        int,
+                        float,
+                        str
+                    }
+                }`,
+                variables: {
+                    id: 2
                 }
-            }
+            }).subscribe(value => {
+                catched = true;
+                console.log('Socket', value);
+                r();
+            }, error => {
+                console.error('SocketError', error);
+                r();
+            });
+    
+            const res = await fetch({
+                query: `query Test($str: String!, $sub: TestInput!) {
+                    test {
+                        int,
+                        str,
+                        sub {
+                            int,
+                            float,
+                            sub(str: $str, sub: $sub) {
+                                int,
+                                float,
+                                str
+                            }
+                        }
+                    }
+                }`,
+                variables: {
+                    str: "Hello",
+                    sub: {
+                        int: 12,
+                        float: 21.2,
+                        str: 'World'
+                    }
+                }
+            });
+            console.log(res);
+            r();
         });
-
-        console.log(res);
-        
+    
+        (wsLink as any).subscriptionClient.client.close();
+        expect(catched).toBeTruthy();
     });
 
     // $it("upload", async () => {

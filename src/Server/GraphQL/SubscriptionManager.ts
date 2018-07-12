@@ -42,7 +42,7 @@ export async function Publish(name: string, data: any, scope: string = 'Main') {
     nrp.emit(name, data);
 }
 
-export function Subscribe(name: string, basic?: Function, filter?: (payload, variables) => boolean) {
+export function Subscribe(name: string | string[], filter?: (payload, variables) => boolean, basic?: Function) {
     if (filter) {
         return Subscriptions.withFilter(() => {
             if (basic) {

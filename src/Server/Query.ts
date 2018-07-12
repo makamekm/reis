@@ -192,7 +192,7 @@ export function Input(id: string, options: InputOption = {}): (target: any) => v
     }
 }
 
-export function Subscription(type: FieldType | FieldType[], subscribe: Function, options: SubscriptionOption = {}): (target: any) => void {
+export function Subscription(type: FieldType | FieldType[], subscribe: any, options: SubscriptionOption = {}): (target: any) => void {
     return (target: any): void => {
         const name = options.name;
         const scope = options.scope ? options.scope : 'Main';
