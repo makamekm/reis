@@ -32,6 +32,8 @@ const server: Server = new Server();
 
 describe("Module/Server", () => {
 
+    let hook: Function
+
     function setTestGraphQLModel() {
         @Query.Input("TestInput")
         class TestInput {
@@ -76,7 +78,7 @@ describe("Module/Server", () => {
                 const res2 = new TestSubstructure();
 
                 await Query.Publish('test', {
-                    test: 'test'
+                    test: sub.int
                 })
 
                 res1.str = str;
@@ -106,11 +108,10 @@ describe("Module/Server", () => {
 
         Query.Subscription(
             type => TestSubstructure,
-            (id: number, context) => {
-                console.log('SubsInit', id, context);
-                return Query.Subscribe('test', (payload, vars) => {
-                    console.log('Subs', id, payload, vars);
-                    return true;
+            function (id: number, context) {
+                if (hook) hook();
+                return Query.Subscribe('test', function (data) {
+                    return data && data.test === id;
                 });
             },
             {
@@ -118,9 +119,9 @@ describe("Module/Server", () => {
                 args: [Query.SubscriptionArg('integer', 'id')]
             }
         )(
-        async function subscription(id: number, context): Promise<TestSubstructure> {
-            console.log('BSubs', id);
+        async function subscription(id: number, context, data): Promise<TestSubstructure> {            
             const res = new TestSubstructure();
+            res.int = id;
             return res;
         })
     }
@@ -378,7 +379,6 @@ describe("Module/Server", () => {
             uri: wsAddress,
             webSocketImpl: ws,
             options: {
-                lazy: true,
                 reconnect: false,
                 connectionParams: context
             }
@@ -391,7 +391,7 @@ describe("Module/Server", () => {
 
         let catched = false;
 
-        await new Promise(async r => {
+        await new Promise(async (r, e) => {
             const gqlClient = new ApolloClient.ApolloClient({
                 link: wsLink,
                 cache,
@@ -411,53 +411,78 @@ describe("Module/Server", () => {
                     }
                 }
             });
-            gqlClient.subscribe({
-                query: gql`subscription TestSub($id: Int!) {
-                    test(id: $id) {
-                        int,
-                        float,
-                        str
-                    }
-                }`,
-                variables: {
-                    id: 2
-                }
-            }).subscribe(value => {
-                catched = true;
-                console.log('Socket', value);
-                r();
-            }, error => {
-                console.error('SocketError', error);
-                r();
-            });
-    
-            const res = await fetch({
-                query: `query Test($str: String!, $sub: TestInput!) {
-                    test {
-                        int,
-                        str,
-                        sub {
+
+            await new Promise(h => {
+                hook = h;
+                gqlClient.subscribe({
+                    query: gql`subscription TestSub($id: Int!) {
+                        test(id: $id) {
                             int,
                             float,
-                            sub(str: $str, sub: $sub) {
-                                int,
-                                float,
-                                str
+                            str
+                        }
+                    }`,
+                    variables: {
+                        id: 12
+                    }
+                }).subscribe(value => {
+                    catched = true;
+                    expect(JSON.stringify(value)).toBe(JSON.stringify({
+                        "data": {
+                            "test": {
+                                "int": 12,
+                                "float": null,
+                                "str": null,
+                                "__typename": "TestSubstructure"
                             }
                         }
-                    }
-                }`,
-                variables: {
-                    str: "Hello",
-                    sub: {
-                        int: 12,
-                        float: 21.2,
-                        str: 'World'
+                    }));
+                    r();
+                }, error => {
+                    e(error);
+                });
+            });
+
+            const req = `query Test($str: String!, $sub: TestInput!) {
+                test {
+                    int,
+                    str,
+                    sub {
+                        int,
+                        float,
+                        sub(str: $str, sub: $sub) {
+                            int,
+                            float,
+                            str
+                        }
                     }
                 }
-            });
-            console.log(res);
-            r();
+            }`;
+    
+            await Promise.all([
+                await fetch({
+                    query: req,
+                    variables: {
+                        str: "HelloIgnore",
+                        sub: {
+                            int: 10,
+                            float: 21.2,
+                            str: 'World'
+                        }
+                    }
+                }),
+                await fetch({
+                    query: req,
+                    variables: {
+                        str: "Hello",
+                        sub: {
+                            int: 12,
+                            float: 21.2,
+                            str: 'World'
+                        }
+                    }
+                })
+            ]);
         });
     
         (wsLink as any).subscriptionClient.client.close();

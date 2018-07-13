@@ -1,6 +1,6 @@
 import { GraphQLObjectType, GraphQLInputObjectType, GraphQLString, GraphQLUnionType, GraphQLInt, GraphQLFloat, GraphQLBoolean, GraphQLID, GraphQLList, GraphQLNonNull, GraphQLSchema } from 'graphql';
 
-import { getPublishes } from './GraphQL/SubscriptionManager';
+import { getPublishes, cleanPublishes } from './GraphQL/SubscriptionManager';
 export {
     SubscriptionManager,
     Subscribe,
@@ -72,6 +72,7 @@ export function clearModel() {
     subscriptionsModel = {};
     schema = undefined;
     schemaSubscription = undefined;
+    cleanPublishes();
 }
 
 function genSchema(): GraphQLSchema {

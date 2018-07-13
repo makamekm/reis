@@ -321,14 +321,13 @@ export function getSubscriptionField(model: ModelSub) {
             params.push(argsRaw[arg.name]);
         }
 
-        params.push(obj);
         params.push(context);
 
-        const target = await model.value.apply(obj, params);
+        const target = await model.value(...params);
         return target;
     }
 
-    const subscribe = (obj, argsRaw, context) => {
+    const subscribe = function (obj, argsRaw, context) {
         const params = [];
         for (const i in model.args) {
             const arg = model.args[i];
@@ -339,7 +338,7 @@ export function getSubscriptionField(model: ModelSub) {
 
         params.push(context);
 
-        const target = model.subscribe.apply(obj, params);
+        let target = model.subscribe(...params)(arguments);
         return target;
     }
 

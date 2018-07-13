@@ -3,16 +3,18 @@ import * as RedisNRP from 'node-redis-pubsub';
 
 import { getConfig } from '../../Modules/Config';
 
-const publishes: { [name: string]: string[] } = {}
+let nrp: RedisNRP;
+const pubsub: Subscriptions.PubSub = new Subscriptions.PubSub();
+
+let publishes: { [name: string]: string[] } = {}
 export function getPublishes() {
     return publishes;
 }
-
-let nrp: RedisNRP;
-const pubsub: Subscriptions.PubSub = new Subscriptions.PubSub();
-// export function getPubSub() {
-//     return pubsub;
-// }
+export function cleanPublishes() {
+    if (nrp) nrp.quit();
+    nrp = null;
+    publishes = {};
+}
 
 export class SubscriptionManager {
     private publishes: string[]
@@ -27,7 +29,7 @@ export class SubscriptionManager {
         if (!nrp) nrp = new RedisNRP(getConfig().redisPubSub[this.name]);
         if (this.publishes) {
             for (let name of this.publishes) {
-                nrp.on(name, function (data) {
+                nrp.on(name, (data) => {
                     pubsub.publish(name, data);
                 });
             }
@@ -39,21 +41,21 @@ export async function Publish(name: string, data: any, scope: string = 'Main') {
     if (!nrp) {
         nrp = new RedisNRP(getConfig().redisPubSub[scope]);
     }
-    nrp.emit(name, data);
+    nrp.publish(name, data);
 }
 
-export function Subscribe(name: string | string[], filter?: (payload, variables) => boolean, basic?: Function) {
+export function Subscribe(name: string | string[], filter?: (data) => boolean, exceptionCheck?: Function) {
     if (filter) {
         return Subscriptions.withFilter(() => {
-            if (basic) {
-                basic();
+            if (exceptionCheck) {
+                exceptionCheck();
             }
             return pubsub.asyncIterator(name);
         }, filter);
     } else {
-        return basic ? Subscriptions.withFilter(() => {
-            basic();
+        return exceptionCheck ? Subscriptions.withFilter(() => {
+            exceptionCheck();
             return pubsub.asyncIterator(name);
-        }, () => true) : pubsub.asyncIterator(name);
+        }, () => true) : () => pubsub.asyncIterator(name);
     }
 }

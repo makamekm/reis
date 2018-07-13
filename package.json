@@ -17,7 +17,7 @@
     "build": "tsc",
     "watch": "node_modules/.bin/nodemon --watch './src' node_modules/.bin/tsc",
     "publish": "publish",
-    "test_unit": "node_modules/.bin/jasmine-ts --config=./jasmine.json ./src/Test/Unit/*.ts ./src/Test/Unit/**/*.ts ./src/Test/Unit/**/**/*.ts ./src/Test/Unit/*.tsx ./src/Test/Unit/**/*.tsx ./src/Test/Unit/**/**/*.tsx",
+    "test_unit": "node --inspect node_modules/.bin/jasmine-ts --config=./jasmine.json ./src/Test/Unit/*.ts ./src/Test/Unit/**/*.ts ./src/Test/Unit/**/**/*.ts ./src/Test/Unit/*.tsx ./src/Test/Unit/**/*.tsx ./src/Test/Unit/**/**/*.tsx",
     "test_integration": "protractor protractor.integration.js",
     "test": "npm run test_unit && npm run test_integration",
     "wd": "webdriver-manager update"
