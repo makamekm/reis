@@ -280,7 +280,7 @@ export class Auth {
         if (this.avatarType.indexOf(file.mimetype) < 0) throw new InputError(null, 'The file has wrong format: ' + file.mimetype, Code.FileInputWrong);
 
         let fileBase = Math.random().toString(36) + '-' + Date.now();
-        let fileName = fileBase + path.extname(file.originalname)
+        let fileName = fileBase + path.extname(file.originalname);
         let fileUrl = url + fileName;
         let filePath = path.resolve(dir, fileName);
 

@@ -20,66 +20,13 @@ import * as ApolloReact from 'react-apollo';
 import * as ApolloClient from 'apollo-client';
 import { Provider } from 'mobx-react';
 import * as ApolloCache from 'apollo-cache-inmemory';
-import * as ApolloLinkWS from "apollo-link-ws";
-import * as ApolloLink from "apollo-link";
-import { BatchHttpLink } from 'apollo-link-batch-http';
-import * as graphql from 'graphql';
-import * as Responsive from 'redux-responsive';
 
-import * as Upload from '../Client/Upload';
 import * as Translation from '../Modules/Translation';
 import * as Router from '../Modules/Router';
 import * as Model from '../Modules/Model';
-import { getHooks, Hook } from '../Modules/ClientHook';
+import { getHooks } from '../Modules/ClientHook';
 
-// TODO: Optimize client links creation
-function genLink(hooksRes: Hook[], context): ApolloLink.ApolloLink {
-  const wsAddress = "ws://" + (window as any).__HOST__ + ":" + (window as any).__WSADDRESS__ + "/";
-  const linkWS = new ApolloLinkWS.WebSocketLink({
-    uri: wsAddress,
-    options: {
-      reconnect: true,
-      connectionParams: context
-    }
-  });
-
-  const linkNetwork = new BatchHttpLink({
-    uri: `/graphql`,
-  });
-
-  const linkUpload = new Upload.UploadLink({});
-
-  const linkSplitted = ApolloLink.ApolloLink.split(
-    operation => {
-      const operationAST = graphql.getOperationAST(operation.query as any, operation.operationName);
-      return !!operationAST && operationAST.operation === 'subscription';
-    },
-    linkWS,
-    linkNetwork
-  );
-
-  let links: ApolloLink.ApolloLink[] = [];
-
-  links = links.concat(linkUpload);
-
-  hooksRes.forEach(hook => {
-    if (hook.linksBefore) links = links.concat(hook.linksBefore);
-  });
-
-  links = links.concat(linkSplitted);
-
-  hooksRes.forEach(hook => {
-    if (hook.linksAfter) links = links.concat(hook.linksAfter);
-  });
-
-  let link = ApolloLink.ApolloLink.from(links);
-
-  hooksRes.forEach(hook => {
-    if (hook.linksWrap) link = hook.linksWrap.concat(link);
-  });
-
-  return link;
-}
+import { genLink } from '../Client/Link';
 
 export function run(callback?: () => void) {
   const context = {

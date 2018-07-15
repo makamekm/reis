@@ -17,9 +17,8 @@
     "build": "tsc",
     "watch": "node_modules/.bin/nodemon --watch './src' node_modules/.bin/tsc",
     "publish": "publish",
-    "test_unit": "node --inspect node_modules/.bin/jasmine-ts --config=./jasmine.json ./src/Test/Unit/*.ts ./src/Test/Unit/**/*.ts ./src/Test/Unit/**/**/*.ts ./src/Test/Unit/*.tsx ./src/Test/Unit/**/*.tsx ./src/Test/Unit/**/**/*.tsx",
-    "test_integration": "protractor protractor.integration.js",
-    "test": "npm run test_unit && npm run test_integration",
+    "test": "node --inspect node_modules/.bin/jasmine-ts --config=./jasmine.json ./src/Test/Unit/*.ts ./src/Test/Unit/**/*.ts ./src/Test/Unit/**/**/*.ts ./src/Test/Unit/*.tsx ./src/Test/Unit/**/*.tsx ./src/Test/Unit/**/**/*.tsx",
+    "test_client": "node_modules/.bin/karma start karma.js --",
     "wd": "webdriver-manager update"
   },
   "author": {
@@ -28,20 +27,42 @@
   },
   "license": "GNU",
   "devDependencies": {
+    "@types/enzyme": "3.1.10",
     "@types/jasmine": "2.8.8",
-    "typescript": "2.9.2",
-    "npm-registry-client": "8.5.1",
+    "babel-core": "6.26.3",
+    "babel-loader": "7.1.4",
+    "babel-polyfill": "6.26.0",
+    "babel-preset-airbnb": "2.5.1",
+    "cheerio": "1.0.0-rc.2",
+    "enzyme": "3.3.0",
+    "enzyme-adapter-react-16": "1.1.1",
+    "enzyme-context-patch": "0.0.8",
+    "find-free-ports": "1.0.0",
     "git-repo-watch": "1.0.0",
-    "nodemon": "1.17.5",
     "jasmine": "3.1.0",
     "jasmine-core": "3.1.0",
+    "jasmine-enzyme": "6.0.1",
     "jasmine-spec-reporter": "4.2.1",
     "jasmine-ts": "0.2.1",
-    "protractor": "5.3.2",
     "jasmine-ts-async": "1.0.0",
+    "karma": "2.0.3",
+    "karma-chrome-launcher": "2.2.0",
+    "karma-coverage": "1.1.2",
+    "karma-jasmine": "1.1.2",
+    "karma-phantomjs-launcher": "1.0.4",
+    "karma-sourcemap-loader": "^0.3.7",
+    "karma-typescript": "^3.0.12",
+    "karma-typescript-es6-transform": "^1.0.4",
+    "karma-webpack": "3.0.0",
+    "nodemon": "1.17.5",
+    "npm-registry-client": "8.5.1",
+    "object-assign": "^4.1.1",
     "pg": "7.4.3",
-    "find-free-ports": "1.0.0",
-    "cheerio": "1.0.0-rc.2"
+    "protractor": "5.3.2",
+    "ts-loader": "4.4.1",
+    "typescript": "2.9.2",
+    "webpack": "4.16.0",
+    "zen-observable": "^0.8.8"
   },
   "dependencies": {
     "@playlyfe/gql": "2.6.0",
@@ -115,6 +136,6 @@
     "subscriptions-transport-ws": "0.9.11",
     "tslib": "1.9.2",
     "typeorm": "0.2.7",
-    "ws": "^5.2.2"
+    "ws": "5.2.2"
   }
 }

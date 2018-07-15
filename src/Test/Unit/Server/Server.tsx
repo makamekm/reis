@@ -1,5 +1,7 @@
 import * as React from 'react';
 import ws = require('ws');
+const { spawn } = require('child_process');
+const path = require('path');
 
 import { observable } from 'mobx';
 import { observer, inject } from 'mobx-react';
@@ -7,6 +9,7 @@ import * as ApolloClient from 'apollo-client';
 import * as ApolloLinkWS from "apollo-link-ws";
 import * as ApolloCache from 'apollo-cache-inmemory';
 import { gql } from 'apollo-server';
+import { GraphQLEnumType, GraphQLScalarType, Kind } from 'graphql';
 
 import { $it, $afterEach, $beforeEach, $beforeAll, $afterAll } from 'jasmine-ts-async';
 import { createApolloFetch } from 'apollo-fetch';
@@ -17,12 +20,30 @@ import "reflect-metadata";
 
 import { setConfig } from '../../../Modules/Config';
 import * as Log from '../../../Modules/Log';
+import * as Error from '../../../Modules/Error';
 
 import { Server } from '../../../Server/Server';
 import * as Router from '../../../Modules/Router';
 import * as Query from '../../../Modules/Query';
 import * as Hook from '../../../Modules/ServerHook';
 import * as Model from '../../../Modules/Model';
+import { genLink } from '../../../Client/Link';
+
+export const uploadType = new GraphQLScalarType({
+    name: 'Upload',
+    serialize: value => {
+        return value;
+    },
+    parseValue: value => {
+        return value;
+    },
+    parseLiteral: ast => {
+        if (ast.kind !== Kind.STRING) {
+            throw new Error.LogError(null, 'debug', 'Upload can only parse strings got a: ' + ast.kind, "UP0", 422);
+        }
+        return ast.value;
+    }
+});
 
 let originalTimeout: number;
 let port: number;
@@ -73,7 +94,7 @@ describe("Module/Server", () => {
             str: string
 
             @Query.Field(type => TestSubstructure, { array: true })
-            async sub(@Query.Arg("string", 'str') str: string, @Query.Arg(type => TestInput, 'sub') sub: TestInput, @Query.Arg('integer', 'empty', {nullable: true}) empty: number): Promise<TestSubstructure[]> {
+            async sub(@Query.Arg("string", 'str') str: string, @Query.Arg(type => TestInput, 'sub') sub: TestInput, @Query.Arg('integer', 'empty', { nullable: true }) empty: number): Promise<TestSubstructure[]> {
                 const res1 = new TestSubstructure();
                 const res2 = new TestSubstructure();
 
@@ -119,16 +140,16 @@ describe("Module/Server", () => {
                 args: [Query.SubscriptionArg('integer', 'id')]
             }
         )(
-        async function subscription(id: number, context, data): Promise<TestSubstructure> {            
-            const res = new TestSubstructure();
-            res.int = id;
-            return res;
-        })
+            async function subscription(id: number, context, data): Promise<TestSubstructure> {
+                const res = new TestSubstructure();
+                res.int = id;
+                return res;
+            })
     }
 
     $beforeAll(async () => {
         originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = 100000;
 
         [port, portWS] = await findFreePorts(2);
 
@@ -231,7 +252,7 @@ describe("Module/Server", () => {
                 }
             }
         }
-        
+
         const Test = inject('test')(observer(function (props) {
             return <div data-test="test">
                 {props.test.data}
@@ -239,7 +260,7 @@ describe("Module/Server", () => {
         }));
 
         Router.route('/*', data => {
-            return <Test/>
+            return <Test />
         })
 
         await server.start();
@@ -284,7 +305,7 @@ describe("Module/Server", () => {
                 }
             }
         });
-        
+
         expect(JSON.stringify(res)).toBe(JSON.stringify(JSON.parse(JSON.stringify({
             "data": {
                 "test": {
@@ -347,7 +368,7 @@ describe("Module/Server", () => {
         res = await fetch(`http://${host}:${port}/wh/authtest`, {
             method: 'POST',
             body: JSON.stringify(data),
-            headers : {
+            headers: {
                 "Authorization": "Basic " + new Buffer('test' + ":" + 'test').toString("base64"),
                 "Content-Type": "application/json"
             }
@@ -358,7 +379,7 @@ describe("Module/Server", () => {
         res = await fetch(`http://${host}:${port}/wh/authtest`, {
             method: 'POST',
             body: JSON.stringify(data),
-            headers : {
+            headers: {
                 "Authorization": "Basic " + new Buffer('test' + ":" + 'not').toString("base64"),
                 "Content-Type": "application/json"
             }
@@ -384,7 +405,7 @@ describe("Module/Server", () => {
             }
         });
         const cache = new ApolloCache.InMemoryCache();
-    
+
         const fetch = createApolloFetch({
             uri: `http://${host}:${port}/graphql`
         });
@@ -458,7 +479,7 @@ describe("Module/Server", () => {
                     }
                 }
             }`;
-    
+
             await Promise.all([
                 await fetch({
                     query: req,
@@ -484,13 +505,92 @@ describe("Module/Server", () => {
                 })
             ]);
         });
-    
+
         (wsLink as any).subscriptionClient.client.close();
         expect(catched).toBeTruthy();
     });
 
-    // $it("upload", async () => {
-    // });
+    $it("upload", async () => {
+        setTestGraphQLModel();
+
+        let catched = false;
+
+        @Query.Mutation({ name: 'upload' })
+        @Query.Structure('UploadRoot')
+        class UploadRoot {
+            private avatarType = ['image/jpeg', 'image/png'];
+
+            @Query.Field("string", { name: "do" })
+            public async do(
+                @Query.Arg(type => uploadType, 'file') fileId: string,
+                context: { language: string, files: any[] }
+            ) {
+                console.log(context);
+                
+                let file = context.files.find(f => f.fieldname == fileId);
+                console.log(fileId, file.originalname);
+                catched = true;
+            }
+        }
+
+        await server.start();
+
+        // const gqlClient = new ApolloClient.ApolloClient({
+        //     link: genLink([], {}, null),
+        //     cache: new ApolloCache.InMemoryCache(),
+        //     ssrMode: false,
+        //     queryDeduplication: true,
+        //     defaultOptions: {
+        //         watchQuery: {
+        //             fetchPolicy: 'cache-and-network',
+        //             errorPolicy: 'ignore',
+        //         },
+        //         query: {
+        //             fetchPolicy: 'cache-and-network',
+        //             errorPolicy: 'all',
+        //         },
+        //         mutate: {
+        //             errorPolicy: 'all'
+        //         }
+        //     }
+        // });
+
+        // let res = await gqlClient.mutate({
+        //     mutation: Router.gql`
+        //       mutation Upload($file: Upload!) {
+        //         upload {
+        //           do(file: $file)
+        //         }
+        //       }`,
+        //     variables: { file: fileRaw }
+        // });
+
+        // jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
+
+        await new Promise((r, e) => {
+            var cp = spawn('npm', ['run', 'test_client', host, port, portWS, "Upload"], { stdio: ['pipe'], cwd: path.resolve(__dirname, '../../../..') });
+
+            cp.stdout.on('data', function (data) {
+                console.log(data.toString());
+            });
+
+            // cp.stderr.on('data', function (data) {
+            //     console.error(data.toString());
+            // });
+    
+            cp.on('close', function (code) {
+                if (code === 0) {
+                    r();
+                } else {
+                    e("Client testing has sent an error code: " + code);
+                }
+            });
+        })
+
+        // execSync(`npm run test_client "${host}" ${port} ${portWS} "Upload"`, { stdio: [0, 1, 2], cwd: path.resolve(__dirname, '../../../..') });
+
+        expect(catched).toBeTruthy();
+    });
 
     // $it("ddos", async () => {
     // });

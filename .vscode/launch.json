@@ -1,6 +1,26 @@
 {
     "version": "0.2.0",
+    "compounds": [
+        {
+            "name": "Testing",
+            "configurations": ["Debug Karma", "Unit Testing"]
+        }
+    ],
     "configurations": [
+        {
+            "type": "chrome",
+            "request": "attach",
+            "name": "Debug Karma",
+            "timeout": 60000,
+            "address": "localhost",
+            "port": 9222,
+            // "sourceMaps": true,
+            // "webRoot": "${workspaceRoot}",
+            "pathMapping": {
+              "/": "${workspaceRoot}",
+              "/base/": "${workspaceRoot}/"
+            }
+        },
         {
             "type": "node",
             "request": "launch",
@@ -8,7 +28,7 @@
             "runtimeExecutable": "npm",
             "runtimeArgs": [
                 "run",
-                "test_unit"
+                "test"
             ],
             "port": 9229
         },

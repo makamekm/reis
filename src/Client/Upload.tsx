@@ -47,7 +47,7 @@ export class UploadLink extends ApolloLink {
 
       let body = formData;
       body.append('operations', JSON.stringify(operation));
-
+      throw new Error('Environment must support FormData to upload files.');
       // files.forEach(({ path, file }) => options.body.append(path, file));
 
       // return options;

@@ -170,7 +170,7 @@ export class Server {
 
     this.app.post('/*', (req, res, next) => {
       getConfig().apm && Log.getApm().setTransactionName('POST ' + processUrl(req.baseUrl), 'upload');
-      upload(req, res, (err) => {
+      upload(req, res, err => {
         if (err) {
           (res as any).error = err.message;
         }

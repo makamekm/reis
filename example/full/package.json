@@ -72,7 +72,7 @@
     "jasmine-ts": "0.2.1",
     "json-loader": "0.5.7",
     "graphql-codegen-typescript-template": "0.9.2",
-    "karma": "^2.0.3",
+    "karma": "2.0.3",
     "karma-chrome-launcher": "2.2.0",
     "karma-coverage": "1.1.2",
     "karma-jasmine": "1.1.2",
