@@ -1,6 +1,7 @@
-// import * as React from 'react';
-// import { configure, shallow, mount } from 'enzyme';
-// import * as Adapter from 'enzyme-adapter-react-16';
+import * as React from 'react';
+import { configure, shallow, mount } from 'enzyme';
+import * as Adapter from 'enzyme-adapter-react-16';
+
 import * as ApolloClient from 'apollo-client';
 import { createApolloFetch } from 'apollo-fetch';
 // import * as ApolloLinkWS from "apollo-link-ws";
@@ -14,7 +15,7 @@ import { genLink } from '../../Client/Link';
 import { gql } from '../../Modules/Router';
 
 describe("Upload", () => {
-    // configure({ adapter: new Adapter() });
+    configure({ adapter: new Adapter() });
 
     const config = (window as any).__karma__.config;
 
