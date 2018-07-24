@@ -49,22 +49,22 @@ module.exports = (config) => {
 
         webpack: {
             mode: 'development',
-            output: {
-                devtoolModuleFilenameTemplate: info => {
-                    if (info.absoluteResourcePath.charAt(0) === '/') {
-                        return 'file://' + info.absoluteResourcePath;
-                    } else {
-                        return 'file:///' + info.absoluteResourcePath;
-                    }
-                },
-                devtoolFallbackModuleFilenameTemplate: info => {
-                    if (info.absoluteResourcePath.charAt(0) === '/') {
-                        return 'file://' + info.absoluteResourcePath + '?' + info.hash;
-                    } else {
-                        return 'file:///' + info.absoluteResourcePath + '?' + info.hash;
-                    }
-                }
-            },
+            // output: {
+            //     devtoolModuleFilenameTemplate: info => {
+            //         if (info.absoluteResourcePath.charAt(0) === '/') {
+            //             return '/' + info.absoluteResourcePath;
+            //         } else {
+            //             return '/' + info.absoluteResourcePath;
+            //         }
+            //     },
+            //     devtoolFallbackModuleFilenameTemplate: info => {
+            //         if (info.absoluteResourcePath.charAt(0) === '/') {
+            //             return '/' + info.absoluteResourcePath + '?' + info.hash;
+            //         } else {
+            //             return '/' + info.absoluteResourcePath + '?' + info.hash;
+            //         }
+            //     }
+            // },
             // devtool: 'inline-source-map',
             resolve: {
                 extensions: ['.ts', '.tsx', '.js'],
@@ -149,7 +149,7 @@ module.exports = (config) => {
         
         // browsers: ['PhantomJS'],
         browsers: ['ChromeHeadless'],
-        // port: 9876,
+        port: 9876,
 
         customLaunchers: {
             ChromeHeadless: {

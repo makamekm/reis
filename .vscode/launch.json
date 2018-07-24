@@ -10,15 +10,18 @@
         {
             "type": "chrome",
             "request": "attach",
+            // "url": "http://localhost:9876",
             "name": "Debug Karma",
             "timeout": 60000,
             "address": "localhost",
             "port": 9222,
-            // "sourceMaps": true,
-            // "webRoot": "${workspaceRoot}",
-            "pathMapping": {
-              "/": "${workspaceRoot}",
-              "/base/": "${workspaceRoot}/"
+            "sourceMaps": true,
+            "webRoot": "${workspaceRoot}",
+            // "pathMapping": {
+            //   "/": "/"
+            // }
+            "sourceMapPathOverrides": {
+                "webpack:///./*": "${webRoot}/*"
             }
         },
         {
