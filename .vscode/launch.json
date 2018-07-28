@@ -20,9 +20,9 @@
             // "pathMapping": {
             //   "/": "/"
             // }
-            "sourceMapPathOverrides": {
-                "webpack:///./*": "${webRoot}/*"
-            }
+            // "sourceMapPathOverrides": {
+            //     "webpack:///./*": "${webRoot}/*"
+            // }
         },
         {
             "type": "node",

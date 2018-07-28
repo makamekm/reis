@@ -2,6 +2,7 @@ import * as ApolloLinkWS from "apollo-link-ws";
 import * as ApolloLink from "apollo-link";
 import { BatchHttpLink } from 'apollo-link-batch-http';
 import * as graphql from 'graphql';
+import { createUploadLink } from 'apollo-upload-client'
 
 import { Hook } from '../Modules/ClientHook';
 import * as Upload from '../Client/Upload';
@@ -19,11 +20,13 @@ export function genLink(hooksRes: Hook[], context, linkWS?: ApolloLinkWS.WebSock
         });
     }
 
-    const linkNetwork = new BatchHttpLink({
+    // const linkNetwork = new BatchHttpLink({
+    //     uri: (window as any).__GQLHOST__ || `/graphql`,
+    // });
+
+    const linkNetwork = Upload.createUploadLink({
         uri: (window as any).__GQLHOST__ || `/graphql`,
     });
-
-    const linkUpload = new Upload.UploadLink({});
 
     const linkSplitted: ApolloLink.ApolloLink = linkWS ? ApolloLink.ApolloLink.split(
         operation => {
@@ -35,8 +38,6 @@ export function genLink(hooksRes: Hook[], context, linkWS?: ApolloLinkWS.WebSock
     ) : linkNetwork;
 
     let links: ApolloLink.ApolloLink[] = [];
-
-    links = links.concat(linkUpload);
 
     hooksRes.forEach(hook => {
         if (hook.linksBefore) links = links.concat(hook.linksBefore);

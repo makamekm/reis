@@ -21,7 +21,8 @@
     "outDir": "./build",
     "types": ["jasmine", "node"],
     "allowSyntheticDefaultImports": true,
-    "sourceMap": true,
+    "sourceMap": false,
+    "inlineSourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowJs": false

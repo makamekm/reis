@@ -13,7 +13,12 @@ module.exports = (config) => {
         // frameworks: ['jasmine', 'karma-typescript'],
         // reporters: ['progress', 'karma-typescript'],
         frameworks: ['jasmine'],
+        // reporters: ['coverage-istanbul', 'progress'],
         reporters: ['progress'],
+        // coverageIstanbulReporter: {
+        //   reports: [ 'text-summary' ],
+        //   fixWebpackSourcePaths: true
+        // },
 
         plugins: [
             require('karma-jasmine'),
@@ -21,7 +26,8 @@ module.exports = (config) => {
             require('karma-chrome-launcher'),
             require('karma-webpack'),
             // require('karma-phantomjs-launcher'),
-            // require('karma-sourcemap-loader')
+            // require('karma-sourcemap-loader'),
+            // require('karma-coverage-istanbul-reporter')
         ],
         
         preprocessors: {
@@ -48,33 +54,11 @@ module.exports = (config) => {
         logLevel: config.LOG_ERROR,
 
         webpack: {
-            mode: 'development',
-            // output: {
-            //     devtoolModuleFilenameTemplate: info => {
-            //         if (info.absoluteResourcePath.charAt(0) === '/') {
-            //             return '/' + info.absoluteResourcePath;
-            //         } else {
-            //             return '/' + info.absoluteResourcePath;
-            //         }
-            //     },
-            //     devtoolFallbackModuleFilenameTemplate: info => {
-            //         if (info.absoluteResourcePath.charAt(0) === '/') {
-            //             return '/' + info.absoluteResourcePath + '?' + info.hash;
-            //         } else {
-            //             return '/' + info.absoluteResourcePath + '?' + info.hash;
-            //         }
-            //     }
-            // },
-            // devtool: 'inline-source-map',
+            // mode: 'development',
+            devtool: 'inline-source-map',
             resolve: {
                 extensions: ['.ts', '.tsx', '.js'],
-                mainFields: ['browser', 'main', 'module'],
-                // modules: [
-                //     "node_modules"
-                // ]
-                // alias: {
-                //     node_modules: path.resolve(__dirname, 'node_modules')
-                // }
+                mainFields: ['browser', 'main', 'module']
             },
             module: {
                 rules: [
@@ -82,6 +66,7 @@ module.exports = (config) => {
                         test: /\.(tsx|ts)$/,
                         exclude: /\/node_modules\//,
                         loaders: [
+                            // 'istanbul-instrumenter-loader',
                             'babel-loader',
                             'ts-loader'
                         ]
@@ -93,7 +78,7 @@ module.exports = (config) => {
                     },
                 ]
             },
-            // plugins: [
+            plugins: [
                 // new webpack.ProvidePlugin({
                 //     $: 'jquery',
                 //     jQuery: 'jquery',
@@ -107,7 +92,7 @@ module.exports = (config) => {
                 //     test: /\.(ts|tsx|js)($|\?)/i,
                 //     exclude: [/node_modules/]
                 // })
-            // ]
+            ]
         },
 
         webpackMiddleware: {

@@ -525,48 +525,15 @@ describe("Module/Server", () => {
                 @Query.Arg(type => uploadType, 'file') fileId: string,
                 context: { language: string, files: any[] }
             ) {
-                console.log(context);
-                
                 let file = context.files.find(f => f.fieldname == fileId);
-                console.log(fileId, file.originalname);
                 catched = true;
+                expect(context.files.length).toBe(1);
+                expect(file.originalname).toBe('test.txt');
             }
         }
 
         await server.start();
-
-        // const gqlClient = new ApolloClient.ApolloClient({
-        //     link: genLink([], {}, null),
-        //     cache: new ApolloCache.InMemoryCache(),
-        //     ssrMode: false,
-        //     queryDeduplication: true,
-        //     defaultOptions: {
-        //         watchQuery: {
-        //             fetchPolicy: 'cache-and-network',
-        //             errorPolicy: 'ignore',
-        //         },
-        //         query: {
-        //             fetchPolicy: 'cache-and-network',
-        //             errorPolicy: 'all',
-        //         },
-        //         mutate: {
-        //             errorPolicy: 'all'
-        //         }
-        //     }
-        // });
-
-        // let res = await gqlClient.mutate({
-        //     mutation: Router.gql`
-        //       mutation Upload($file: Upload!) {
-        //         upload {
-        //           do(file: $file)
-        //         }
-        //       }`,
-        //     variables: { file: fileRaw }
-        // });
-
-        // jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
-
+        
         await new Promise((r, e) => {
             var cp = spawn('npm', ['run', 'test_client', host, port, portWS, "Upload"], { stdio: ['pipe'], cwd: path.resolve(__dirname, '../../../..') });
 
@@ -574,9 +541,9 @@ describe("Module/Server", () => {
                 console.log(data.toString());
             });
 
-            // cp.stderr.on('data', function (data) {
-            //     console.error(data.toString());
-            // });
+            cp.stderr.on('data', function (data) {
+                console.error(data.toString());
+            });
     
             cp.on('close', function (code) {
                 if (code === 0) {
@@ -586,8 +553,6 @@ describe("Module/Server", () => {
                 }
             });
         })
-
-        // execSync(`npm run test_client "${host}" ${port} ${portWS} "Upload"`, { stdio: [0, 1, 2], cwd: path.resolve(__dirname, '../../../..') });
 
         expect(catched).toBeTruthy();
     });
