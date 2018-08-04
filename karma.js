@@ -32,7 +32,7 @@ module.exports = (config) => {
         
         preprocessors: {
             // '**/*.+(ts|tsx)': ['karma-typescript']
-            './src/Test/Component/**/*.+(ts|tsx)': ['webpack']
+            './src/Test/Client/**/*.+(ts|tsx)': ['webpack']
         },
 
         client: {
@@ -44,7 +44,7 @@ module.exports = (config) => {
         files: [
             // './node_modules/babel-polyfill/dist/polyfill.js',
             // './node_modules/reflect-metadata/Reflect.js',
-            `./src/Test/Component/${pattern}.test.+(ts|tsx)`
+            `./src/Test/Client/${pattern}.+(ts|tsx)`
         ],
 
         // exclude: [

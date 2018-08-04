@@ -1,6 +1,6 @@
-export function reduce(language: string, row): any {
+export function reduce(language: string, translation): any {
     let finish = true;
-    let res = Object.assign({}, row);
+    let res = Object.assign({}, translation);
 
     for (let key in res) {
         if (typeof res[key] == 'object') {
@@ -11,6 +11,12 @@ export function reduce(language: string, row): any {
 
     if (finish) return res[language];
     else return res;
+}
+
+export function mapReduce(languages: string[], translation): any {
+    const map = {};
+    languages.forEach(language => map[language] = reduce(language, translation));
+    return map;
 }
 
 export function parseEnv(str: string) {

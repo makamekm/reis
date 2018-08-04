@@ -1,4 +1,4 @@
-import { getLevelNumber, isWritableLevel } from '../../../../Server/Lib/Log';
+import { getLevelNumber, isWritableLevel } from '../../../Server/Lib/Log';
 
 describe("Server/Lib/Log", function() {
   it("getLevelNumber", function() {

@@ -17,9 +17,8 @@
     "build": "tsc",
     "watch": "node_modules/.bin/nodemon --watch './src' node_modules/.bin/tsc",
     "publish": "publish",
-    "test": "node --inspect node_modules/.bin/jasmine-ts --config=./jasmine.json ./src/Test/Unit/*.ts ./src/Test/Unit/**/*.ts ./src/Test/Unit/**/**/*.ts ./src/Test/Unit/*.tsx ./src/Test/Unit/**/*.tsx ./src/Test/Unit/**/**/*.tsx",
-    "test_client": "node_modules/.bin/karma start karma.js --",
-    "wd": "webdriver-manager update"
+    "test": "node --inspect node_modules/.bin/jasmine-ts --config=./jasmine.json ./src/Test/Server/*.ts ./src/Test/Server/**/*.ts ./src/Test/Server/**/**/*.ts ./src/Test/Server/*.tsx ./src/Test/Server/**/*.tsx ./src/Test/Server/**/**/*.tsx",
+    "test_client": "node_modules/.bin/karma start karma.js --"
   },
   "author": {
     "name": "Karpov Maxim",

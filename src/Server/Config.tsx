@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import * as Translation from '../Modules/Translation';
-import { reduce, parseEnv } from './Lib/Config';
+import { mapReduce, parseEnv } from './Lib/Config';
 import defaultConfig from './DefaultConfig';
 
 let configPath = path.resolve(process.env.CONFIG_PATH || './reiso.json');
@@ -14,25 +14,29 @@ export function getConfig() {
   return config[scope];
 }
 
-const translation: any = {};
+let translations: any = {};
 
-function setTranslation(config) {
+function setTranslation(config: {
+  [name: string]: {
+    languages: any[]
+    defaultLanguage: string
+    translation: string
+  }
+}) {
   if (config[scope].languages) {
     try {
-      let data = JSON.parse(fs.readFileSync(path.resolve(config[scope].translation), "utf8"));
-
-      config[scope].languages.forEach(language => {
-        translation[language] = reduce(language, data);
-      });
+      let translation = JSON.parse(fs.readFileSync(path.resolve(config[scope].translation), "utf8"));
+      translations = mapReduce(config[scope].languages, translation);
+    } catch (e) {
+      translations = {}
     }
-    catch (e) {}
 
-    Translation.setState(config[scope].defaultLanguage, config[scope].languages, translation);
+    Translation.setState(config[scope].defaultLanguage, config[scope].languages, translations);
   }
 }
 
-export function setConfig(_config) {
-  config = Object.assign(config, JSON.parse(parseEnv(JSON.stringify(_config))));
+export function setConfig(newConfig) {
+  config = Object.assign(config, JSON.parse(parseEnv(JSON.stringify(newConfig))));
   setTranslation(config);
 }
 

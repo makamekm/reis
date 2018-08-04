@@ -1,8 +1,8 @@
 import { $it, $afterEach, $beforeEach } from 'jasmine-ts-async';
 
-import { setConfig } from '../../../Modules/Config';
+import { setConfig } from '../../Modules/Config';
 
-import { RegisterHandler, HandlerManager, Queue } from '../../../Modules/Handler';
+import { RegisterHandler, HandlerManager, Queue } from '../../Modules/Handler';
 
 describe("Module/Handler", () => {
 

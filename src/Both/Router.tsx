@@ -4,11 +4,10 @@ import * as ReactRouter from 'react-router';
 import * as ReactRouterDom from 'react-router-dom';
 import * as ApolloReact from 'react-apollo';
 import * as ApolloClient from 'apollo-client';
-import { DocumentNode } from 'graphql';
 import graphqltag from 'graphql-tag';
 
 import * as Translation from '../Modules/Translation';
-import { getHooksRouter } from '../Modules/BothHook';
+import { getHooksRouter, getBeforeRenderRouter } from '../Modules/BothHook';
 
 let Html = null
 export function GetHtml(): any {
@@ -107,15 +106,16 @@ export function GetRoutes(stores, language: string) {
 
     Translation.getLanguages().forEach(language => {
       routes.push(
-        <ReactRouter.Route exact={true} path={'/' + language + (route.path || '/*')} key={'/' + language + (route.path || '/*')} render={({ match, location, history }) => {
-          if (process.env.MODE == "client") Translation.setLanguage(language);
+        <ReactRouter.Route exact path={'/' + language + (route.path || '/*')} key={'/' + language + (route.path || '/*')} render={({ match, location, history }) => {
+          // if (process.env.MODE == "client") Translation.setLanguage(language);
+          getBeforeRenderRouter().forEach(hook => hook(match, location, history));
           return route.render({...context, trans: (query, ...args) => Translation.trans(language, query, ...args), location, history, match})
         }}/>
       );
     });
 
     routes.push(
-      <ReactRouter.Route exact={true} path={route.path} key={route.path} render={({ match, location, history }) => route.render({...context, trans: (query, ...args) => Translation.trans(language, query, ...args), location, history, match})}/>
+      <ReactRouter.Route exact path={route.path} key={route.path} render={({ match, location, history }) => route.render({...context, trans: (query, ...args) => Translation.trans(language, query, ...args), location, history, match})}/>
     )
   });
 

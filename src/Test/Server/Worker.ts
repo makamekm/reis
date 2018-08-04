@@ -1,8 +1,7 @@
 import { $it, $afterEach, $beforeEach  } from 'jasmine-ts-async';
 
-import { setConfig } from '../../../Modules/Config';
-
-import { CronManager, RegisterWorker, RegisterWorkerEvent } from '../../../Modules/Worker';
+import { setConfig } from '../../Modules/Config';
+import { CronManager, RegisterWorker, RegisterWorkerEvent } from '../../Modules/Worker';
 
 describe("Module/Worker", () => {
 

@@ -1,4 +1,4 @@
-import { genMessage, getSerialized, getApmError } from '../../../../Server/Lib/Error';
+import { genMessage, getSerialized, getApmError } from '../../../Server/Lib/Error';
 
 describe("Server/Lib/Error", function() {
   it("genMessage", function() {

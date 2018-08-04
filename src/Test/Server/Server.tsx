@@ -18,16 +18,16 @@ const cheerio = require('cheerio');
 require("fetch-everywhere");
 import "reflect-metadata";
 
-import { setConfig } from '../../../Modules/Config';
-import * as Log from '../../../Modules/Log';
-import * as Error from '../../../Modules/Error';
+import { setConfig } from '../../Modules/Config';
+import * as Log from '../../Modules/Log';
+import * as Error from '../../Modules/Error';
 
-import { Server } from '../../../Server/Server';
-import * as Router from '../../../Modules/Router';
-import * as Query from '../../../Modules/Query';
-import * as Hook from '../../../Modules/ServerHook';
-import * as Model from '../../../Modules/Model';
-import { genLink } from '../../../Client/Link';
+import { Server } from '../../Server/Server';
+import * as Router from '../../Modules/Router';
+import * as Query from '../../Modules/Query';
+import * as Hook from '../../Modules/ServerHook';
+import * as Model from '../../Modules/Model';
+import { genLink } from '../../Client/Link';
 
 export const uploadType = new GraphQLScalarType({
     name: 'Upload',
@@ -204,7 +204,7 @@ describe("Module/Server", () => {
 
     $afterAll(async () => {
         jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-    })
+    });
 
     $beforeEach(async () => {
         Router.cleanRoutes();
@@ -230,6 +230,21 @@ describe("Module/Server", () => {
         let body = await res.text();
         let $ = cheerio.load(body, { decodeEntities: false });
         expect($('[data-test=test]').text()).toBe('Test');
+    });
+
+    $it("router", async () => {
+        Router.route('/*', data => {
+            return <div data-test="test">
+                test
+            </div>
+        })
+
+        await server.start();
+
+        let res = await fetch(`http://${host}:${port}/`);
+        let body = await res.text();
+        let $ = cheerio.load(body, { decodeEntities: false });
+        expect($('[data-test=test]').text()).toBe('test');
     });
 
     $it("mobx", async () => {
@@ -535,7 +550,7 @@ describe("Module/Server", () => {
         await server.start();
         
         await new Promise((r, e) => {
-            var cp = spawn('npm', ['run', 'test_client', host, port, portWS, "Upload"], { stdio: ['pipe'], cwd: path.resolve(__dirname, '../../../..') });
+            var cp = spawn('npm', ['run', 'test_client', host, port, portWS, "Upload"], { stdio: ['pipe'], cwd: path.resolve(__dirname, '../../..') });
 
             cp.stdout.on('data', function (data) {
                 console.log(data.toString());

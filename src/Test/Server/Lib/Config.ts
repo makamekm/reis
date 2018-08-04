@@ -1,4 +1,4 @@
-import { reduce, parseEnv } from '../../../../Server/Lib/Config';
+import { reduce, parseEnv } from '../../../Server/Lib/Config';
 
 describe("Server/Lib/Config", function () {
   const translation = {

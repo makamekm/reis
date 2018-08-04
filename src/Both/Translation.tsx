@@ -2,20 +2,22 @@ let language = '';
 let languages = [];
 let translation = {};
 
+declare var window: {
+  __LANGUAGE__: any
+  __TRANSLATION__: any
+  __LANGUAGES__: any
+}
+
 if (process.env.MODE == "client") {
-  language = (window as any).__LANGUAGE__;
-  translation = (window as any).__TRANSLATION__;
-  languages = (window as any).__LANGUAGES__;
+  language = window.__LANGUAGE__;
+  translation = window.__TRANSLATION__;
+  languages = window.__LANGUAGES__;
 }
 
-export function setState(_language, _languages, _translation) {
-  language = _language;
-  languages = _languages;
-  translation = _translation;
-}
-
-export function setLanguage(lang) {
-  language = lang;
+export function setState(newLanguage, newLanguages, newTranslation) {
+  language = newLanguage;
+  languages = newLanguages;
+  translation = newTranslation;
 }
 
 export function getLanguage() {
@@ -32,9 +34,7 @@ export function getTranslation() {
 
 function evaluate(obj: any, queries: string[], path: string): string {
   if (!queries.length) throw new Error('There is not translation for path: ' + path);
-
   let name = queries.shift();
-
   if (queries.length > 0) {
     return obj[name] ? evaluate(obj[name], queries, path) : '';
   } else {
@@ -44,23 +44,17 @@ function evaluate(obj: any, queries: string[], path: string): string {
 
 export function trans(lang: string, query: string, ...args: string[]): string {
   if (!lang) lang = language;
-
   let str = evaluate(translation[lang] || {}, query.split('.'), query);
-
   for (var i in args) {
     str = str.replace('$' + i + '$', args[i]);
   }
-
   return str;
 }
 
 export function transDefault(query: string, ...args: string[]): string {
-
   let str = evaluate(translation[language] || {}, query.split('.'), query);
-
   for (var i in args) {
     str = str.replace('$' + i + '$', args[i]);
   }
-
   return str;
 }

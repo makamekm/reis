@@ -1,4 +1,4 @@
-import { processUrl } from '../../../../Server/Lib/Url';
+import { processUrl } from '../../../Server/Lib/Url';
 
 describe("Server/Lib/Url", function() {
   it("processUrl", function() {

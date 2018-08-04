@@ -1,4 +1,4 @@
-import { distinct } from '../../../../Server/Lib/String';
+import { distinct } from '../../../Server/Lib/String';
 
 describe("Server/Lib/String", function() {
   it("distinct", function() {

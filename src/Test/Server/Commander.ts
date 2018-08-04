@@ -1,4 +1,4 @@
-import { Commander } from '../../../Server/Commander';
+import { Commander } from '../../Server/Commander';
 
 describe("Server/Commander", function () {
     it("run command", function () {

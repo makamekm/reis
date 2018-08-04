@@ -1,6 +1,6 @@
-import { setConfig } from '../../../Modules/Config';
+import { setConfig } from '../../Modules/Config';
 
-import * as Log from '../../../Modules/Log';
+import * as Log from '../../Modules/Log';
 
 describe("Module/Logger", () => {
     it("levels & addLogger", () => {

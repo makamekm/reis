@@ -1,9 +1,9 @@
 import { $it, $afterEach, $beforeEach } from 'jasmine-ts-async';
 const { Client } = require('pg');
 
-import { setConfig } from '../../../Modules/Config';
+import { setConfig } from '../../Modules/Config';
 
-import { RegisterEntity, cleanEntities, Manager, Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn } from '../../../Modules/ORM';
+import { RegisterEntity, cleanEntities, Manager, Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn } from '../../Modules/ORM';
 
 describe("Module/ORM", () => {
 
