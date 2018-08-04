@@ -543,7 +543,7 @@ describe("Module/Server", () => {
                 host,
                 port,
                 portWS
-            })}`, 'npm', 'run', 'test_client', '--testPathPattern', "src\\/Test\\/Client\\/Upload\\.(ts?|tsx?)$"], { stdio: ['pipe'], cwd: path.resolve(__dirname, '../../..') });
+            })}`, 'npm', 'run', 'test_browser', '--testPathPattern', "src\\/Test\\/Browser\\/Upload\\.(ts?|tsx?)$"], { stdio: ['pipe'], cwd: path.resolve(__dirname, '../../..') });
 
             cp.stdout.on('data', function (data) {
                 console.log(data.toString());

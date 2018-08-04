@@ -17,42 +17,9 @@
     "build": "tsc",
     "watch": "node_modules/.bin/nodemon --watch './src' node_modules/.bin/tsc",
     "publish": "publish",
-    "jest": "node --inspect node_modules/.bin/jest",
-    "test_client": "node_modules/.bin/jest --config client.jest.json --",
-    "test_old": "node --inspect node_modules/.bin/jasmine-ts --config=./jasmine.json ./src/Test/Server/*.ts ./src/Test/Server/**/*.ts ./src/Test/Server/**/**/*.ts ./src/Test/Server/*.tsx ./src/Test/Server/**/*.tsx ./src/Test/Server/**/**/*.tsx",
-    "test_client_old": "node_modules/.bin/karma start karma.js --"
-  },
-  "jest": {
-    "transform": {
-      ".+\\.(ts?|tsx?)$": "ts-jest"
-    },
-    "testURL": "http://localhost",
-    "testRegex": "src\\/Test\\/Server\\/.+\\.(ts?|tsx?)$",
-    "automock": false,
-    "testEnvironment": "node",
-    "collectCoverage": true,
-    "coverageDirectory": "coverage/server",
-    "collectCoverageFrom": [
-      "**/*.{ts,tsx}",
-      "!**/*.d.{ts,tsx}",
-      "!**/example/**",
-      "!**/Client/**",
-      "!**/Client*",
-      "!**/Test/**",
-      "!**/node_modules/**"
-    ],
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ],
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "/example/"
-    ]
+    "jest": "node --inspect node_modules/.bin/jest --config server.jest.json",
+    "test_client": "node_modules/.bin/jest --config client.jest.json",
+    "test_browser": "node_modules/.bin/jest --config browser.jest.json --"
   },
   "author": {
     "name": "Karpov Maxim",

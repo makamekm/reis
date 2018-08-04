@@ -1,19 +1,19 @@
 {
     "transform": {
-        "^.+\\.(ts?|tsx?)$": "ts-jest"
+        ".+\\.(ts?|tsx?)$": "ts-jest"
     },
-    "testURL": "http://127.0.0.1",
-    "browser": true,
-    "testRegex": "src\\/Test\\/Client\\/.+\\.(ts?|tsx?)$",
+    "testURL": "http://localhost",
+    "testRegex": "src\\/Test\\/Server\\/.+\\.(ts?|tsx?)$",
+    "automock": false,
+    "testEnvironment": "node",
     "collectCoverage": true,
-    "coverageDirectory": "coverage/client",
+    "coverageDirectory": "coverage/server",
     "collectCoverageFrom": [
-        "**/Client/**/*.{ts,tsx}",
-        "**/Both/**/*.{ts,tsx}",
-        "**/Entry/Client*.{ts,tsx}",
-        "**/Modules/Client*.{ts,tsx}",
+        "**/*.{ts,tsx}",
         "!**/*.d.{ts,tsx}",
         "!**/example/**",
+        "!**/Client/**",
+        "!**/Client*",
         "!**/Test/**",
         "!**/node_modules/**"
     ],

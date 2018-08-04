@@ -108,14 +108,7 @@ module.exports = function(env) {
                     // 'NODE_ENV': isProd ? 'production' : 'development'
                 }),
                 // new BeforeWatchPlugin(["node ../../composer.js outDir ./src/Composer dir ./src/Modules incDir '~/Modules' type ts Client"])
-            ].concat(isProd ? (isMaps ? [
-                // To Prod
-                new webpack.BannerPlugin({
-                    banner: 'require("source-map-support").install();',
-                    raw: true,
-                    entryOnly: false
-                }),
-            ] : []) : [
+            ].concat(isProd ? [] : [
                 // To Dev
                 new webpack.WatchIgnorePlugin([
                     /Composer\/.*$/,
