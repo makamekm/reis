@@ -9,9 +9,8 @@ import * as ApolloClient from 'apollo-client';
 import * as ApolloLinkWS from "apollo-link-ws";
 import * as ApolloCache from 'apollo-cache-inmemory';
 import { gql } from 'apollo-server';
-import { GraphQLEnumType, GraphQLScalarType, Kind } from 'graphql';
+import { GraphQLScalarType, Kind } from 'graphql';
 
-import { $it, $afterEach, $beforeEach, $beforeAll, $afterAll } from 'jasmine-ts-async';
 import { createApolloFetch } from 'apollo-fetch';
 const findFreePorts = require('find-free-ports');
 const cheerio = require('cheerio');
@@ -45,7 +44,6 @@ export const uploadType = new GraphQLScalarType({
     }
 });
 
-let originalTimeout: number;
 let port: number;
 let portWS: number;
 let host = "127.0.0.1";
@@ -147,10 +145,7 @@ describe("Module/Server", () => {
             })
     }
 
-    $beforeAll(async () => {
-        originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = 100000;
-
+    beforeAll(async () => {
         [port, portWS] = await findFreePorts(2);
 
         setConfig({
@@ -202,22 +197,18 @@ describe("Module/Server", () => {
         );
     });
 
-    $afterAll(async () => {
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-    });
-
-    $beforeEach(async () => {
+    beforeEach(async () => {
         Router.cleanRoutes();
         Query.clearModel();
         Hook.clearWebHook();
         Model.clearModels();
     });
 
-    $afterEach(async () => {
+    afterEach(async () => {
         await server.stop();
     });
 
-    $it("start & render", async () => {
+    it("start & render", async () => {
         Router.route('/*', data => {
             return <div data-test="test">
                 Test
@@ -232,7 +223,7 @@ describe("Module/Server", () => {
         expect($('[data-test=test]').text()).toBe('Test');
     });
 
-    $it("router", async () => {
+    it("router", async () => {
         Router.route('/*', data => {
             return <div data-test="test">
                 test
@@ -247,7 +238,7 @@ describe("Module/Server", () => {
         expect($('[data-test=test]').text()).toBe('test');
     });
 
-    $it("mobx", async () => {
+    it("mobx", async () => {
 
         @Model.model<TestModel>('test')
         class TestModel implements Model.IModel {
@@ -286,7 +277,7 @@ describe("Module/Server", () => {
         expect($('[data-test=test]').text()).toBe('test');
     });
 
-    $it("graphql", async () => {
+    it("graphql", async () => {
         setTestGraphQLModel();
 
         await server.start();
@@ -347,7 +338,7 @@ describe("Module/Server", () => {
         }))));
     });
 
-    $it("webhook", async () => {
+    it("webhook", async () => {
         const data = {
             test: 'Test'
         }
@@ -404,7 +395,7 @@ describe("Module/Server", () => {
         expect(body).toBe('Unauthorized');
     });
 
-    $it("websocket", async () => {
+    it("websocket", async () => {
         setTestGraphQLModel();
 
         await server.start();
@@ -525,7 +516,7 @@ describe("Module/Server", () => {
         expect(catched).toBeTruthy();
     });
 
-    $it("upload", async () => {
+    it("upload", async () => {
         setTestGraphQLModel();
 
         let catched = false;
@@ -533,8 +524,6 @@ describe("Module/Server", () => {
         @Query.Mutation({ name: 'upload' })
         @Query.Structure('UploadRoot')
         class UploadRoot {
-            private avatarType = ['image/jpeg', 'image/png'];
-
             @Query.Field("string", { name: "do" })
             public async do(
                 @Query.Arg(type => uploadType, 'file') fileId: string,
@@ -550,14 +539,18 @@ describe("Module/Server", () => {
         await server.start();
         
         await new Promise((r, e) => {
-            var cp = spawn('npm', ['run', 'test_client', host, port, portWS, "Upload"], { stdio: ['pipe'], cwd: path.resolve(__dirname, '../../..') });
+            var cp = spawn('node_modules/.bin/cross-env', [`HOST_CONFIG=${JSON.stringify({
+                host,
+                port,
+                portWS
+            })}`, 'npm', 'run', 'test_client', '--testPathPattern', "src\\/Test\\/Client\\/Upload\\.(ts?|tsx?)$"], { stdio: ['pipe'], cwd: path.resolve(__dirname, '../../..') });
 
             cp.stdout.on('data', function (data) {
                 console.log(data.toString());
             });
 
             cp.stderr.on('data', function (data) {
-                console.error(data.toString());
+                console.log(data.toString());
             });
     
             cp.on('close', function (code) {
@@ -570,8 +563,8 @@ describe("Module/Server", () => {
         })
 
         expect(catched).toBeTruthy();
-    });
+    }, 20000);
 
-    // $it("ddos", async () => {
+    // it("ddos", async () => {
     // });
 });

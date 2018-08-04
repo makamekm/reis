@@ -1,13 +1,10 @@
-import { $it, $afterEach, $beforeEach } from 'jasmine-ts-async';
 const { Client } = require('pg');
 
 import { setConfig } from '../../Modules/Config';
-
 import { RegisterEntity, cleanEntities, Manager, Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn } from '../../Modules/ORM';
 
 describe("Module/ORM", () => {
 
-    let originalTimeout;
     const username = 'root';
     const password = 'qwerty';
     const host = 'localhost';
@@ -15,10 +12,7 @@ describe("Module/ORM", () => {
 
     const conStringPri = 'postgres://' + username + ':' + password + '@' + host + '/postgres';
 
-    $beforeEach(async () => {
-        originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
-
+    beforeEach(async () => {
         const client = new Client(conStringPri);
         await client.connect();
         await client.query('DROP DATABASE IF EXISTS ' + db_name);
@@ -43,17 +37,15 @@ describe("Module/ORM", () => {
         cleanEntities();
     });
 
-    $afterEach(async () => {
+    afterEach(async () => {
         const client = new Client(conStringPri);
         await client.connect();
         await client.query('REVOKE CONNECT ON DATABASE ' + db_name + ' FROM public;');
         await client.query('DROP DATABASE IF EXISTS ' + db_name);
         await client.end();
-
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
     });
 
-    $it("sync entity", async () => {
+    it("sync entity", async () => {
         @RegisterEntity("Test")
         @Entity("test")
         class Test {
@@ -80,7 +72,7 @@ describe("Module/ORM", () => {
         expect(1).toBe(1);
     });
 
-    $it("create & get", async () => {
+    it("create & get", async () => {
         @RegisterEntity("Test")
         @Entity("test")
         class Test {

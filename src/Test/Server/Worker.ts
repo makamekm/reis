@@ -1,22 +1,9 @@
-import { $it, $afterEach, $beforeEach  } from 'jasmine-ts-async';
-
 import { setConfig } from '../../Modules/Config';
 import { CronManager, RegisterWorker, RegisterWorkerEvent } from '../../Modules/Worker';
 
 describe("Module/Worker", () => {
 
-    let originalTimeout;
-
-    $beforeEach(async () => {
-        originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
-    });
-
-    $afterEach(async () => {
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-    });
-    
-    $it("job", async () => {
+    it("job", async () => {
         let prevNotBinded: boolean = false;
         let prevBinded: boolean = false;
         let counter = 0;
@@ -50,9 +37,9 @@ describe("Module/Worker", () => {
         expect(prevNotBinded).toBe(true);
         expect(prevBinded).toBe(true);
         expect(counter).toBeGreaterThan(0);
-    });
+    }, 10000);
 
-    $it("job lifecycle", async () => {
+    it("job lifecycle", async () => {
         let counter = 0;
         let counterStop = 0;
         let counterAfter = 0;
@@ -103,5 +90,5 @@ describe("Module/Worker", () => {
         expect(counterAfter).toBe(counterStop);
         expect(startCounter).toBe(2);
         expect(stopCounter).toBe(2);
-    });
+    }, 10000);
 });
