@@ -543,7 +543,7 @@ describe("Module/Server", () => {
                 host,
                 port,
                 portWS
-            })}`, 'npm', 'run', 'test_browser', '--testPathPattern', "src\\/Test\\/Browser\\/Upload\\.(ts?|tsx?)$"], { stdio: ['pipe'], cwd: path.resolve(__dirname, '../../..') });
+            })}`, 'node_modules/.bin/jest', '--config', 'browser.jest.json', "--testPathPattern", "src\\/Test\\/Browser\\/Upload\\.(ts?|tsx?)$"], { stdio: ['pipe'], cwd: path.resolve(__dirname, '../../..') });
 
             cp.stdout.on('data', function (data) {
                 console.log(data.toString());
