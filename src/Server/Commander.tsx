@@ -5,7 +5,7 @@ import * as Translation from '../Modules/Translation';
 export type Action = (args: string[], read: () => rl.ReadLine) => (Promise<void> | void)
 
 export type Command = {
-  description: string
+  description?: string
   action: Action
 }
 

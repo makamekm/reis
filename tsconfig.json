@@ -19,7 +19,7 @@
     "declaration": true,
     "baseUrl": "./src",
     "outDir": "./build",
-    "types": ["jasmine", "node", "jest"],
+    "types": ["node", "jest"],
     "allowSyntheticDefaultImports": true,
     "sourceMap": false,
     "inlineSourceMap": true,

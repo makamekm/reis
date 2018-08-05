@@ -4,9 +4,11 @@ import * as os from 'os';
 import * as Config from '../../Modules/Config';
 import * as Log from '../../Modules/Log';
 
-export const runCluster = (func: () => void) => {
-  Config.readConfig();
-  Log.init();
+export const runCluster = (func: () => void, silent?: boolean) => {
+  if (!silent) {
+    Config.readConfig();
+    Log.init();
+  }
 
   if (!Config.getConfig().cores) {
     func();

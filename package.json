@@ -18,8 +18,7 @@
     "watch": "node_modules/.bin/nodemon --watch './src' node_modules/.bin/tsc",
     "publish": "publish",
     "test": "node --inspect node_modules/.bin/jest --config server.jest.json",
-    "test_client": "node_modules/.bin/jest --config client.jest.json",
-    "test_browser": "node_modules/.bin/jest --config browser.jest.json"
+    "test_client": "node_modules/.bin/jest --config client.jest.json"
   },
   "author": {
     "name": "Karpov Maxim",
