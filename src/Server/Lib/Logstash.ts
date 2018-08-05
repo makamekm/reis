@@ -2,11 +2,8 @@ import net = require('net');
 
 import { LoggerI, LogType } from "./Logger";
 
-export type LogstashI = { log: Function, connection: any };
-
 export class Logstash {
     messageQueue: string[] = []
-    logstashConnection: LogstashI
     logstashStatus: boolean = false
     logstashTries: number = 0
     logLogstashConfig
@@ -25,18 +22,19 @@ export class Logstash {
         }) + "\n";
     }
 
-    private async logstashBack(host, port, onClose): Promise<LogstashI> {
-        return await new Promise<LogstashI>((r, e) => {
-            const connection = net.createConnection({ host, port }, function () {
-                r({
-                    log: (message) => connection.write(message),
-                    connection
-                })
-            })
-            .on('error', function (err) {
+    private connection: net.Socket;
+
+    private send(message: string): boolean {
+        return this.connection.write(message);
+    }
+
+    private async logstashBack(host, port, onClose): Promise<void> {
+        await new Promise((r, e) => {
+            this.connection = net.createConnection({ host, port }, r);
+            this.connection.on('error', (err) => {
                 e(err);
-            })
-            .on('end', function () {
+            });
+            this.connection.on('end', () => {
                 onClose();
             });
         })
@@ -55,13 +53,13 @@ export class Logstash {
 
             let message = this.messageQueue[0];
 
-            if (!this.logstashConnection) {
+            if (!this.connection) {
                 try {
-                    this.logstashConnection = await this.logstashBack(this.logLogstashConfig.host, this.logLogstashConfig.port, () => {
-                        this.logstashConnection = null;
+                    await this.logstashBack(this.logLogstashConfig.host, this.logLogstashConfig.port, () => {
+                        this.connection = null;
                     });
                 } catch (e) {
-                    this.logstashConnection = null;
+                    this.connection = null;
                     this.logstashTries++;
                     this.logstashStatus = false;
                     console.log('Fail connecting with Logstash', this.logLogstashConfig, message, e);
@@ -72,12 +70,13 @@ export class Logstash {
             let result: boolean;
 
             try {
-                result = this.logstashConnection.log(message);
+                result = this.send(message);
             } catch (e) {
                 try {
-                    await new Promise(r => this.logstashConnection.connection.close(r));
+                    // TODO: Check ".close" existing
+                    if (this.connection) await new Promise(r => (this.connection as any).close(r));
                 } catch (e) { }
-                this.logstashConnection = null;
+                this.connection = null;
                 this.logstashTries++;
                 this.logstashStatus = false;
                 console.log('Fail sending a Logstash message', this.logLogstashConfig, message, e);

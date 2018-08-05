@@ -3,58 +3,57 @@ import { Logstash } from "./Logstash";
 import { LoggerI, LogType } from "./Logger";
 import { distinct } from "./String";
 
-const logLogstashConfig = getConfig().logLogstash;
 const sender = require('os').hostname();
 
 export class LogstashLogger implements LoggerI {
-    logger: Logstash;
-    timer: any
+    private logger: Logstash;
+    private timer: any
 
     constructor() {
-        this.logger = new Logstash(logLogstashConfig);
+        this.logger = new Logstash(getConfig().logLogstash);
         this.startTimer();
     }
 
     private startTimer() {
-        this.timer = setInterval(() => this.logger.logstashSend(), logLogstashConfig && logLogstashConfig.interval || 300);
+        this.timer = setInterval(() => this.logger.logstashSend(), getConfig().logLogstash && getConfig().logLogstash.interval || 300);
     }
 
-    getLevel() {
-        return logLogstashConfig && logLogstashConfig.level;
-    }
-
-    getTags(line: LogType) {
+    private getTags(line: LogType) {
         let tags = [];
-        if (logLogstashConfig.tags && Array.isArray(logLogstashConfig.tags)) {
-            tags = logLogstashConfig.tags.concat(tags);
-        } else if (logLogstashConfig.tags) {
-            tags = logLogstashConfig.tags.split(',');
+        if (getConfig().logLogstash.tags && Array.isArray(getConfig().logLogstash.tags)) {
+            tags = getConfig().logLogstash.tags.concat(tags);
+        } else if (getConfig().logLogstash.tags) {
+            tags = getConfig().logLogstash.tags.split(',');
         }
-        tags = logLogstashConfig.tags ? logLogstashConfig.tags.concat(tags) : tags;
+        tags = getConfig().logLogstash.tags ? getConfig().logLogstash.tags.concat(tags) : tags;
         tags = (line.tags && Array.isArray(line.tags)) ? line.tags.concat(tags) : tags;
         tags = distinct(tags);
         return tags;
     }
 
-    getMeta(line: LogType) {
+    private getMeta(line: LogType) {
         return {
-            'beat': logLogstashConfig.beat || 'reiso',
-            'type': logLogstashConfig.type || 'reiso',
+            'beat': getConfig().logLogstash.beat || 'reiso',
+            'type': getConfig().logLogstash.type || 'reiso',
             ...(typeof line['@metadata'] == 'object' ? (line['@metadata'] as any) : {})
         }
     }
 
-    getFields(line: LogType) {
+    private getFields(line: LogType) {
         return {
-            'sender': logLogstashConfig.sender || sender,
+            'sender': getConfig().logLogstash.sender || sender,
             ...(typeof line['@fields'] == 'object' ? (line['@fields'] as any) : {})
         }
     }
 
-    log(level: string, line: LogType) {
+    getLevel() {
+        return getConfig().logLogstash && getConfig().logLogstash.level;
+    }
+
+    async log(level: string, line: LogType) {
         const fields = this.getFields(line);
         const metadata = this.getMeta(line);
         const tags = this.getTags(line);
-        this.logger.log(tags, fields, metadata, level, line);
+        await this.logger.log(tags, fields, metadata, level, line);
     }
 }
