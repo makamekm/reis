@@ -48,7 +48,7 @@ describe("Server/Lib/LogstashLogger", () => {
             const message = JSON.parse(catchedMessage);
             expect(message.test).toBe('Test');
             expect(message['@tags'][1]).toBe('test');
-            expect(message['level'][1]).toBe('error');
+            expect(message['level']).toBe('error');
         }
     });
 });
