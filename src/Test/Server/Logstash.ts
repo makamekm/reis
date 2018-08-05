@@ -5,6 +5,8 @@ import { setConfig } from '../../Modules/Config';
 
 declare var global: {
     onNetMessage: Function
+    closeNet: Function
+    writeNetResult: boolean
 }
 
 describe("Server/Lib/LogstashLogger", () => {
@@ -50,5 +52,51 @@ describe("Server/Lib/LogstashLogger", () => {
             expect(message['@tags'][1]).toBe('test');
             expect(message['level']).toBe('error');
         }
+    });
+
+    it("disconnecting", async () => {
+        let logger = new LogstashLogger();
+        let attempts = 0;;
+
+        global.onNetMessage = function(message) {
+            attempts++;
+        }
+
+        await logger.log('error', {
+            test: 'Test'
+        });
+
+        global.closeNet();
+
+        await logger.log('error', {
+            test: 'Test'
+        });
+
+        expect(attempts).toBe(2);
+    });
+
+    it("retry", async () => {
+        let logger = new LogstashLogger();
+        let attempts = 0;;
+
+        global.onNetMessage = function(message) {
+            attempts++;
+        }
+
+        global.writeNetResult = false;
+
+        await logger.log('error', {
+            test: 'Test'
+        });
+
+        expect(attempts).toBe(1);
+
+        await logger.log('error', {
+            test: 'Test'
+        });
+
+        global.writeNetResult = true;
+
+        expect(attempts).toBe(3);
     });
 });

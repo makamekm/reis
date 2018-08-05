@@ -72,10 +72,7 @@ export class Logstash {
             try {
                 result = this.send(message);
             } catch (e) {
-                try {
-                    // TODO: Check ".close" existing
-                    if (this.connection) await new Promise(r => (this.connection as any).close(r));
-                } catch (e) { }
+                this.connection.destroy();
                 this.connection = null;
                 this.logstashTries++;
                 this.logstashStatus = false;
@@ -104,6 +101,8 @@ export class Logstash {
             this.logstashTries = 0;
             this.messageQueue = this.messageQueue.slice(this.messageQueue.length - 1000);
         }
-        await this.logstashSend();
+        for (let i = 0; i < this.messageQueue.length; i++) {
+            await this.logstashSend();
+        }
     }
 }
