@@ -1,14 +1,37 @@
 pipeline:
+
+  restore-cache:
+    image: drillster/drone-volume-cache
+    restore: true
+    mount:
+      - ./node_modules
+    volumes:
+      - /tmp/cache:/cache
+
   init:
     image: node:9.3.0
     commands:
-      - npm i
+      - yarn
+
+  rebuild-cache:
+    image: drillster/drone-volume-cache
+    rebuild: true
+    mount:
+      - ./node_modules
+    volumes:
+      - /tmp/cache:/cache
 
   build:
     image: node:9.3.0
     commands:
       - rm -rf build
-      - npm run build
+      - yarn build
+
+  test:
+    image: node:9.3.0
+    commands:
+      - rm -rf build
+      - yarn test
 
   publish:
     image: node:9.3.0
@@ -16,4 +39,15 @@ pipeline:
     commands:
       - node publish.js
     when:
-      branch: [master]
+      branch: [ master ]
+
+services:
+  database:
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=test
+
+  cache:
+    image: redis
+
