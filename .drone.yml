@@ -37,6 +37,8 @@ pipeline:
     image: node:9.3.0
     secrets: [ NPM_USERNAME, NPM_PASSWORD, NPM_EMAIL ]
     commands:
+      - rm -rf build
+      - yarn build
       - node publish.js
     when:
       branch: [ master ]
