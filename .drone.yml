@@ -47,9 +47,9 @@ services:
   database:
     image: postgres
     environment:
-      - POSTGRES_USER=postgres
+      - POSTGRES_USER=root
       - POSTGRES_DB=test
 
-  cache:
+  redis:
     image: redis
 

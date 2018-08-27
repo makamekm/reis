@@ -6,8 +6,8 @@ import { RegisterEntity, cleanEntities, Manager, Entity, PrimaryGeneratedColumn,
 describe("Module/ORM", () => {
 
     const username = 'root';
-    const password = 'qwerty';
-    const host = 'localhost';
+    const password = '';
+    const host = 'database';
     const db_name = 'test';
 
     const conStringPri = 'postgres://' + username + ':' + password + '@' + host + '/postgres';

@@ -168,8 +168,8 @@ describe("Module/Server", () => {
                 "redisPubSub": {
                     "Main": {
                         "port": 6379,
-                        "host": host,
-                        "password": "qwerty"
+                        "host": "redis",
+                        "password": ""
                     }
                 }
             }
