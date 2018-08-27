@@ -1,16 +1,15 @@
 import * as ORM from 'reiso/Modules/ORM';
 import * as GraphQL from 'reiso/Modules/Query';
 
-import { dateType } from "~/Global/QueryType";
-import { Email } from '~/Modules/Authentication/Entity/Email';
-import { UserAvatar } from '~/Modules/Authentication/Entity/UserAvatar';
-import { UserPrivate } from '~/Modules/Authentication/Entity/UserPrivate';
-import { Session } from '~/Modules/Authentication/Entity/Session';
-
-import { AdminRule } from '~/Modules/Authentication/Enum/AdminRule';
-import { Language, LanguageCode } from '~/Modules/Language/Enum/Language';
-import { languageType } from '~/Modules/Authentication/Query/Type/Language';
-import { ruleAdminType } from '~/Modules/Authentication/Query/Type/AdminRule';
+import { dateType } from "../../../Global/QueryType";
+import { Language, LanguageCode } from '../../Language/Enum/Language';
+import { Email } from '../Entity/Email';
+import { UserAvatar } from '../Entity/UserAvatar';
+import { UserPrivate } from '../Entity/UserPrivate';
+import { Session } from '../Entity/Session';
+import { UserRule } from '../Enum/UserRule';
+import { languageType } from '../Query/Type/Language';
+import { ruleUserType } from '../Query/Type/UserRule';
 
 @ORM.RegisterEntity('Authentication')
 @ORM.Entity('user')
@@ -72,9 +71,9 @@ export class User {
         nullable: false,
         comment: "Integers only",
     })
-    rules: AdminRule[] = [];
+    rules: UserRule[] = [];
 
-    @GraphQL.Field(type => ruleAdminType, { name: 'rules', array: true })
+    @GraphQL.Field(type => ruleUserType, { name: 'rules', array: true })
     public async _rules(context) {
         return this.rules && this.rules[0] ? this.rules : [];
     }

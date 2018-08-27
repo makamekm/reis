@@ -1,10 +1,9 @@
 import { GraphQLScalarType, Kind } from 'graphql';
-
-import * as Validator from '~/Global/Validator';
-import { InputError } from '~/Global/Error';
 import * as GraphQL from 'reiso/Modules/Query';
 
-import { Language, LanguageForEach, LanguageCode } from '~/Modules/Language/Enum/Language';
+import * as Validator from '../../../../Global/Validator';
+import { InputError } from '../../../../Global/Error';
+import { Language, LanguageForEach, LanguageCode } from '../../../Language/Enum/Language';
 
 export const languageType = new GraphQLScalarType({
   name: 'Language',

@@ -65,7 +65,7 @@ if (type == 'ts') {
                 let moduleName = matches[1];
                 let className = matches[2].replace(/[\//]+/gm, '_');
                 // content = content + 'require("' + data[name][k] + '");\r';
-                content = content + 'import * as _' + k + ' from "' + incDir + data[name][k] + '";\r';
+                content = content + 'import * as _' + k + ' from "' + incDir + data[name][k].replace(/\.[^/.]+$/, "") + '";\r';
                 content = content + 'export module ' + moduleName + ' { export const ' + className + ' = _' + k + '; }\r';
             }
         }

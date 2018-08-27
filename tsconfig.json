@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2018",
     "lib": [
       "esnext",
       "dom",
@@ -19,11 +19,10 @@
     "declaration": true,
     "baseUrl": "./src",
     "outDir": "./build",
+    "types": ["node", "jest"],
     "allowSyntheticDefaultImports": true,
-    "paths": {
-      "~/*": ["./*"]
-    },
-    "sourceMap": true,
+    "sourceMap": false,
+    "inlineSourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowJs": false

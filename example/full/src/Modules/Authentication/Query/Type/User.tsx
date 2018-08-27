@@ -1,18 +1,14 @@
 import { GraphQLScalarType, Kind } from 'graphql';
 import * as GraphQL from 'reiso/Modules/Query';
 
-import Code from '~/Export/Code';
-import { stringValidator } from '~/Global/Validator';
-import { InputError, ValidationError } from '~/Global/Error';
+import Code from '../../../../Export/Code';
+import { stringValidator } from '../../../../Global/Validator';
+import { InputError, ValidationError } from '../../../../Global/Error';
 
 export const usernameType = new GraphQLScalarType({
   name: 'Username',
-  serialize: value => {
-    return value;
-  },
-  parseValue: value => {
-    return value;
-  },
+  serialize: value => value,
+  parseValue: value => value,
   parseLiteral: ast => {
     if (ast.kind !== Kind.STRING) {
       throw new InputError(null, 'Username can only parse strings got a: ' + ast.kind, Code.UsernameInputWrong);
@@ -37,12 +33,8 @@ export const usernameType = new GraphQLScalarType({
 
 export const passwordType = new GraphQLScalarType({
   name: 'Password',
-  serialize: value => {
-    return value;
-  },
-  parseValue: value => {
-    return value;
-  },
+  serialize: value => value,
+  parseValue: value => value,
   parseLiteral: ast => {
     if (ast.kind !== Kind.STRING) {
       throw new InputError(null, 'Password can only parse strings got a: ' + ast.kind, Code.PasswordInputWrong);

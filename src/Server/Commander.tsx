@@ -2,31 +2,23 @@ import * as rl from 'readline';
 
 import * as Translation from '../Modules/Translation';
 
+export type Action = (args: string[], read: () => rl.ReadLine) => (Promise<void> | void)
+
 export type Command = {
-  description: string
-  action: (read: rl.ReadLine, callback: Function) => void
+  description?: string
+  action: Action
 }
 
 export class Commander {
 
-  private read: rl.ReadLine
-
-  private commands: { [name: string]: Command }
+  protected commands: { [name: string]: Command }
 
   constructor(commands: { [name: string]: Command }) {
     this.commands = commands;
 
-    this.commands.q = {
-      description: Translation.transDefault('Commander.q.Description') || "Exit from the tools",
-      action: (read, callback) => {
-        read.close();
-        process.exit();
-      }
-    };
-
     this.commands.help = {
       description: Translation.transDefault('Commander.help.Description') || "Show all awalable commands",
-      action: (read, callback) => {
+      action: args => {
         console.log(Translation.transDefault('Commander.help.Inline.Commands') || "Commands:");
         console.log('');
 
@@ -35,26 +27,19 @@ export class Commander {
           console.log(Translation.transDefault('Commander.help.Inline.Description' || "    Description: $0$", commands[name].description));
           console.log('');
         }
-
-        callback();
       }
     };
-
-    this.read = rl.createInterface({
-      input: process.stdin,
-      output: process.stdout
-    });
   }
 
-  public cycle() {
-    this.read.question(Translation.transDefault('Commander.EnterCommand') || "Enter the command: ", (answer) => {
-      for (var name in this.commands) {
-        if (name == answer) {
-          this.commands[name].action(this.read, this.cycle.bind(this));
-          return;
-        }
-      }
-      this.cycle();
-    });
+  public getAction(name: string): Action {
+    return this.commands[name] && this.commands[name].action;
+  }
+
+  public async run(name: string, args: string[], exit: boolean = true) {
+    await this.getAction(name)(args, () => rl.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    }));
+    if (exit) process.exit();
   }
 }

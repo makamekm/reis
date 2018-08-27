@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "target": "es2018",
+    "lib": [
+      "esnext",
+      "dom",
+      "esnext.asynciterable"
+    ],
+    "importHelpers": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "jsx": "react",
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "stripInternal": true,
+    "skipLibCheck": true,
+    "noLib": false,
+    "declaration": false,
+    "baseUrl": "./src",
+    "outDir": "./dev",
+    "allowSyntheticDefaultImports": true,
+    "paths": {
+      "reiso/*": ["../../../build/*"]
+    },
+    "inlineSourceMap": true,
+    "sourceMap": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowJs": false
+  },
+  "types": ["jasmine"],
+  "compileOnSave": false,
+  "suppressImplicitAnyIndexErrors": true,
+  "exclude": [
+    "node_modules",
+    "public",
+    "dist",
+    "dev"
+  ]
+}

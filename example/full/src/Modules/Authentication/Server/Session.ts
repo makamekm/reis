@@ -1,5 +1,7 @@
 import * as Arena from 'bull-arena';
 
+import { getConfig } from 'reiso/Modules/Config';
+import * as Log from 'reiso/Modules/Log';
 import * as Translation from 'reiso/Modules/Translation';
 import * as Handler from 'reiso/Modules/Handler';
 import { RegisterHookGraphQL, RegisterHookWSonConnect, RegisterHookWSonMessage, RegisterHookRender, RegisterHookWebHook } from 'reiso/Modules/ServerHook';
@@ -8,7 +10,7 @@ import { SessionStore } from '../Service/Session';
 import { User } from '../Entity/User';
 import { Session } from '../Entity/Session';
 import * as UserReducer from '../Reducer/User';
-import { AdminRule, HasAdminRule } from '../Enum/AdminRule';
+import { UserRule, HasUserRule } from '../Enum/UserRule';
 
 const arena = Arena({
   queues: Handler.getQueuesArena()
@@ -37,9 +39,15 @@ RegisterHookGraphQL(async (req, context) => {
     if (session) context.session = session;
   }
 
-  if (context.session && context.session.user) {
+  if (context.session && context.session.user && context.session.user.getLanguageCode()) {
     context.language = context.session.user.getLanguageCode();
     context.trans = (query: string, ...args): string => Translation.trans(context.language, query, ...args);
+
+    getConfig().apm && Log.getApm().setUserContext({
+      id: context.session.user.id,
+      username: context.session.user.username,
+      email: context.session.user.email
+    });
   }
 })
 
@@ -57,22 +65,16 @@ RegisterHookWSonMessage(async (message, params, webSocket) => {
     if (session) {
       params.context.session = session;
 
-      if (session.user) {
-        params.context.language = session.user.getLanguageCode();;
+      if (session.user && session.user.getLanguageCode()) {
+        params.context.language = session.user.getLanguageCode();
         params.context.trans = (query: string, ...args): string => Translation.trans(params.context.language, query, ...args);
       }
     }
   }
 })
 
-RegisterHookRender(async (req, res, next, _language, store) => {
+RegisterHookRender(async (req, res, next, context, store) => {
   let user: User;
-
-  let language = _language;
-
-  if (!language) {
-    language = Translation.getLanguage();
-  }
 
   if (getCookie(req.headers.cookie, 'session_id') && getCookie(req.headers.cookie, 'session_token')) {
     try {
@@ -81,13 +83,11 @@ RegisterHookRender(async (req, res, next, _language, store) => {
       if (session) {
         user = session.user;
       }
-    }
-    catch (e) {
-    }
+    } catch (e) {}
   }
 
-  if (!language && user) {
-    language = user.getLanguageCode();
+  if (!context.language && user && user.getLanguageCode()) {
+    context.language = user.getLanguageCode();
   }
 
   let authContext: {
@@ -105,7 +105,7 @@ RegisterHookRender(async (req, res, next, _language, store) => {
     authContext.session_token = req.headers.session_token;
   }
 
-  const AuthLink: any = (operation, forward) => {
+  const AuthLink = (operation, forward) => {
     const token = store.getState().authToken;
 
     operation.setContext(context => ({
@@ -113,7 +113,7 @@ RegisterHookRender(async (req, res, next, _language, store) => {
       headers: {
         ...context.headers,
         ...authContext,
-        language
+        language: context.language
       },
     }));
 
@@ -121,55 +121,60 @@ RegisterHookRender(async (req, res, next, _language, store) => {
   };
 
   if (user) {
-    (store.dispatch as any)(UserReducer.setUser({
+    store.dispatch(UserReducer.setUser({
       id: user.id,
       username: user.username,
       email: user.email && user.email.name,
       avatar: user.avatar && user.avatar.thumb,
       rules: user.rules
     }));
+
+    getConfig().apm && Log.getApm().setUserContext({
+      id: user.id,
+      username: user.username,
+      email: user.email
+    });
   }
 
   if (req.path.indexOf('/admin/worker') == 0) {
-    if (user && HasAdminRule(user.rules, [AdminRule.Administator])) {
+    if (user && HasUserRule(user.rules, [UserRule.Administator])) {
       arena(req, res, next);
       return;
     }
   }
 
   return {
-    language,
     linksBefore: [
-      AuthLink
+      AuthLink as any
     ],
     linksAfter: []
   }
 })
 
-RegisterHookWebHook(async (req, res, next, _language, context) => {
+RegisterHookWebHook(async (req, res, next, context) => {
   let session: Session;
 
-  let language = _language;
-
-  if (!language) {
-    language = Translation.getLanguage();
+  if (!context.language) {
+    context.language = Translation.getLanguage();
   }
 
   if (getCookie(req.headers.cookie, 'session_id') && getCookie(req.headers.cookie, 'session_token')) {
     try {
       session = await SessionStore.get(getCookie(req.headers.cookie, 'session_id'), getCookie(req.headers.cookie, 'session_token'));
-    }
-    catch (e) {
-    }
+    } catch (e) {}
   }
 
   context.session = session;
 
-  if (!language && session && session.user) {
-    language = session.user.getLanguageCode();
+  if (!context.language && session && session.user && session.user.getLanguageCode()) {
+    context.language = session.user.getLanguageCode();
   }
 
-  return {
-    language
+  if (session.user) {
+    getConfig().apm && Log.getApm().setUserContext({
+      id: session.user.id,
+      username: session.user.username,
+      email: session.user.email
+    });
   }
 })

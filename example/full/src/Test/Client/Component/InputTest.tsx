@@ -2,7 +2,7 @@ import * as React from 'react';
 import { configure, shallow, mount } from 'enzyme';
 import * as Adapter from 'enzyme-adapter-react-16';
 
-import { Input } from '~/Components/Input';
+import { Input } from '../../../Components/Input';
 
 describe("<Input/>", () => {
   configure({ adapter: new Adapter() });

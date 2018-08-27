@@ -1,48 +1,54 @@
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import { Provider } from 'mobx-react';
 import * as ReactDOMServer from 'react-dom/server';
 import { StaticRouter } from 'react-router';
 import * as ApolloReact from 'react-apollo';
 import * as ApolloClient from 'apollo-client';
-import * as ReactRedux from 'react-redux';
 import * as ApolloCache from 'apollo-cache-inmemory';
 import { Helmet } from "react-helmet";
 import { BatchHttpLink } from 'apollo-link-batch-http';
 import * as ApolloLink from "apollo-link";
 import { onError } from "apollo-link-error";
+import * as express from 'express';
 
 import { getConfig } from '../Modules/Config';
 import * as Translation from '../Modules/Translation';
 import * as Router from '../Modules/Router';
-import * as Reducer from '../Modules/Reducer';
-import { getHooksRender } from '../Modules/ServerHook';
+import * as Model from '../Modules/Model';
+import { getHooksRender, Hook } from '../Modules/ServerHook';
 import * as Log from '../Modules/Log';
+import { setLanguageContext } from './Lib/Translation';
 
-export const Render = async (req, res, next, _language?) => {
-  const store = Reducer.createStore();
-  let language = _language;
-
-  const hooksRes = [];
-
+export async function checkInteruptHook(req: express.Request, res: express.Response, next: express.NextFunction, stores: any, context, hooksRes: Hook[]): Promise<boolean> {
   for (let hook of getHooksRender()) {
-    let hookR = await hook(req, res, next, language, store);
+    let hookRes = await hook(req, res, next, context, stores);
 
-    if (!hookR) return;
+    if (!hookRes) return false;
 
-    if (!language && hookR.language) {
-      language = hookR.language
-    }
-
-    hooksRes.push(hookR);
+    hooksRes.push(hookRes);
   }
 
-  if (!language) {
-    language = Translation.getLanguage();
-  }
+  return true;
+}
 
+export function genLink(hooksRes: any[]): ApolloLink.ApolloLink {
   const linkNetwork = new BatchHttpLink({
     uri: `http://${getConfig().host}:${getConfig().globalPort}/graphql`,
   });
+
+  let links: ApolloLink.ApolloLink[] = [];
+
+  hooksRes.forEach(hook => {
+    if (hook.linksBefore) links = links.concat(hook.linksBefore);
+  });
+
+  links = links.concat(linkNetwork);
+
+  hooksRes.forEach(hook => {
+    if (hook.linksAfter) links = links.concat(hook.linksAfter);
+  });
+
+  // TODO: Error processing
 
   // const linkError = onError(({ graphQLErrors, networkError, operation }) => {
   //   if (graphQLErrors) {
@@ -72,22 +78,33 @@ export const Render = async (req, res, next, _language?) => {
   //   }
   // });
 
-  let links: ApolloLink.ApolloLink[] = [];
-
-  hooksRes.forEach(hook => {
-    links = links.concat(hook.linksBefore);
-  });
-
-  links = links.concat(linkNetwork);
-
-  hooksRes.forEach(hook => {
-    links = links.concat(hook.linksAfter);
-  });
-
   // const link = linkError.concat(ApolloLink.ApolloLink.from(links));
-  const link = ApolloLink.ApolloLink.from(links);
 
-  let cache = new ApolloCache.InMemoryCache();
+  let link = ApolloLink.ApolloLink.from(links);
+
+  hooksRes.forEach(hook => {
+    if (hook.linksWrap) link = hook.linksWrap.concat(link);
+  });
+
+  return link;
+}
+
+export async function Render(req: express.Request, res: express.Response, next: express.NextFunction, language?: string) {
+  const context = {
+    language: language || Translation.getLanguage()
+  };
+
+  const stores = Model.getStores();
+
+  const hooksRes: Hook[] = [];
+
+  if (!await checkInteruptHook(req, res, next, stores, context, hooksRes)) return;
+
+  setLanguageContext(context);
+
+  const link = genLink(hooksRes);
+
+  const cache = new ApolloCache.InMemoryCache();
 
   const gqlClient = new ApolloClient.ApolloClient({
     link,
@@ -109,33 +126,33 @@ export const Render = async (req, res, next, _language?) => {
     }
   });
 
-  let Html = Router.GetHtml();
+  const Html = Router.GetHtml();
 
-  let component = (
-    <ApolloReact.ApolloProvider client={gqlClient as any}>
-      <ReactRedux.Provider store={store}>
+  const component = (
+    <ApolloReact.ApolloProvider client={gqlClient}>
+      <Provider {...stores}>
         <StaticRouter location={req.url} context={{}}>
-          <Html client={gqlClient} store={store} language={language}>
-            {Router.GetRoutes(store, language)}
+          <Html client={gqlClient} language={context.language}>
+            {Router.GetRoutes(stores, context.language)}
           </Html>
         </StaticRouter>
-      </ReactRedux.Provider>
+      </Provider>
     </ApolloReact.ApolloProvider>
   );
 
+  // TODO: Fix server rendering with context (Fixed & need to test)
   let html: string;
 
   try {
-    // html = await ApolloReact.renderToStringWithData(component);
+    html = await ApolloReact.renderToStringWithData(component);
     // await ApolloReact.getDataFromTree(component);
   }
   catch (e) {
     Log.logError(e, { type: "server_render" });
-
-    // html = ReactDOMServer.renderToString(component);
+    html = ReactDOMServer.renderToString(component);
   }
 
-  html = ReactDOMServer.renderToString(component);
+  // html = ReactDOMServer.renderToString(component);
 
   const helmet = Helmet.renderStatic();
 
@@ -149,10 +166,11 @@ export const Render = async (req, res, next, _language?) => {
           ${helmet.meta.toString()}
           ${helmet.link.toString()}
           <script type="application/javascript">
-            window.__INITIAL_STATE__ = ${JSON.stringify(store.getState())};
+            window.__INITIAL_STATE__ = ${JSON.stringify(Model.serialize(stores))};
             window.__TRANSLATION__ = ${JSON.stringify(Translation.getTranslation())};
             window.__LANGUAGES__ = ${JSON.stringify(Translation.getLanguages())};
-            window.__LANGUAGE__ = "${language}";
+            window.__LANGUAGE__ = "${context.language}";
+            window.__CONTEXT__ = ${JSON.stringify(context)};
             window.__HOST__ = "${getConfig().host}";
             window.__WSADDRESS__ = ${getConfig().globalPortWS};
             window.__APOLLO_STATE__ = ${JSON.stringify(cache.extract())};

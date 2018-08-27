@@ -1,62 +1,19 @@
-import { Request as REQ, Response as RES, NextFunction } from 'express';
+import * as express from 'express';
 import * as basicAuth from 'basic-auth';
 
 import { getConfig } from '../Modules/Config';
 import * as Translation from '../Modules/Translation';
-import * as WebHooks from '../Modules/WebHook';
 import * as Log from '../Modules/Log';
-import { getHooksWebHook } from '../Modules/ServerHook';
+import { getHooksWebHook, WebHookInterface } from '../Modules/ServerHook';
+import { setLanguageContext } from './Lib/Translation';
 
-export interface WebHookInterface {
-  path: string
-  func: (params: { [name: string]: string }, body: any, context: object) => (Promise<object> | object)
-  auth?: (username: string, password: string, params: { [name: string]: string }, body: any, context: object) => Promise<boolean> | boolean
-  isAuth?: (params: { [name: string]: string }, body: any, context) => Promise<boolean> | boolean
-}
-
-export const webHooks: WebHookInterface[] = []
-
-export interface WebHookOption {
-  path: string
-  isAuth?: (params: { [name: string]: string }, body: any, context) => Promise<boolean> | boolean
-  auth?: (username: string, password: string, params: { [name: string]: string }, body: any, context: object) => Promise<boolean> | boolean
-}
-
-export function RegisterWebHook(opt: WebHookOption, func: (params: { [name: string]: string }, body: any, context: object) => (Promise<object> | object)) {
-  webHooks.push({
-    path: opt.path,
-    func: func,
-    auth: opt.auth,
-    isAuth: opt.isAuth
-  });
-}
-
-export const hook: any = async (webHook: WebHookInterface, req: REQ, res: RES, next: NextFunction, _language?: string) => {
-  let language = _language;
-
-  const hooksRes = [];
-
-  const context: any = { files: req.files };
-
+export async function checkHooks(req: express.Request, res: express.Response, next: express.NextFunction, context): Promise<void> {
   for (let hook of getHooksWebHook()) {
-    let hookR = await hook(req, res, next, language, context);
-
-    if (!hookR) return;
-
-    if (!language && hookR.language) {
-      language = hookR.language
-    }
-
-    hooksRes.push(hookR);
+    await hook(req, res, next, context)
   }
+}
 
-  if (!language) {
-    language = Translation.getLanguage();
-  }
-
-  context.language = language;
-  context.trans = (query: string, ...args): string => Translation.trans(context.language, query, ...args);
-
+export async function checkAuth(webHook: WebHookInterface, req: express.Request, res: express.Response, context): Promise<boolean> {
   let isAuth = true;
 
   if (webHook.isAuth) {
@@ -67,17 +24,41 @@ export const hook: any = async (webHook: WebHookInterface, req: REQ, res: RES, n
     let auth = basicAuth(req);
 
     if (!auth) {
-      res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
-      return res.send(401);
-    }
-    else {
+      throw Error('Ckeck auth request. "basic-auth" module does\'nt work');
+    } else {
       let result = await webHook.auth(auth.name, auth.pass, req.params, req.body, context);
       if (!result) {
-        res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
-        return res.send(401);
+        return false;
       }
     }
   }
+
+  return true;
+}
+
+export function prepareLanguage(context) {
+  if (!context.language) {
+    context.language = Translation.getLanguage();
+  }
+
+  context.trans = (query, ...args) => Translation.trans(context.language, query, ...args);
+}
+
+export async function hook(webHook: WebHookInterface, req: express.Request, res: express.Response, next: express.NextFunction, language?: string): Promise<void> {
+  const context = {
+    files: req.files,
+    language: language || Translation.getLanguage()
+  };
+
+  await checkHooks(req, res, next, context);
+
+  setLanguageContext(context);
+
+  if (!await checkAuth(webHook, req, res, context)) {
+    res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
+    res.send(401);
+    return;
+  };
 
   try {
     const body = await webHook.func(req.params, req.body, context);

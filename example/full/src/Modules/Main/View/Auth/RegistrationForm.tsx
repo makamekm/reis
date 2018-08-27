@@ -4,15 +4,15 @@ import * as PropTypes from 'prop-types';
 import * as Router from 'reiso/Modules/Router';
 import * as Reducer from 'reiso/Modules/Reducer';
 
-import * as UserReducer from '~/Modules/Authentication/Reducer/User';
-import { InputForm } from '~/Components/Form';
-import { Clickable } from '~/Components/Clickable';
-import { Button } from '~/Components/Button';
-import { Popup, PopupItem, PopupScroll, PopupInput, PopupLink, PopupHeader } from '~/Components/Popup';
-import { Img } from '~/Components/Img';
-import { Modal, Consumer as ModalConsumer, ConsumerType as ModalConsumerType } from '~/Components/Modal';
+import { InputForm } from '../../../../Components/Form';
+import { Clickable } from '../../../../Components/Clickable';
+import { Button } from '../../../../Components/Button';
+import { Popup, PopupItem, PopupScroll, PopupInput, PopupLink, PopupHeader } from '../../../../Components/Popup';
+import { Img } from '../../../../Components/Img';
+import { Modal, Consumer as ModalConsumer, ConsumerType as ModalConsumerType } from '../../../../Components/Modal';
+import * as UserReducer from '../../../Authentication/Reducer/User';
+import * as Header from '../../Reducer/Header';
 import { Consumer, ConsumerType } from '../Html';
-import * as Header from '~/Modules/Main/Reducer/Header';
 
 export class RegistrationForm extends React.Component<{
   children: (modal: ModalConsumerType) => any

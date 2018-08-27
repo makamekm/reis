@@ -3,7 +3,7 @@ import { configure, shallow } from 'enzyme';
 // import jasmineEnzyme from 'jasmine-enzyme';
 import * as Adapter from 'enzyme-adapter-react-16';
 
-import { Button } from '~/Components/Button';
+import { Button } from '../../../Components/Button';
 
 describe("<Button/>", () => {
   configure({ adapter: new Adapter() });

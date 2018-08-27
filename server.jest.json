@@ -1,0 +1,32 @@
+{
+    "transform": {
+        ".+\\.(ts?|tsx?)$": "ts-jest"
+    },
+    "testURL": "http://localhost",
+    "testRegex": "src\\/Test\\/Server\\/.+\\.(ts?|tsx?)$",
+    "automock": false,
+    "testEnvironment": "node",
+    "collectCoverage": true,
+    "coverageDirectory": "coverage/server",
+    "collectCoverageFrom": [
+        "**/*.{ts,tsx}",
+        "!**/*.d.{ts,tsx}",
+        "!**/example/**",
+        "!**/Client/**",
+        "!**/Client*",
+        "!**/Test/**",
+        "!**/node_modules/**"
+    ],
+    "moduleFileExtensions": [
+        "ts",
+        "tsx",
+        "js",
+        "jsx",
+        "json",
+        "node"
+    ],
+    "testPathIgnorePatterns": [
+        "/node_modules/",
+        "/example/"
+    ]
+}

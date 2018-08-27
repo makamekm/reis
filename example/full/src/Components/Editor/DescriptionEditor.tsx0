@@ -388,7 +388,7 @@ const User = (props) => {
   }
 
   return (
-    <span draggable={true} onDragStart={start} onDrop={drop} onDragEnd={drop} className="tag" style={{
+    <span draggable onDragStart={start} onDrop={drop} onDragEnd={drop} className="tag" style={{
       color: '#3b5998',
       textDecoration: 'underline',
     }} data-offset-key={props.offsetKey} spellCheck={false} contentEditable={false}>
@@ -819,7 +819,7 @@ export class DescriptionEditor extends React.Component<{
           <div className="row around-xs">
             <div className="col-1">
               <Popup ref="toolbar" type="select" position="bottom left" openOnFocus openOnClick closeOnEsc closeOnOutsideClick element={
-                <Button type="empty" size="xs" unactive={true} style={{
+                <Button type="empty" size="xs" unactive style={{
                   position: 'absolute',
                   top: (this.currentNode && this.currentNode.length) && (this.currentNode.position().top + this.currentNode.outerHeight() / 2 - this.toolbarNodeHeight / 2),
                   left: 10,
@@ -888,7 +888,7 @@ export class DescriptionEditor extends React.Component<{
                       <Clickable className="item" style={{textAlign: 'center'}}><span className="fa fa-link"/></Clickable>
                     }>
                       <ProveModal title="Link" type="empty" onProve={async () => this.confirmLink()}>
-                        <Popup type="error" position="top center" openOnFocus openOnOverMove closeOnOutsideClick closeOnBlur closeOnOutMove closeOnOutMovePop timeout={300} isHidden={true} element={
+                        <Popup type="error" position="top center" openOnFocus openOnOverMove closeOnOutsideClick closeOnBlur closeOnOutMove closeOnOutMovePop timeout={300} isHidden element={
                           <Input size="md" type="text" placeholder="Link" icon="link" error={false} linkValue={{
                             set: (value) => {
                               this.setState({ link: value });
@@ -906,7 +906,7 @@ export class DescriptionEditor extends React.Component<{
                       <Clickable className="item" style={{textAlign: 'center'}}><span className="fa fa-file"/></Clickable>
                     }>
                       <ProveModal title="Image / Twitter / Youtube" type="empty" onProve={async () => this.confirmMedia()}>
-                        <Popup type="error" position="top center" openOnFocus openOnOverMove closeOnOutsideClick closeOnBlur closeOnOutMove closeOnOutMovePop timeout={300} isHidden={true} element={
+                        <Popup type="error" position="top center" openOnFocus openOnOverMove closeOnOutsideClick closeOnBlur closeOnOutMove closeOnOutMovePop timeout={300} isHidden element={
                           <Input size="md" type="text" placeholder="Link" icon="link" error={false} linkValue={{
                             set: (value) => {
                               this.setState({ fileUrl: value });
@@ -929,7 +929,7 @@ export class DescriptionEditor extends React.Component<{
               </Popup>
             </div>
             <div className="col-11" onClick={e => this.focus(e)} onDrop={this.drop.bind(this)}>
-              <Editor blockRendererFn={blockRenderer} onFocus={e => this.focused = true} onBlur={e => this.focused = false} onTab={e => this.onTab(e)} onUpArrow={e => this.updateToolbar()} onDownArrow={e => this.updateToolbar()} ref="editor" blockStyleFn={this.blockStyle} placeholder={this.props.placeholder} editorState={this.state.editorState} onChange={editorState => this.onChange(editorState)} spellCheck={true}/>
+              <Editor blockRendererFn={blockRenderer} onFocus={e => this.focused = true} onBlur={e => this.focused = false} onTab={e => this.onTab(e)} onUpArrow={e => this.updateToolbar()} onDownArrow={e => this.updateToolbar()} ref="editor" blockStyleFn={this.blockStyle} placeholder={this.props.placeholder} editorState={this.state.editorState} onChange={editorState => this.onChange(editorState)} spellCheck/>
             </div>
           </div>
         </div>

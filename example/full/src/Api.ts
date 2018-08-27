@@ -1,4 +1,4 @@
-export * from '~/ApiType';
+export * from './ApiType';
 
-import * as _QL from  '~/Composer/Api';
+import * as _QL from  './Composer/Api';
 export const QL = _QL;

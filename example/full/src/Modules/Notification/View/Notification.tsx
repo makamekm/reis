@@ -4,8 +4,8 @@ import * as ApolloReact from 'react-apollo';
 import * as Routes from 'reiso/Modules/Router';
 import * as Reducer from 'reiso/Modules/Reducer';
 
-import * as Header from '~/Modules/Main/Reducer/Header';
-import * as NotificationComponent from '~/Components/Notification';
+import * as NotificationComponent from '../../../Components/Notification';
+import * as Header from '../../Main/Reducer/Header';
 
 export interface StateProps {
     notifications?: Header.NotificationModel[]

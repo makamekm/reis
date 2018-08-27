@@ -8,21 +8,21 @@ import * as ORM from 'reiso/Modules/ORM';
 import * as GraphQL from 'reiso/Modules/Query';
 import * as Translation from 'reiso/Modules/Translation';
 
-import Code from '~/Export/Code';
-import { uploadType } from "~/Global/QueryType";
-import { stringValidator, emailValidator } from '~/Global/Validator';
-import { DenyError, ValidationError, InputError } from '~/Global/Error';
-import { Session } from '~/Modules/Authentication/Entity/Session';
-import { User } from '~/Modules/Authentication/Entity/User';
-import { UserAvatar } from '~/Modules/Authentication/Entity/UserAvatar';
-import { Email } from '~/Modules/Authentication/Entity/Email';
-import { UserPrivate } from '~/Modules/Authentication/Entity/UserPrivate';
-import { AdminRule, HasAdminRule } from '~/Modules/Authentication/Enum/AdminRule';
-import { Language } from '~/Modules/Language/Enum/Language';
-import { emailType } from '~/Modules/Authentication/Query/Type/Email';
-import { usernameType, passwordType } from '~/Modules/Authentication/Query/Type/User';
-import { languageType } from '~/Modules/Authentication/Query/Type/Language';
-import { ruleAdminType } from '~/Modules/Authentication/Query/Type/AdminRule';
+import Code from '../../../Export/Code';
+import { uploadType } from "../../../Global/QueryType";
+import { stringValidator, emailValidator } from '../../../Global/Validator';
+import { DenyError, ValidationError, InputError } from '../../../Global/Error';
+import { Language } from '../../Language/Enum/Language';
+import { Session } from '../Entity/Session';
+import { User } from '../Entity/User';
+import { UserAvatar } from '../Entity/UserAvatar';
+import { Email } from '../Entity/Email';
+import { UserPrivate } from '../Entity/UserPrivate';
+import { UserRule, HasUserRule } from '../Enum/UserRule';
+import { emailType } from '../Query/Type/Email';
+import { usernameType, passwordType } from '../Query/Type/User';
+import { languageType } from '../Query/Type/Language';
+import { ruleUserType } from '../Query/Type/UserRule';
 
 @GraphQL.Input('UserEditDate')
 export class UserEditDate {
@@ -42,8 +42,8 @@ export class UserEditDate {
   @GraphQL.InputField(type => languageType, { nullable: true })
   language: Language;
 
-  @GraphQL.InputField(type => ruleAdminType, { array: true })
-  rules: AdminRule[];
+  @GraphQL.InputField(type => ruleUserType, { array: true })
+  rules: UserRule[];
 }
 
 @GraphQL.Input('UserEditMeDate')
@@ -81,11 +81,11 @@ export class UserEditMutation {
       throw new DenyError(null, context.trans('Error.NotLogged'));
     }
 
-    if (!HasAdminRule(context.session.user.rules, [AdminRule.Administator])) {
+    if (!HasUserRule(context.session.user.rules, [UserRule.Administator])) {
       throw new DenyError(null, context.trans('Error.HaventRule'));
     }
 
-    let connection = await ORM.Manager().Connect();
+    let connection = await ORM.Manager().connect();
     let userRepository = connection.getRepository(User);
 
     if (ids.find(id => id == context.session.user.id)) {
@@ -97,7 +97,7 @@ export class UserEditMutation {
 
       if (!user) throw new DenyError(null, "The user hasn't been found by id: " + id);
 
-      if (!HasAdminRule(context.session.user.rules, [AdminRule.Administator]) && HasAdminRule(user.rules, [AdminRule.Administator])) {
+      if (!HasUserRule(context.session.user.rules, [UserRule.Administator]) && HasUserRule(user.rules, [UserRule.Administator])) {
         throw new DenyError(null, "You cannot delete Administator");
       }
 
@@ -117,11 +117,11 @@ export class UserEditMutation {
       throw new DenyError(null, context.trans('Error.NotLogged'));
     }
 
-    if (!HasAdminRule(context.session.user.rules, [AdminRule.Administator])) {
-      throw new DenyError(null, context.trans('Error.HaventAdminRule'));
+    if (!HasUserRule(context.session.user.rules, [UserRule.Administator])) {
+      throw new DenyError(null, context.trans('Error.HaventUserRule'));
     }
 
-    let connection = await ORM.Manager().Connect();
+    let connection = await ORM.Manager().connect();
     let userRepository = connection.getRepository(User);
     let userPrivateRepository = connection.getRepository(UserPrivate);
     let emailRepository = connection.getRepository(Email);
@@ -182,7 +182,7 @@ export class UserEditMutation {
       });
     }
 
-    if (!HasAdminRule(context.session.user.rules, [AdminRule.Administator]) && HasAdminRule(data.rules, [AdminRule.Administator])) {
+    if (!HasUserRule(context.session.user.rules, [UserRule.Administator]) && HasUserRule(data.rules, [UserRule.Administator])) {
       errors.push({
         key: 'rules',
         message: 'You cannot set Administator rule'
@@ -293,12 +293,11 @@ export class UserEditMutation {
 
     if (!context.session) {
       throw new DenyError(null, context.trans('Error.NotLogged'));
-    }
-    else if (!HasAdminRule(context.session.user.rules, [AdminRule.Administator])) {
-      throw new DenyError(null, context.trans('Error.HaventAdminRule'));
+    } else if (!HasUserRule(context.session.user.rules, [UserRule.Administator])) {
+      throw new DenyError(null, context.trans('Error.HaventUserRule'));
     }
 
-    let connection = await ORM.Manager().Connect();
+    let connection = await ORM.Manager().connect();
     let userRepository = connection.getRepository(User);
     let userPrivateRepository = connection.getRepository(UserPrivate);
     let emailRepository = connection.getRepository(Email);
@@ -366,7 +365,7 @@ export class UserEditMutation {
       });
     }
 
-    if (!HasAdminRule(context.session.user.rules, [AdminRule.Administator]) && (HasAdminRule(data.rules, [AdminRule.Administator]) || HasAdminRule(user.rules, [AdminRule.Administator]))) {
+    if (!HasUserRule(context.session.user.rules, [UserRule.Administator]) && (HasUserRule(data.rules, [UserRule.Administator]) || HasUserRule(user.rules, [UserRule.Administator]))) {
       errors.push({
         key: 'rules',
         message: 'You cannot set rules for Administator'
@@ -464,8 +463,7 @@ export class UserEditMutation {
       user.email = email;
 
       await emailRepository.save(email);
-    }
-    else if (email && (data.email != email.name)) {
+    } else if (email && (data.email != email.name)) {
       if (data.email) {
         email.name = data.email;
         email.user = user;
@@ -477,8 +475,7 @@ export class UserEditMutation {
       }
 
       await emailRepository.save(email);
-    }
-    else if (email && data.email) {
+    } else if (email && data.email) {
       email.user = user;
       user.email = email;
 
@@ -506,7 +503,7 @@ export class UserEditMutation {
       throw new DenyError(null, context.trans('Error.NotLogged'));
     }
 
-    let connection = await ORM.Manager().Connect();
+    let connection = await ORM.Manager().connect();
     let userRepository = connection.getRepository(User);
     let userPrivateRepository = connection.getRepository(UserPrivate);
     let emailRepository = connection.getRepository(Email);
@@ -663,8 +660,7 @@ export class UserEditMutation {
       user.email = email;
 
       await emailRepository.save(email);
-    }
-    else if (email && (data.email != email.name)) {
+    } else if (email && (data.email != email.name)) {
       if (data.email) {
         email.name = data.email;
         email.user = user;
@@ -676,8 +672,7 @@ export class UserEditMutation {
       }
 
       await emailRepository.save(email);
-    }
-    else if (email && data.email) {
+    } else if (email && data.email) {
       email.user = user;
       user.email = email;
 

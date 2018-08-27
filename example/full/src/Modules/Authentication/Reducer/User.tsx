@@ -2,7 +2,7 @@ import * as Redux from 'redux';
 
 import * as Reducer from 'reiso/Modules/Reducer';
 
-import { AdminRule, HasAdminRule, AdminRuleStringify, AdminRuleForEach } from '~/Modules/Authentication/Enum/AdminRule';
+import { UserRule, HasUserRule, UserRuleStringify, UserRuleForEach } from '../Enum/UserRule';
 
 export interface ConnectUserStateInterface {
   user?: ConnectUserInterface
@@ -10,12 +10,12 @@ export interface ConnectUserStateInterface {
 
 export interface ConnectUserInterface {
   entity: UserInterface
-  hasRule: (rules: AdminRule[]) => boolean
+  hasRule: (rules: UserRule[]) => boolean
 }
 
 export const ConvertConnectUser = (state: StateModel) => ({
   entity: state.User.entity,
-  hasRule: (rules: AdminRule[]) => state.User.entity && HasAdminRule(state.User.entity.rules, rules),
+  hasRule: (rules: UserRule[]) => state.User.entity && HasUserRule(state.User.entity.rules, rules),
 })
 
 export const DecorateConnectUser = Reducer.Connect<ConnectUserStateInterface, any, StateModel>(state => ({
@@ -31,7 +31,7 @@ export interface UserInterface {
 }
 
 export interface Model {
-  entity: UserInterface,
+  entity: UserInterface
 }
 
 export interface StateModel {
@@ -40,7 +40,7 @@ export interface StateModel {
 
 const initialState: Model = {
   entity: null
-};
+}
 
 type Types = 'SET_USER' | 'DELETE_USER'
 
@@ -53,13 +53,13 @@ export function setUser(user: UserInterface): Action|Promise<Action> {
   return {
     type: 'SET_USER',
     user
-  };
+  }
 }
 
 export function deleteUser(id: number): Action|Promise<Action> {
   return {
     type: 'DELETE_USER'
-  };
+  }
 }
 
 Reducer.Reducer('User', (state: Model = initialState, action: Action): Model => {
@@ -74,9 +74,9 @@ Reducer.Reducer('User', (state: Model = initialState, action: Action): Model => 
       return {
         ...state,
         entity: null
-      };
+      }
 
     default:
-      return state;
+      return state
   }
 })

@@ -3,8 +3,7 @@ import * as PropTypes from 'prop-types';
 
 import * as Router from 'reiso/Modules/Router';
 
-import { Application } from '~/Modules/Main/View/Application';
-
+import { Application } from './Application';
 import { Consumer } from './Html';
 
 export const NotFound = Router.Route(null, render => <Application><NotFound/></Application>, 999)(() => {

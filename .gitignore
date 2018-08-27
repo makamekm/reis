@@ -63,3 +63,5 @@ uploads/
 package-lock.json
 data/
 coverage/
+test/*
+.fusebox

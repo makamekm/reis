@@ -1,8 +1,5 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import * as ApolloReact from 'react-apollo';
-import { Helmet as _Helmet } from "react-helmet";
-const Helmet: any = _Helmet;
+import { Helmet } from "react-helmet";
 import * as StackTraceParser from 'stacktrace-parser';
 import { Context } from 'create-react-context';
 import * as createContext from 'create-react-context';
@@ -11,10 +8,10 @@ import * as Translation from 'reiso/Modules/Translation';
 import * as Router from 'reiso/Modules/Router';
 import * as Reducer from 'reiso/Modules/Reducer';
 
-import { LanguageForEach, LanguageCode } from '~/Modules/Language/Enum/Language';
-import * as ModalComponent from '~/Components/Modal';
-import * as UserReducer from '~/Modules/Authentication/Reducer/User';
-import { Notification } from '~/Modules/Notification/View/Notification';
+import * as ModalComponent from '../../../Components/Modal';
+import { LanguageForEach, LanguageCode } from '../../Language/Enum/Language';
+import * as UserReducer from '../../Authentication/Reducer/User';
+import { Notification } from '../../Notification/View/Notification';
 
 import * as Header from '../Reducer/Header';
 
@@ -321,10 +318,10 @@ export class Html extends React.Component<StateProps & DispatchProps & {
 
   render() {
     return <Provider value={this.getContext()}>
-      <div style={{flex: '1 1 auto'}} key="routers">
+      <div style={{flex: '1 1 auto'}}>
         {this.props.children}
       </div>
-      <div className="block block-2" style={{flex: '0 1 auto'}} key="footer">
+      <div className="block block-2" style={{flex: '0 1 auto'}}>
         <div className="row align-items-center" style={{maxWidth: '100%', width: '100%'}}>
           <div className="col-12 col-md-3 text center mt-4">
             <div className="text big sub">Cypto Board</div>
@@ -373,7 +370,7 @@ export class Html extends React.Component<StateProps & DispatchProps & {
           Copyright 2017 by Karpov
         </div>
       </div>
-      <Helmet key="helmet">
+      <Helmet>
         <title>{this.props.title}</title>
         {/* <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet"/> */}
         <link href="/index.css" rel="stylesheet" media="screen"/>
@@ -383,7 +380,7 @@ export class Html extends React.Component<StateProps & DispatchProps & {
         <link rel="shortcut" href="/images/icon.ico" type="image/x-icon"/>
         <body/>
       </Helmet>
-      <Notification ref="notificationService" key="notifications"/>
+      <Notification ref="notificationService"/>
     </Provider>
   }
 }

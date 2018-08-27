@@ -21,7 +21,7 @@ fs.writeFileSync(path.resolve(__dirname, 'build', 'composer.js'), strComposer);
 let strReadme = fs.readFileSync(path.resolve(__dirname, 'README.md'));
 fs.writeFileSync(path.resolve(__dirname, 'build', 'README.md'), strReadme);
 
-let args = process.argv.slice(2)
+let args = process.argv.slice(2);
 
 let username = args[0] || process.env.NPM_USERNAME;
 let password = args[1] || process.env.NPM_PASSWORD;

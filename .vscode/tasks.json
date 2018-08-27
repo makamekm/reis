@@ -1,0 +1,14 @@
+{
+    "version": "0.1.0",
+    "command": "npm",
+    "isShellCommand": true,
+    "cwd": "${workspaceFolder}",
+    "args": ["run", "build"],
+    "showOutput": "always",
+    "tasks": [
+        { 
+            "taskName": "build",
+            "suppressTaskName": true
+        }
+    ]
+}

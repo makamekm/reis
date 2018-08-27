@@ -4,14 +4,13 @@ import * as PropTypes from 'prop-types';
 import * as Router from 'reiso/Modules/Router';
 import * as Reducer from 'reiso/Modules/Reducer';
 
-import * as UserReducer from '~/Modules/Authentication/Reducer/User';
-import { InputForm } from '~/Components/Form';
-import { Button } from '~/Components/Button';
-import { Modal, Consumer as ModalConsumer, ConsumerType as ModalConsumerType } from '~/Components/Modal';
+import Id from '../../../../Export/Id';
+import { InputForm } from '../../../../Components/Form';
+import { Button } from '../../../../Components/Button';
+import { Modal, Consumer as ModalConsumer, ConsumerType as ModalConsumerType } from '../../../../Components/Modal';
+import * as UserReducer from '../../../Authentication/Reducer/User';
 import { Consumer, ConsumerType } from '../Html';
-import * as Header from '~/Modules/Main/Reducer/Header';
-
-import Id from '~/Export/Id';
+import * as Header from '../../Reducer/Header';
 
 export class LoginForm extends React.Component<{
   children: (modal: ModalConsumerType) => any

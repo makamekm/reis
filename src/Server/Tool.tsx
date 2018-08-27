@@ -1,18 +1,28 @@
 import * as rl from 'readline';
-import { Command } from './Commander';
+import { Command, Action } from './Commander';
 
 export let commands: {
   [name: string]: Command
 } = {}
 
-export interface Toolption {
-  name?: string
-  description: string
+export function getCommands(): {
+  [name: string]: Command
+} {
+  return commands
 }
 
-export function RegisterTool(opt: Toolption, func: (read: rl.ReadLine, callback: Function) => void) {
-  commands[opt.name] = {
+export interface ToolOption {
+  name: string
+  description?: string
+}
+
+export function RegisterCommand(opt: ToolOption, func: Action) {
+   commands[opt.name] = {
     description: opt.description,
     action: func
   }
+}
+
+export function clearModel() {
+  commands = {};
 }

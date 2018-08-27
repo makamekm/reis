@@ -1,19 +1,58 @@
 pipeline:
+
+  restore-cache:
+    image: drillster/drone-volume-cache
+    restore: true
+    mount:
+      - ./node_modules
+    volumes:
+      - /tmp/cache:/cache
+
   init:
     image: node:9.3.0
     commands:
-      - npm i
+      - yarn
+
+  rebuild-cache:
+    image: drillster/drone-volume-cache
+    rebuild: true
+    mount:
+      - ./node_modules
+    volumes:
+      - /tmp/cache:/cache
 
   build:
     image: node:9.3.0
     commands:
       - rm -rf build
-      - npm run build
+      - yarn build
+
+  test:
+    image: node:9.3.0
+    commands:
+      - rm -rf build
+      - yarn test
 
   publish:
     image: node:9.3.0
     secrets: [ NPM_USERNAME, NPM_PASSWORD, NPM_EMAIL ]
     commands:
+      - rm -rf build
+      - yarn build
       - node publish.js
     when:
-      branch: [master]
+      branch: [ master ]
+      event: [ push ]
+
+branches: [ master, development ]
+
+services:
+  database:
+    image: postgres
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_DB=test
+
+  redis:
+    image: redis
+

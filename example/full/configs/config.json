@@ -11,7 +11,7 @@
     "translation": "./translation.json",
     "defaultLanguage": "en",
     "languages": ["en", "ru"],
-    "logConsole": false,
+    "logConsole": null,
     "logLogstash": {
       "host": "elk",
       "port": 5801,
@@ -19,7 +19,8 @@
       "tries": 2,
       "interval": 100,
       "beat": "reiso_ex_full",
-      "type": "reiso_ex_full"
+      "type": "reiso_ex_full",
+      "level": "info"
     },
     "db": {
       "Main": {
@@ -41,7 +42,7 @@
         "password": "qwerty"
       }
     },
-    "redisJob": {
+    "redisHandler": {
       "Main": {
         "port": 6379,
         "host": "redis",

@@ -4,12 +4,12 @@ import * as ORM from 'reiso/Modules/ORM';
 import * as GraphQL from 'reiso/Modules/Query';
 import * as Translation from 'reiso/Modules/Translation';
 
-import { dateType, orderEnum } from '~/Global/QueryType';
-import { DenyError } from '~/Global/Error';
-import { Session } from '~/Modules/Authentication/Entity/Session';
-import { User } from '~/Modules/Authentication/Entity/User';
-import { AdminRule, HasAdminRule } from '~/Modules/Authentication/Enum/AdminRule';
-import { Language } from '~/Modules/Language/Enum/Language';
+import { dateType, orderEnum } from '../../../Global/QueryType';
+import { DenyError } from '../../../Global/Error';
+import { Language } from '../../Language/Enum/Language';
+import { Session } from '../Entity/Session';
+import { User } from '../Entity/User';
+import { UserRule, HasUserRule } from '../Enum/UserRule';
 
 // export const pubsub: Subscriptions.PubSub = new Subscriptions.PubSub();
 
@@ -20,7 +20,7 @@ export class UserFilter {
   username?: string;
 
   @GraphQL.InputField('integer', { nullable: true, array: true })
-  rules?: AdminRule[];
+  rules?: UserRule[];
 
   @GraphQL.InputField('integer', { nullable: true, array: true })
   language?: Language[];
@@ -45,7 +45,7 @@ export class UserListResult {
   count: number;
 }
 
-let UserOrderEnum = new GraphQLEnumType({
+const UserOrderEnum = new GraphQLEnumType({
   name: 'UserOrderEnum',
   values: {
     username: { value: 'username' },
@@ -59,10 +59,10 @@ let UserOrderEnum = new GraphQLEnumType({
 export class UserOrder {
 
   @GraphQL.InputField(type => UserOrderEnum)
-  name: string;
+  name: string
 
   @GraphQL.InputField(type => orderEnum)
-  type: 'DESC'|'ASC';
+  type: 'DESC'|'ASC'
 }
 
 @GraphQL.Query({ name: 'user' })
@@ -82,11 +82,11 @@ export class UserQuery {
       throw new DenyError(null, context.trans('Error.NotLogged'));
     }
 
-    if (!(HasAdminRule(context.session.user.rules, [AdminRule.Administator]))) {
+    if (!(HasUserRule(context.session.user.rules, [UserRule.Administator]))) {
       throw new DenyError(null, context.trans('Error.HaventRule'));
     }
 
-    let connection = await ORM.Manager().Connect();
+    let connection = await ORM.Manager().connect();
     let userRepository = connection.getRepository(User);
 
     let query = userRepository
@@ -140,7 +140,7 @@ export class UserQuery {
       throw new DenyError(null, context.trans('Error.NotLogged'));
     }
 
-    let connection = await ORM.Manager().Connect();
+    let connection = await ORM.Manager().connect();
     let userRepository = connection.getRepository(User);
 
     let q = userRepository

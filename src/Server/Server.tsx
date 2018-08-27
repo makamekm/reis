@@ -4,7 +4,6 @@ import * as http from 'http';
 import * as cookieParser from 'cookie-parser';
 import * as helmet from 'helmet';
 import * as graphqlHTTP from 'apollo-server-express';
-
 import * as graphql from 'graphql';
 import * as subscriptionServer from 'subscriptions-transport-ws';
 import * as multer from 'multer';
@@ -19,64 +18,71 @@ import * as Translation from '../Modules/Translation';
 import * as Query from '../Modules/Query';
 import * as Log from '../Modules/Log';
 import * as WebHook from '../Modules/WebHook';
-import { getHooksGraphQL, getHooksWSonConnect, getHooksWSonMessage, getHooksWSonDisconnect } from '../Modules/ServerHook';
+import * as Hooks from '../Modules/ServerHook';
 import { Render } from '../Server/Render';
-
-export function parseAndLogError(error, type = 'graphql') {
-  let original = error.originalError || error;
-
-  Log.logError(original, { type, errorType: original.constructor.name });
-
-  let serialazed = {
-    status: original.status,
-    type: error.type ? error.type : (original.constructor.name),
-    state: original.state,
-    message: error.message,
-    title: original.title,
-    code: original.code,
-    path: original.path,
-    errors: error.graphQLErrors ? error.graphQLErrors.map(e => parseAndLogError(e, type)) : []
-  };
-
-  if (process.env.NODE_ENV == 'development') {
-    serialazed['locations'] = error.locations;
-    serialazed['trace'] = error.trace ? error.trace : error.stack;
-  }
-
-  return serialazed;
-}
+import { parseAndLogError } from './Lib/Error';
+import { processUrl } from './Lib/Url';
+import { setLanguageContext } from './Lib/Translation';
 
 export class Server {
-  public app: express.Express;
-  public server: http.Server;
-  private api: express.Express;
-  private webpackHotMiddleware: any;
-  private subscriptionManager: Query.SubscriptionManager
+  protected app: express.Express
+  protected server: http.Server
+  protected websocketServer: http.Server
+  protected subscriptionManager: Query.SubscriptionManager
+  protected subscriptionsServer: subscriptionServer.SubscriptionServer
 
   public async start() {
-    this.config();
-    this.setFileUpload();
-    this.setGraphQL();
-    this.setWebHook();
-    this.setRender();
-    this.setSubscription();
-    this.run();
+    await this.init();
+    await this.setBasic();
+    await this.setHelmet();
+    await this.setStatic();
+    await this.setLogger();
+    await this.setFileUpload();
+    await this.setGraphQL();
+    await this.setWebHook();
+    await this.setRender();
+    await this.setSubscription();
+    await this.setLogError();
+    await this.run();
   }
 
-  public config() {
+  public async stop() {
+    await Promise.all([
+      new Promise(r => this.websocketServer.close(r)),
+      new Promise(r => this.server.close(r))
+    ]);
+  }
+
+  protected init() {
     this.app = express();
+  }
+
+  protected setBasic() {
     getConfig().port && this.app.set('port', getConfig().port);
     this.app.use(cookieParser());
+    this.app.use((req, res, next) => {
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+      next();
+    });
+    this.app.use(bodyParser.urlencoded({ extended: true }));
+    this.app.use(bodyParser.json());
+    this.app.use(compression());
+  }
+
+  protected setHelmet() {
     if (getConfig().proxyProtection) this.app.set('trust proxy', 1);
     this.app.use(helmet());
-    this.app.use(compression());
     this.app.disable('x-powered-by');
-    this.app.use(bodyParser.json());
     if (getConfig().ddos) {
-      this.app.use(new ddos(getConfig().ddos).express);
+      this.app.use((new ddos(getConfig().ddos)).express);
     }
+  }
+
+  protected setStatic() {
     this.app.get('*.js', (req, res, next) => {
-      if (fs.existsSync(path.resolve(getConfig().publicDir, req.url.replace(/^((http|https):\/\/[\w\.:]+\/)|^(\/)/, '')) + '.gz')) {
+      getConfig().apm && Log.getApm().setTransactionName('GET ' + processUrl(req.url), 'static');
+      if (fs.existsSync(path.resolve(getConfig().publicDir, processUrl(req.url)) + '.gz')) {
         req.url = req.url + '.gz';
         res.set('Content-Type', 'text/javascript');
         res.set('Content-Encoding', 'gzip');
@@ -84,38 +90,62 @@ export class Server {
       next();
     });
     this.app.get('*.css', (req, res, next) => {
-      if (fs.existsSync(path.resolve(getConfig().publicDir, req.url.replace(/^((http|https):\/\/[\w\.:]+\/)|^(\/)/, '')) + '.gz')) {
+      getConfig().apm && Log.getApm().setTransactionName('GET ' + processUrl(req.url), 'static');
+      if (fs.existsSync(path.resolve(getConfig().publicDir, processUrl(req.url)) + '.gz')) {
         req.url = req.url + '.gz';
         res.set('Content-Type', 'text/css');
         res.set('Content-Encoding', 'gzip');
       }
       next();
     });
-    this.app.use(this.logErrors);
     this.app.use(express.static(getConfig().publicDir));
     this.app.use('/uploads', express.static(getConfig().uploadDir));
   }
 
-  public setSubscription() {
+  protected setLogger() {
+    this.app.all('/*', (req, res, next) => {
+      Log.logInfo({
+        message: 'request',
+        method: req.method,
+        path: req.path,
+        url: req.url,
+        hostname: req.hostname,
+        headers: req.headers,
+        ip: req.ip,
+        body: req.body
+      })
+      next();
+    });
+  }
+
+  protected setSubscription() {
     this.subscriptionManager = new Query.SubscriptionManager();
     this.subscriptionManager.init();
   }
 
-  private logErrors(error, req, res, next) {
-    if (error.status) res.status(error.status);
-    else res.status(501);
-    res.json(parseAndLogError(error, 'server'));
+  protected setLogError() {
+    this.app.use((error, req, res, next) => {
+      if (error.status) res.status(error.status);
+      else res.status(501);
+      res.json(parseAndLogError(error, 'server', req, res));
+    });
   }
 
-  public setRender() {
+  protected setRender() {
     Translation.getLanguages().forEach(language => {
-      this.app.get('/' + language + '/*', (req, res, next) => Render(req, res, next, language));
+      this.app.get('/' + language + '/*', (req, res, next) => {
+        getConfig().apm && Log.getApm().setTransactionName('GET ' + processUrl(req.baseUrl), 'render');
+        return Render(req, res, next, language);
+      });
     });
 
-    this.app.get('/*', (req, res, next) => Render(req, res, next));
+    this.app.get('/*', (req, res, next) => {
+      getConfig().apm && Log.getApm().setTransactionName('GET ' + processUrl(req.baseUrl), 'render');
+      return Render(req, res, next);
+    });
   }
 
-  public setFileUpload() {
+  protected setFileUpload() {
     let storage;
     if (getConfig().tempUploadDir) {
       storage = multer.diskStorage({
@@ -139,7 +169,9 @@ export class Server {
     }).any();
 
     this.app.post('/*', (req, res, next) => {
-      upload(req, res, (err) => {
+      getConfig().apm && Log.getApm().setTransactionName('POST ' + processUrl(req.baseUrl), 'upload');
+      upload(req, res, err => {
+        var a = req;
         if (err) {
           (res as any).error = err.message;
         }
@@ -148,143 +180,139 @@ export class Server {
     });
   }
 
-  public setWebHook() {
-    WebHook.webHooks.forEach(webHook => {
-      this.app.post('/wh/' + webHook.path, (req, res, next) => WebHook.hook(webHook, req, res, next));
+  protected setWebHook() {
+    Hooks.getWebHooks().forEach(webHook => {
+      this.app.post('/wh/' + webHook.path, (req, res, next) => {
+        getConfig().apm && Log.getApm().setTransactionName('POST ' + processUrl(req.baseUrl), 'webhook');
+        WebHook.hook(webHook, req, res, next)
+      });
     })
   }
 
-  public setGraphQL() {
+  protected initGraphQL() {
+    Query.getSchema();
+    Query.getSubscriptionSchema();
+  }
+
+  protected async setGraphQL() {
+    this.initGraphQL();
+
     this.app.use('/graphql', bodyParser.json(), async (req, res, next) => {
-      let context: any = { files: req.files };
+      getConfig().apm && Log.getApm().setTransactionName(req.method + ' ' + processUrl(req.baseUrl), 'graphql');
+
+      let context: any = {
+        files: req.files,
+        language: Translation.getLanguage(),
+        quotaLimit: getConfig().quotaLimit || 0,
+        quota: 0
+      };
 
       if (req.body.operations) {
         req.body = JSON.parse(req.body.operations);
       }
 
-      context.language = Translation.getLanguage();
-      context.trans = (query: string, ...args): string => Translation.trans(context.language, query, ...args);
-
-      for (let hook of getHooksGraphQL()) {
+      for (let hook of Hooks.getHooksGraphQL()) {
         await hook(req, context);
       }
 
+      setLanguageContext(context);
+
       if (req.headers.language) {
         context.language = req.headers.language;
-        context.trans = (query: string, ...args): string => Translation.trans(context.language, query, ...args);
+        context.trans = (query, ...args) => Translation.trans(context.language, query, ...args);
       }
 
       graphqlHTTP.graphqlExpress({
         schema: Query.getSchema(),
         context,
-        formatError: error => parseAndLogError(error, 'graphql'),
+        formatError: error => parseAndLogError(error, 'graphql', req, res),
         debug: false,
       })(req, res, next);
     });
-    this.app.get('/graphiql', graphqlHTTP.graphiqlExpress({ endpointURL: '/graphql' }));
 
-    const websocketServer = http.createServer(this.app);
+    getConfig().graphiql && this.app.get('/graphiql', graphqlHTTP.graphiqlExpress({ endpointURL: '/graphql' }));
 
-    let WS_PORT = getConfig().portWS;
+    this.websocketServer = http.createServer(this.app);
 
-    if (getConfig().seaportHost && getConfig().seaportPort) {
-      var ports = (seaport as any).connect(getConfig().seaportHost, getConfig().seaportPort);
-      websocketServer.listen(ports.register("ServerWS"), () => {
-        Log.logInfo(`Websocket Server is connected to seaport as "ServerWS" on ${getConfig().seaportHost}:${getConfig().seaportPort}`);
-
-        const subscriptionsServer = new subscriptionServer.SubscriptionServer({
-            schema: Query.getSchema(),
-            execute: graphql.execute as any,
-            subscribe: graphql.subscribe,
-            onConnect: async (connectionParams, webSocket, connectionContext) => {
-              for (let hook of getHooksWSonConnect()) {
-                await hook(connectionParams, webSocket, connectionContext);
-              }
-
-              if (connectionParams.language) connectionContext.socket.upgradeReq.headers.language = connectionParams.language;
-            },
-            onOperation: async (message, params, webSocket) => {
-              if (!params.context) params.context = {};
-
-              params.context.language = Translation.getLanguage();
-
-              for (let hook of getHooksWSonMessage()) {
-                await hook(message, params, webSocket);
-              }
-
-              if (webSocket.upgradeReq.headers.language) params.context.language = webSocket.upgradeReq.headers.language;
-
-              params.context.trans = (query: string, ...args): string => Translation.trans(params.context.language, query, ...args);
-
-              return params;
-            },
-            onDisconnect: async (webSocket) => {
-              for (let hook of getHooksWSonDisconnect()) {
-                await hook(webSocket);
-              }
-            }
-          },
-          {
-            server: websocketServer,
-          }
-        );
-      });
-    } else {
-      websocketServer.listen(WS_PORT, () => {
-        Log.logInfo(`Websocket Server is now running on http://localhost:${WS_PORT}`);
-
-        const subscriptionsServer = new subscriptionServer.SubscriptionServer({
-            schema: Query.getSchema(),
-            execute: graphql.execute as any,
-            subscribe: graphql.subscribe,
-            onConnect: async (connectionParams, webSocket, connectionContext) => {
-              for (let hook of getHooksWSonConnect()) {
-                await hook(connectionParams, webSocket, connectionContext);
-              }
-
-              if (connectionParams.language) connectionContext.socket.upgradeReq.headers.language = connectionParams.language;
-            },
-            onOperation: async (message, params, webSocket) => {
-              if (!params.context) params.context = {};
-
-              params.context.language = Translation.getLanguage();
-
-              for (let hook of getHooksWSonMessage()) {
-                await hook(message, params, webSocket);
-              }
-
-              if (webSocket.upgradeReq.headers.language) params.context.language = webSocket.upgradeReq.headers.language;
-
-              params.context.trans = (query: string, ...args): string => Translation.trans(params.context.language, query, ...args);
-
-              return params;
-            },
-            onDisconnect: async (webSocket) => {
-              for (let hook of getHooksWSonDisconnect()) {
-                await hook(webSocket);
-              }
-            },
-          },
-          {
-            server: websocketServer,
-          }
-        );
-      });
-    }
+    await new Promise(r => {
+      if (getConfig().seaportHost && getConfig().seaportPort) {
+        var ports = seaport.connect(getConfig().seaportHost, getConfig().seaportPort);
+        this.websocketServer.listen(ports.register(getConfig().seaportWSName || "ServerWS"), () => {
+          Log.logInfo(`Websocket Server is connected to seaport as "${getConfig().seaportWSName || "ServerWS"}" on ${getConfig().seaportHost}:${getConfig().seaportPort}`);
+          this.subscriptionsServer = this.makeSubscriptionServer(this.websocketServer);
+          r();
+        });
+      } else {
+        this.websocketServer.listen(getConfig().portWS, () => {
+          Log.logInfo(`Websocket Server is listening on port ${getConfig().portWS}`);
+          this.subscriptionsServer = this.makeSubscriptionServer(this.websocketServer);
+          r();
+        });
+      }
+    });
   }
 
-  public run() {
+  makeSubscriptionServer(websocketServer: http.Server): subscriptionServer.SubscriptionServer {
+    return new subscriptionServer.SubscriptionServer({
+      schema: Query.getSubscriptionSchema(),
+      execute: graphql.execute as any,
+      subscribe: graphql.subscribe,
+      onConnect: async (connectionParams, webSocket, connectionContext) => {
+        for (let hook of Hooks.getHooksWSonConnect()) {
+          await hook(connectionParams, webSocket, connectionContext);
+        }
+
+        if (connectionParams.language) connectionContext.socket.upgradeReq.headers.language = connectionParams.language;
+      },
+      onOperation: async (message, params, webSocket) => {
+        if (!params.context) params.context = {};
+
+        params.context.language = Translation.getLanguage();
+
+        for (let hook of Hooks.getHooksWSonMessage()) {
+          await hook(message, params, webSocket);
+        }
+
+        if (webSocket.upgradeReq.headers.language) params.context.language = webSocket.upgradeReq.headers.language;
+        setLanguageContext(params.context);
+
+        return params;
+      },
+      onDisconnect: async (webSocket) => {
+        for (let hook of Hooks.getHooksWSonDisconnect()) {
+          await hook(webSocket);
+        }
+      }
+    },
+      {
+        server: websocketServer
+      }
+    );
+  }
+
+  protected async run() {
     this.server = http.createServer(this.app);
 
-    if (getConfig().seaportHost && getConfig().seaportPort) {
-      Log.logInfo(`Express server connected to seaport as "Server" on ${getConfig().seaportHost}:${getConfig().seaportPort}`);
-      var ports = (seaport as any).connect(getConfig().seaportHost, getConfig().seaportPort);
-      this.server.listen(ports.register("Server"));
-    } else {
-      this.server.listen(this.app.get('port'), () => {
-        Log.logInfo('Express server listening on port ' + this.app.get('port'));
-        if (process.env.NODE_ENV == 'development') fetch('http://localhost:3001/__browser_sync__?method=reload&args=index.js');
-      });
-    }
+    await new Promise(r => {
+      if (getConfig().seaportHost && getConfig().seaportPort) {
+        Log.logInfo(`Server is connected to seaport as "${getConfig().seaportName || "Server"}" on ${getConfig().seaportHost}:${getConfig().seaportPort}`);
+        var ports = seaport.connect(getConfig().seaportHost, getConfig().seaportPort);
+        this.server.listen(ports.register(getConfig().seaportName || "Server"));
+        for (let hook of Hooks.getHooksAfterServerStart()) {
+          hook();
+        }
+        r();
+      } else {
+        this.server.listen(this.app.get('port'), () => {
+          Log.logInfo('Server is listening on port ' + this.app.get('port'));
+          for (let hook of Hooks.getHooksAfterServerStart()) {
+            hook();
+          }
+          r();
+          // TODO: Make an example in hooks
+          // if (process.env.NODE_ENV == 'development') fetch('http://localhost:3001/__browser_sync__?method=reload&args=index.js');
+        });
+      }
+    });
   }
 }

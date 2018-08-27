@@ -12,20 +12,19 @@ import * as Log from 'reiso/Modules/Log';
 
 import { SessionStore } from '../Service/Session';
 
-import Code from '~/Export/Code';
-import { uploadType } from '~/Global/QueryType';
-import { stringValidator, emailValidator } from '~/Global/Validator';
-import { ValidationError, InputError, DenyError } from '~/Global/Error';
-import { Session } from '~/Modules/Authentication/Entity/Session';
-import { User } from '~/Modules/Authentication/Entity/User';
-import { UserAvatar } from '~/Modules/Authentication/Entity/UserAvatar';
-import { Email } from '~/Modules/Authentication/Entity/Email';
-import { UserPrivate } from '~/Modules/Authentication/Entity/UserPrivate';
-import { AdminRule } from '~/Modules/Authentication/Enum/AdminRule';
-import { CodeLanguage } from '~/Modules/Language/Enum/Language';
-
-import { emailType } from '~/Modules/Authentication/Query/Type/Email';
-import { usernameType, passwordType } from '~/Modules/Authentication/Query/Type/User';
+import Code from '../../../Export/Code';
+import { uploadType } from '../../../Global/QueryType';
+import { stringValidator, emailValidator } from '../../../Global/Validator';
+import { ValidationError, InputError, DenyError } from '../../../Global/Error';
+import { CodeLanguage } from '../../Language/Enum/Language';
+import { Session } from '../Entity/Session';
+import { User } from '../Entity/User';
+import { UserAvatar } from '../Entity/UserAvatar';
+import { Email } from '../Entity/Email';
+import { UserPrivate } from '../Entity/UserPrivate';
+import { UserRule } from '../Enum/UserRule';
+import { emailType } from '../Query/Type/Email';
+import { usernameType, passwordType } from '../Query/Type/User';
 
 // export const pubsub: Subscriptions.PubSub = new Subscriptions.PubSub();
 
@@ -109,7 +108,7 @@ export class Auth {
     @GraphQL.Arg(type => emailType, 'email', { nullable: true }) email: string,
     @GraphQL.Arg(type => passwordType, 'password') password: string,
     context: { session: Session, language: string }
-    ) {
+  ) {
 
     let errors = stringValidator(login, {
       min: 3,
@@ -153,7 +152,7 @@ export class Auth {
       throw new ValidationError(null, null, Code.LoginDataWrong, errors);
     }
 
-    let connection = await ORM.Manager().Connect();
+    let connection = await ORM.Manager().connect();
     let userRepository = connection.getRepository(User);
 
     let q = userRepository
@@ -184,9 +183,9 @@ export class Auth {
   public async registration(
     @GraphQL.Arg(type => AuthRegistration, 'data') data: AuthRegistration,
     context: { session: Session, language: string, files: any[] }
-    ) {
+  ) {
 
-    let connection = await ORM.Manager().Connect();
+    let connection = await ORM.Manager().connect();
     let userRepository = connection.getRepository(User);
     let userPrivateRepository = connection.getRepository(UserPrivate);
     let emailRepository = connection.getRepository(Email);
@@ -252,7 +251,7 @@ export class Auth {
     let verifyed = false;
 
     if (userCount == 0) {
-      rules.push(AdminRule.Administator);
+      rules.push(UserRule.Administator);
     }
 
     let user = userRepository.create({
@@ -281,7 +280,7 @@ export class Auth {
         if (this.avatarType.indexOf(file.mimetype) < 0) throw new InputError(null, 'The file has wrong format: ' + file.mimetype, Code.FileInputWrong);
 
         let fileBase = Math.random().toString(36) + '-' + Date.now();
-        let fileName = fileBase + path.extname(file.originalname)
+        let fileName = fileBase + path.extname(file.originalname);
         let fileUrl = url + fileName;
         let filePath = path.resolve(dir, fileName);
 

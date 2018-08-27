@@ -1,7 +1,7 @@
 import * as ORM from 'reiso/Modules/ORM';
 import * as GraphQL from 'reiso/Modules/Query';
 
-import { User } from '~/Modules/Authentication/Entity/User';
+import { User } from '../Entity/User';
 
 @ORM.RegisterEntity('Authentication')
 @ORM.Entity('session')

@@ -3,7 +3,7 @@ import * as PropTypes from 'prop-types';
 
 import * as Router from 'reiso/Modules/Router';
 
-import { Application } from '~/Modules/Main/View/Application';
+import { Application } from './Application';
 
 export const HelloWorld = Router.Route('/', render => <Application><HelloWorld/></Application>)(
 () => {
