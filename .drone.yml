@@ -41,6 +41,8 @@ pipeline:
     when:
       branch: [ master ]
 
+branches: [ master, development ]
+
 services:
   database:
     image: postgres
