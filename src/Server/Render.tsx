@@ -15,7 +15,6 @@ import { getConfig } from '../Modules/Config';
 import * as Translation from '../Modules/Translation';
 import * as Router from '../Modules/Router';
 import * as Model from '../Modules/Model';
-import * as Reducer from '../Modules/Reducer';
 import { getHooksRender, Hook } from '../Modules/ServerHook';
 import * as Log from '../Modules/Log';
 import { setLanguageContext } from './Lib/Translation';
