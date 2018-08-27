@@ -1,7 +1,23 @@
 import { setConfig } from '../../Modules/Config';
-import { CronManager, RegisterWorker, RegisterWorkerEvent } from '../../Modules/Worker';
+import { CronManager, RegisterWorker, RegisterWorkerEvent, clearModel } from '../../Modules/Worker';
 
 describe("Module/Worker", () => {
+
+    beforeEach(() => {
+        clearModel();
+        
+        setConfig({
+            default: {
+                "redisWorker": {
+                    "Main": {
+                        "port": 6379,
+                        "host": "redis",
+                        "password": ""
+                    }
+                }
+            }
+        });
+    })
 
     it("job", async () => {
         let prevNotBinded: boolean = false;
@@ -14,18 +30,6 @@ describe("Module/Worker", () => {
             counter++;
             await new Promise(r => setTimeout(r, 2000));
             return true;
-        });
-
-        setConfig({
-            default: {
-                "redisWorker": {
-                    "Main": {
-                        "port": 6379,
-                        "host": "redis",
-                        "password": ""
-                    }
-                }
-            }
         });
 
         const commander = new CronManager();
@@ -60,18 +64,6 @@ describe("Module/Worker", () => {
         RegisterWorker({ name: 'test', cronTime: "* * * * * * *" }, async prev => {
             counter++;
             return true;
-        });
-
-        setConfig({
-            default: {
-                "redisWorker": {
-                    "Main": {
-                        "port": 6379,
-                        "host": "127.0.0.1",
-                        "password": "qwerty"
-                    }
-                }
-            }
         });
 
         const commander = new CronManager();

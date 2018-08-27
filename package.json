@@ -18,6 +18,7 @@
     "watch": "node_modules/.bin/nodemon --watch './src' node_modules/.bin/tsc",
     "publish": "publish",
     "test": "node --inspect node_modules/.bin/jest --config server.jest.json",
+    "test_spec": "node --inspect node_modules/.bin/jest --config special.jest.json",
     "test_client": "node_modules/.bin/jest --config client.jest.json"
   },
   "author": {
