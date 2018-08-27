@@ -40,6 +40,7 @@ pipeline:
       - node publish.js
     when:
       branch: [ master ]
+      event: [ push ]
 
 branches: [ master, development ]
 
