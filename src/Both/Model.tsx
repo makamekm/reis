@@ -1,9 +1,8 @@
 export type Jsonable = {
-  [name: string]: string | number | boolean | Jsonable
+  [name: string]: string | number | boolean | Jsonable | string[] | number[] | boolean[] | Jsonable[]
 }
 
 export interface IModel {
-  // constructor(initialState?: Jsonable)
   toJson(): Jsonable
 }
 

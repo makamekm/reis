@@ -5,7 +5,7 @@ export type Hook = {
   linksAfter?: ApolloLink.ApolloLink[]
   linksWrap?: ApolloLink.ApolloLink
 }
-export type Func = (store, context: {
+export type Func = (stores, context: {
   language: string
 } & any) => {
   linksBefore?: ApolloLink.ApolloLink[]

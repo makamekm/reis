@@ -39,7 +39,7 @@ export default {
     "cores": null,
     // Log to console with level: [debug, info, warn, error] [console object]
     "logConsole": {
-      "lelel": "info"
+      "level": "info"
     },
     // Log to Logstash by json with level: [debug, info, warn, error] [logstash object]
     "logLogstash": null,
