@@ -1,1 +1,0 @@
-import * as _0 from "../Modules/Authentication/Both/Session";export module Authentication { export const Session = _0; }
