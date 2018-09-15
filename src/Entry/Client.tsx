@@ -28,11 +28,11 @@ import { getHooks } from '../Modules/ClientHook';
 
 import { genLink } from '../Client/Link';
 
-export function run(callback?: () => void) {
+export async function run(callback?: () => void) {
   const context = {
     language: Translation.getLanguage()
   };
-  const stores = Model.getStores(initialStates);
+  const stores = await Model.getStores(initialStates);
   const hooksRes = getHooks().map(hook => hook(stores, context));
   const link = genLink(hooksRes, context);
   const cache = new ApolloCache.InMemoryCache((window as any).__APOLLO_STATE__);

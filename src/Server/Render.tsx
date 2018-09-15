@@ -94,7 +94,7 @@ export async function Render(req: express.Request, res: express.Response, next: 
     language: language || Translation.getLanguage()
   };
 
-  const stores = Model.getStores();
+  const stores = await Model.getStores();
 
   const hooksRes: Hook[] = [];
 
