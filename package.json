@@ -1,5 +1,5 @@
 {
-  "name": "reiso-src",
+  "name": "reiso",
   "version": "0.3.0",
   "description": "reiso",
   "private": true,
@@ -15,7 +15,8 @@
   ],
   "scripts": {
     "build": "tsc",
-    "watch": "node_modules/.bin/nodemon --watch './src' node_modules/.bin/tsc",
+    "dev": "tsc -w",
+    "watch": "node_modules/.bin/nodemon --watch './' node_modules/.bin/tsc",
     "publish": "publish",
     "test": "node --inspect node_modules/.bin/jest --config server.jest.json",
     "test_spec": "node --inspect node_modules/.bin/jest --config special.jest.json",

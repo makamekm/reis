@@ -15,9 +15,6 @@ delete data.scripts;
 let strData = JSON.stringify(data, null, 2);
 fs.writeFileSync(path.resolve(__dirname, 'build', 'package.json'), strData);
 
-let strComposer = fs.readFileSync(path.resolve(__dirname, 'composer.js'));
-fs.writeFileSync(path.resolve(__dirname, 'build', 'composer.js'), strComposer);
-
 let strReadme = fs.readFileSync(path.resolve(__dirname, 'README.md'));
 fs.writeFileSync(path.resolve(__dirname, 'build', 'README.md'), strReadme);
 

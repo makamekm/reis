@@ -17,7 +17,7 @@
     "skipLibCheck": true,
     "noLib": false,
     "declaration": true,
-    "baseUrl": "./src",
+    "baseUrl": "./",
     "outDir": "./build",
     "types": ["node", "jest"],
     "allowSyntheticDefaultImports": true,

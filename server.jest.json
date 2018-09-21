@@ -3,7 +3,7 @@
         ".+\\.(ts?|tsx?)$": "ts-jest"
     },
     "testURL": "http://localhost",
-    "testRegex": "src\\/Test\\/Server\\/.+\\.(ts?|tsx?)$",
+    "testRegex": "Test\\/Server\\/.+\\.(ts?|tsx?)$",
     "automock": false,
     "testEnvironment": "node",
     "collectCoverage": true,

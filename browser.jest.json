@@ -4,7 +4,7 @@
     },
     "testURL": "http://127.0.0.1",
     "browser": true,
-    "testRegex": "src\\/Test\\/.+\\.(ts?|tsx?)$",
+    "testRegex": "Test\\/.+\\.(ts?|tsx?)$",
     "moduleFileExtensions": [
         "ts",
         "tsx",
